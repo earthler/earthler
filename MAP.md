@@ -17,6 +17,7 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | Folder | What is in it |
 | --- | --- |
 | [`cmd/earthler`](cmd/earthler) | The program a community runs. It opens the journal and the indexes, starts the scribe and mounts the screens |
+| [`cmd/journal-proof`](cmd/journal-proof) | A tool that checks the journal against a real power cut, with two machines |
 | [`core/journal`](core/journal) | The append-only record, with sealed entries and recovery after a power cut |
 | [`core/index`](core/index) | The SQLite files derived from the journal, and how they are rebuilt |
 | [`core/event`](core/event) | What goes inside an entry, and the catalog of event types |

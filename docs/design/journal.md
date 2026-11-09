@@ -77,7 +77,7 @@ When a segment file is created, the folder is confirmed too, so the new file nam
 
 ## What is not proven yet
 
-- **A real power cut.** Killing a program is not the same as cutting the power, because the operating system still writes what the program handed over. Disks also write out of order. The proof is to pull the plug on a real machine with a cheap disk, many times, while it writes.
+- **A real power cut.** Killing a program is not the same as cutting the power, because the operating system still writes what the program handed over. Disks also write out of order. The proof is to pull the plug on a real machine with a cheap disk, many times, while it writes. The tool for it is [`cmd/journal-proof`](../../cmd/journal-proof).
 - **How strict to be after a power cut.** Today, only an unfinished final line is cut, and any other problem stops the journal. If real disks leave other shapes behind in the part that was never confirmed, this rule will need to change, based on what the power cut proof shows.
 - **A failed confirmation followed by a restart.** After a failed confirmation the operating system may still hold in memory data that never reached the disk. Reading the file again would then look fine. The safe answer may be to restart the machine, not only the program.
 
