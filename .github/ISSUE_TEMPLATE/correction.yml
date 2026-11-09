@@ -1,0 +1,24 @@
+name: Correction
+description: An error, unclear passage or wrong information in something published here.
+labels: [documentation]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Where it is
+      description: File name or link.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Source
+      description: If it is a fact, where it comes from.
+    validations:
+      required: false

@@ -1,0 +1,27 @@
+name: Proposal
+description: An idea or experience that could improve the project.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: The project is at the design stage and makes no promise of a response time.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem this solves
+      description: For whom, and in what situation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+    validations:
+      required: true
+  - type: textarea
+    id: experience
+    attributes:
+      label: Where this experience comes from
+      description: A community you know, a similar project, a source.
+    validations:
+      required: false

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/earthler/earthler/security/advisories/new
+    about: Never in a public issue. Use private reporting.
+  - name: Project news
+    url: https://earthler.org
+    about: Follow Earthler on the website.

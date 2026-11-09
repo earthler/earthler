@@ -1,0 +1,34 @@
+name: DCO
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  signoff:
+    name: Check Signed-off-by
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Find commits without a sign-off
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          unsigned=$(gh api --paginate "repos/$REPO/pulls/$PR/commits" --jq '
+            .[]
+            | select((.parents | length) < 2)
+            | select(.commit.message | split("\n") | any(startswith("Signed-off-by: ") and contains("<") and contains("@")) | not)
+            | .sha
+          ')
+          if [ -n "$unsigned" ]; then
+            echo "Commits without Signed-off-by:"
+            echo "$unsigned"
+            echo "See the Signing your commits section in CONTRIBUTING.md."
+            exit 1
+          fi
+          echo "All commits are signed."

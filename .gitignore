@@ -1,0 +1,16 @@
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+
+# Local tool configuration
+.claude/settings.local.json
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
