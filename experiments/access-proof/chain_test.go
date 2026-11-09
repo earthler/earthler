@@ -70,8 +70,8 @@ func wantReason(t *testing.T, err error, want x509.InvalidReason) {
 
 func TestServerCertificateIsAccepted(t *testing.T) {
 	c := newTestChain(t)
-	cert := issueFor(t, c, []string{"demo.internal", "wiki.demo.internal"}, "192.168.0.173", "10.1.2.3")
-	for _, name := range []string{"demo.internal", "wiki.demo.internal", "192.168.0.173", "10.1.2.3"} {
+	cert := issueFor(t, c, []string{"demo.internal", "wiki.demo.internal"}, "192.168.1.50", "10.1.2.3")
+	for _, name := range []string{"demo.internal", "wiki.demo.internal", "192.168.1.50", "10.1.2.3"} {
 		if err := verify(c, cert.Leaf, name); err != nil {
 			t.Errorf("%s: %v", name, err)
 		}

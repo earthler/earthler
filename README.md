@@ -32,7 +32,11 @@ The full text is in the [manifesto](MANIFESTO.md).
 
 ## What is here
 
-The code published so far is in [`experiments/`](experiments): small, disposable programs that test the riskiest parts of the design on real devices before the system is built on top of them. They are not the system and must not be used to run a community. The first one is the [access proof](experiments/access-proof).
+The first pieces of the system: the journal that everything is derived from, the indexes rebuilt from it, and a first screen where residents write in an open channel and find it through search. It runs over plain HTTP, has no passphrase and protects nothing personal yet, so it must not be used to run a community.
+
+[`MAP.md`](MAP.md) says where everything is, and [`docs/design`](docs/design) says why each part is the way it is.
+
+[`experiments/`](experiments) holds small, disposable programs that test the riskiest parts of the design on real devices before the system is built on top of them. The first one is the [access proof](experiments/access-proof).
 
 ## Truly open
 

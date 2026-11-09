@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="{{.Lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · {{.Community}}</title>
+<link rel="stylesheet" href="/static/base.css">
+</head>
+<body>
+<header class="top">
+  <a class="community" href="/">{{.Community}}</a>
+  {{if .User}}
+  <form class="search" action="/search" method="get" role="search">
+    <input type="search" name="q" value="{{.Query}}" placeholder="{{t "search.placeholder"}}" aria-label="{{t "search.placeholder"}}">
+  </form>
+  {{end}}
+</header>
+<main>
+{{template "content" .}}
+</main>
+{{if .User}}
+<nav class="tabs">
+  <a href="/chat" {{if eq .Active "chat"}}aria-current="page"{{end}}>{{t "nav.chat"}}</a>
+  <span class="who">{{.User}}</span>
+</nav>
+{{end}}
+</body>
+</html>

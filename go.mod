@@ -2,7 +2,10 @@ module github.com/earthler/earthler
 
 go 1.27.3
 
-require modernc.org/sqlite v1.62.0
+require (
+	github.com/blevesearch/snowballstem v0.9.0
+	modernc.org/sqlite v1.62.0
+)
 
 require (
 	github.com/dustin/go-humanize v1.1.0 // indirect

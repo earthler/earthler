@@ -1,6 +1,6 @@
 # Contributing
 
-Earthler is in early development, and the code published so far is a set of experiments. For now, the most useful contribution is to point out errors or unclear passages in what is already written and to share the experience of people who live in or organize communities. English is the working language of this repository, and all participation follows the [code of conduct](CODE_OF_CONDUCT.md).
+Earthler is in early development. For now, the most useful contribution is to point out errors or unclear passages in what is already written and to share the experience of people who live in or organize communities. English is the working language of this repository, and all participation follows the [code of conduct](CODE_OF_CONDUCT.md).
 
 The project makes no promise of individual support or of a response time. Every proposal is read as a contribution, and what enters the repository is decided as described in [GOVERNANCE.md](GOVERNANCE.md).
 

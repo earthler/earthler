@@ -9,8 +9,9 @@ Thumbs.db
 # Local tool configuration
 .claude/settings.local.json
 
-# Data created by the experiments
+# Data created by the experiments and by a local run of the server
 access-proof-data/
+earthler-data/
 
 # Secrets
 .env

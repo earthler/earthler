@@ -1,6 +1,6 @@
 # Security
 
-Earthler has no version to install yet, so no version receives security fixes for now. The code in `experiments/` is test code and must not be used to run a community. This file will be updated when the first version exists.
+Earthler has no version to install yet, so no version receives security fixes for now. The code is in early development and must not be used to run a community. This file will be updated when the first version exists.
 
 ## How to report
 

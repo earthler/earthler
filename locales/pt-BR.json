@@ -1,0 +1,31 @@
+{
+  "time.short": "02/01 15:04",
+
+  "nav.chat": "Conversa",
+
+  "signup.title": "Criar conta",
+  "signup.intro": "Escolha o nome pelo qual as pessoas da comunidade conhecem você.",
+  "signup.name": "Seu nome",
+  "signup.submit": "Entrar na comunidade",
+  "signup.error.empty": "Escreva um nome para continuar.",
+  "signup.error.long": "O nome pode ter até 40 letras.",
+  "signup.error.taken": "Já existe alguém com esse nome. Escolha outro.",
+
+  "chat.title": "Conversa",
+  "chat.general": "Geral",
+  "chat.empty": "Ninguém escreveu ainda.",
+  "chat.message": "Mensagem",
+  "chat.send": "Enviar",
+  "chat.error.empty": "Escreva uma mensagem antes de enviar.",
+  "chat.error.long": "A mensagem pode ter até 4.000 letras.",
+
+  "search.title": "Busca",
+  "search.placeholder": "Buscar na comunidade",
+  "search.hint": "Escreva no campo acima o que você procura.",
+  "search.empty": "Nada encontrado para essa busca.",
+  "search.origin.chat": "Conversa",
+
+  "error.stopped": "O sistema está em somente leitura e não aceita nada novo agora. Avise quem cuida da máquina.",
+  "error.origin": "Este pedido veio de outro lugar e foi recusado.",
+  "error.internal": "Algo deu errado deste lado. Tente de novo."
+}
