@@ -9,7 +9,7 @@
   Those Who Steward Their World.
 </p>
 
-> **At the design stage.** No code published and no version to install yet. This repository is where the code will live once it exists.
+> **In early development.** There is no version to install yet.
 
 An Earthler is someone who takes care of their own world and takes responsibility for it, anywhere: in an ecovillage, on a rural property or in the middle of a city.
 
@@ -29,6 +29,10 @@ Technology serves life. Life belongs with nature. A society can be highly techno
 You don't have to live off-grid to be an Earthler. You have to think beyond the grid.
 
 The full text is in the [manifesto](MANIFESTO.md).
+
+## What is here
+
+The code published so far is in [`experiments/`](experiments): small, disposable programs that test the riskiest parts of the design on real devices before the system is built on top of them. They are not the system and must not be used to run a community. The first one is the [access proof](experiments/access-proof).
 
 ## Truly open
 

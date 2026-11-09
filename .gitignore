@@ -9,6 +9,9 @@ Thumbs.db
 # Local tool configuration
 .claude/settings.local.json
 
+# Data created by the experiments
+access-proof-data/
+
 # Secrets
 .env
 .env.*

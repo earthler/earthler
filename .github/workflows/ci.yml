@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GOTOOLCHAIN: auto
+      GOFLAGS: -mod=readonly
+    steps:
+      - name: Fetch the code
+        env:
+          REPO: ${{ github.repository }}
+          REF: ${{ github.ref }}
+        run: |
+          git init -q .
+          git fetch -q --depth 1 "https://github.com/$REPO.git" "$REF"
+          git checkout -q FETCH_HEAD
+      - name: Show the Go version
+        run: go version
+      - name: Check formatting
+        run: test -z "$(go fmt ./...)"
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test ./...

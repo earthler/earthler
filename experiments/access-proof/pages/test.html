@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Earthler access proof</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <p class="tag">Experiment</p>
+  {{if .Secure}}
+  <h1>Secure site</h1>
+  <p>This page arrived over HTTPS with the community certificate, at <strong>{{.Host}}</strong>. The list below shows what the browser allows here.</p>
+  {{else}}
+  <h1>Control page, without HTTPS</h1>
+  <p>This is the same page, delivered without HTTPS. It shows what the browser refuses on an insecure connection.</p>
+  {{end}}
+
+  <section class="card">
+    <h2>What this browser allows</h2>
+    <table id="checks"></table>
+    <button class="button secondary" id="media" type="button">Test camera and microphone</button>
+  </section>
+
+  <section class="card">
+    <h2>Record this result</h2>
+    <label for="scenario">Situation</label>
+    <select id="scenario">
+      <option value="internet-on">The network has internet</option>
+      <option value="internet-cut-data-off">Internet cut, mobile data off</option>
+      <option value="internet-cut-data-on">Internet cut, mobile data on</option>
+    </select>
+    <label for="notes">Notes, optional</label>
+    <input id="notes" type="text" maxlength="300" autocomplete="off">
+    <button class="button" id="save" type="button">Save result</button>
+    <p id="status" role="status"></p>
+  </section>
+
+  {{if .Secure}}
+  <section class="card">
+    <h2>Forged certificate test</h2>
+    <p>Each link opens this same server under a name the community certificate may not cover. The server answers with a certificate for that name, signed by the community issuer. A device that enforces the limits refuses it, so <strong>the right outcome is a browser error</strong>.</p>
+    <ul class="links">
+      {{range .Forged}}
+      <li><a href="{{.URL}}">{{.Name}}</a><span>{{.Note}}</span></li>
+      {{end}}
+    </ul>
+  </section>
+  <p class="small"><a href="{{.ControlURL}}">Open the control page, without HTTPS</a></p>
+  {{else}}
+  <p class="small"><a href="{{.SecureURL}}">Open the secure site</a></p>
+  {{end}}
+</main>
+<script src="/static/test.js"></script>
+</body>
+</html>
