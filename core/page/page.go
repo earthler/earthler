@@ -31,6 +31,8 @@ type Data struct {
 	User   string // name of the person, or empty when nobody is signed in
 	Query  string // what is in the search field
 	Body   any    // whatever the screen's own template needs
+	Script string // address of the screen's own script, for the few that need one
+	Images string // another origin that images may be loaded from, or empty
 
 	// Filled by the renderer.
 	Lang      string
@@ -66,7 +68,11 @@ func (r *Renderer) Render(w http.ResponseWriter, status int, screen *template.Te
 	data.Lang, data.Community = r.lang, r.community
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")
-	w.Header().Set("Content-Security-Policy", "default-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'")
+	policy := "default-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'"
+	if data.Images != "" {
+		policy += "; img-src 'self' " + data.Images
+	}
+	w.Header().Set("Content-Security-Policy", policy)
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(status)
 	if err := screen.ExecuteTemplate(w, "layout.html", data); err != nil {

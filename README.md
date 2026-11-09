@@ -32,7 +32,7 @@ The full text is in the [manifesto](MANIFESTO.md).
 
 ## What is here
 
-The first pieces of the system: the journal that everything is derived from, the indexes rebuilt from it, and a first screen where residents write in an open channel and find it through search. It runs over plain HTTP, has no passphrase and protects nothing personal yet, so it must not be used to run a community.
+The first pieces of the system: the journal that everything is derived from, the indexes rebuilt from it, a first screen where residents write in an open channel and find it through search, and HTTPS with a certificate the community creates for itself. It has no passphrase and protects nothing personal yet, so it must not be used to run a community.
 
 [`MAP.md`](MAP.md) says where everything is, and [`docs/design`](docs/design) says why each part is the way it is.
 

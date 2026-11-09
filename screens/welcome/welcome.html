@@ -1,0 +1,41 @@
+{{define "content"}}
+{{with .Body}}
+<h1>{{t "welcome.title"}}</h1>
+<p>{{t "welcome.intro"}}</p>
+<p>{{t "welcome.why"}}</p>
+
+<section class="card">
+  <h2>{{t "welcome.print.title"}}</h2>
+  <p>{{t "welcome.print.text"}}</p>
+  <p class="print">{{.Print}}</p>
+  <details>
+    <summary>{{t "welcome.print.full"}}</summary>
+    <p class="mono">{{.FullPrint}}</p>
+  </details>
+</section>
+
+<section class="card">
+  <h2>{{t "welcome.install.title"}}</h2>
+  <p>{{t "welcome.install.scope"}} <strong>{{.Domain}}</strong></p>
+  <a class="button" href="/certificate.crt">{{t "welcome.install.download"}}</a>
+  <details {{if eq .Device "iphone"}}open{{end}}>
+    <summary>{{t "welcome.iphone.title"}}</summary>
+    <ol><li>{{t "welcome.iphone.1"}}</li><li>{{t "welcome.iphone.2"}}</li><li>{{t "welcome.iphone.3"}}</li></ol>
+  </details>
+  <details {{if eq .Device "android"}}open{{end}}>
+    <summary>{{t "welcome.android.title"}}</summary>
+    <ol><li>{{t "welcome.android.1"}}</li><li>{{t "welcome.android.2"}}</li><li>{{t "welcome.android.3"}}</li></ol>
+  </details>
+  <details {{if eq .Device "other"}}open{{end}}>
+    <summary>{{t "welcome.computer.title"}}</summary>
+    <ol><li>{{t "welcome.computer.1"}}</li><li>{{t "welcome.computer.2"}}</li></ol>
+  </details>
+</section>
+
+<section class="card" id="trust" data-secure-url="{{.SecureURL}}" data-trusted="{{t "welcome.open.trusted"}}">
+  <h2>{{t "welcome.open.title"}}</h2>
+  <p id="trust-text" role="status">{{t "welcome.open.waiting"}}</p>
+  <a class="button quiet" id="trust-link" href="{{.SecureURL}}">{{t "welcome.open.button"}}</a>
+</section>
+{{end}}
+{{end}}

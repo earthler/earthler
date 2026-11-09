@@ -21,7 +21,7 @@ type site struct {
 
 func startSite(t *testing.T, dir string) *site {
 	t.Helper()
-	a, err := open(config{dataDir: dir, community: "Vila Teste", lang: "pt-BR"})
+	a, err := open(config{dataDir: dir, community: "Vila Teste", short: "vila", lang: "pt-BR", httpsPort: 443})
 	if err != nil {
 		t.Fatal(err)
 	}

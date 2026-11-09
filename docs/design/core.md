@@ -54,13 +54,27 @@ The full text search of SQLite only knows how to reduce English words to their r
 
 Whatever a person types is turned into quoted terms, so nothing reaches the index as an operator.
 
+## Access
+
+Browsers only allow camera, microphone and offline use on HTTPS pages, and a public certificate has to be renewed over the internet every few months. So each community has its own certificate authority, created when the community is born:
+
+- A root certificate that devices install once, valid for thirty years.
+- An issuer, signed by the root, that signs the server's certificates.
+
+Both are limited to the community's own name, such as `vila.internal`, and to private network addresses, and the issuer cannot create another issuer. The root key signs the issuer and is thrown away at once: it is never written to disk. Whoever steals the machine gets the issuer key, which can only sign for that community's name and for local addresses.
+
+The server answers on two ports. Port 80 serves only the welcome page and the certificate, and no resident data ever passes through it. Port 443 serves the system. The welcome page shows the first characters of the root's fingerprint, to compare with a printed poster, because a page that arrives without HTTPS could have been changed on the way.
+
+The server issues its own certificate each time it starts, for the addresses the machine has at that moment.
+
 ## Screens
 
-Pages are built on the server and work without JavaScript. Every text a person reads comes from a file in [`locales`](../../locales), one per language, with Brazilian Portuguese as the first.
+Pages are built on the server and work without JavaScript, except for the welcome page, which uses a small script to notice when the device starts trusting the certificate. Every text a person reads comes from a file in [`locales`](../../locales), one per language, with Brazilian Portuguese as the first.
 
 ## What is not built yet
 
-- HTTPS with the community's own certificate. The [access proof](../../experiments/access-proof) tests that design on real phones first.
+- The proof that real phones accept this design. The [access proof](../../experiments/access-proof) is the experiment for it, and the access design may change with what it shows.
+- Renewing the server certificate while the server runs, and the screens of the setup.
 - The passphrase, the personal layer and everything that depends on them.
 - Live updates. A page shows new messages when it is loaded again.
 - Roles and the permission table. Today a resident can do everything there is to do.

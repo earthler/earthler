@@ -23,8 +23,10 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/event`](core/event) | What goes inside an entry, and the catalog of event types |
 | [`core/scribe`](core/scribe) | The single writer: journal first, then the indexes, then the answer |
 | [`core/accounts`](core/accounts) | Residents, their browsers and the session cookie |
+| [`core/certificate`](core/certificate) | The community's own certificate authority, for HTTPS with no internet |
 | [`core/search`](core/search) | How text becomes search terms, in Portuguese |
 | [`core/page`](core/page) | The layout and the base style that every screen is drawn in |
+| [`screens/welcome`](screens/welcome) | The only screen without HTTPS: it hands the certificate to a new device |
 | [`screens/signup`](screens/signup) | Creating an account |
 | [`screens/chat`](screens/chat) | The open channel |
 | [`screens/search`](screens/search) | The search field and its results |
@@ -42,7 +44,7 @@ The server keeps everything under one data folder:
 | --- | --- | --- |
 | `journal/` | The segments of the journal | It comes back from a copy. Nothing else can rebuild it |
 | `indexes/` | One SQLite file per area | Deleted and rebuilt from the journal |
-| `secrets/` | The key that signs the session cookies | Everyone has to sign in again |
+| `secrets/` | The key that signs the session cookies, and the certificate chain | Everyone signs in again, and every device installs a new certificate |
 
 ## How to add something
 
@@ -58,8 +60,16 @@ The server keeps everything under one data folder:
 go test ./...
 ```
 
+To work on the screens, on your own computer and with no certificate:
+
 ```bash
-go run ./cmd/earthler -community "My community"
+go run ./cmd/earthler -dev 127.0.0.1:8080 -community "My community" -name mine
 ```
 
-The server answers on port 8080 over plain HTTP. It is in early development and must not be used to run a real community.
+Without `-dev`, the server answers on port 80 with the welcome page and on port 443 with the system, and prints the address that new devices open:
+
+```bash
+go run ./cmd/earthler -community "My community" -name mine
+```
+
+It is in early development and must not be used to run a real community.

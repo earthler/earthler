@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"github.com/earthler/earthler/core/accounts"
+	"github.com/earthler/earthler/core/certificate"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/journal"
@@ -16,14 +19,19 @@ import (
 	"github.com/earthler/earthler/screens/chat"
 	"github.com/earthler/earthler/screens/search"
 	"github.com/earthler/earthler/screens/signup"
+	"github.com/earthler/earthler/screens/welcome"
 )
 
 // config is what the server needs to start.
 type config struct {
 	dataDir   string // where the journal, the indexes and the secrets live
 	community string // name given to a community that is being born
+	short     string // short name for the address <short>.internal, fixed at birth
 	lang      string // language of the screens
+	httpsPort int    // where the secure site answers, for the links of the welcome page
 }
+
+var validShort = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$`)
 
 // app is the whole server: the journal, the indexes derived from it, the
 // scribe that writes, and the screens.
@@ -31,8 +39,11 @@ type app struct {
 	journal *journal.Journal
 	indexes []*index.Index
 	scribe  *scribe.Scribe
-	handler http.Handler
+	chain   *certificate.Chain
 	name    string
+
+	handler http.Handler // the system, served only over HTTPS
+	welcome http.Handler // the welcome page and the certificate, served over plain HTTP
 }
 
 // open starts everything from the data folder. The indexes are brought level
@@ -78,8 +89,23 @@ func open(cfg config) (*app, error) {
 	}
 	residents := accounts.New(byName[accounts.Area.Name], a.scribe, key)
 
+	// The chain is created once. Its name can never change afterwards,
+	// because every device has it written in the certificate it installed.
+	if !validShort.MatchString(cfg.short) {
+		return nil, fmt.Errorf("the short name %q must use lowercase letters, digits and hyphens", cfg.short)
+	}
+	a.chain, _, err = certificate.Open(filepath.Join(cfg.dataDir, "secrets", "certificate"), cfg.short+".internal", time.Now())
+	if err != nil {
+		return nil, err
+	}
+	plain := http.NewServeMux()
+	plain.Handle("GET /static/", page.Static())
+	welcome.New(a.chain, pages, cfg.httpsPort).Routes(plain)
+	a.welcome = plain
+
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", page.Static())
+	mux.HandleFunc("GET /probe.gif", welcome.Probe)
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		if _, signedIn := residents.Session(r); signedIn {
 			http.Redirect(w, r, "/chat", http.StatusSeeOther)
