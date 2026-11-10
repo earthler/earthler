@@ -3,14 +3,23 @@ package welcome
 import "strings"
 
 // device guesses what is asking, from the browser's description of itself:
-// iphone, android or computer. The guess only chooses which page opens
-// first, and every page links to the others.
+// iphone, android, windows, mac, linux or computer. The guess only chooses
+// which page opens first, and every page links to the others. An iPad asking
+// for desktop pages calls itself a Macintosh, which is why the Mac page
+// points iPads to the iPhone page.
 func device(userAgent string) string {
+	has := func(s string) bool { return strings.Contains(userAgent, s) }
 	switch {
-	case strings.Contains(userAgent, "iPhone"), strings.Contains(userAgent, "iPad"), strings.Contains(userAgent, "iPod"):
+	case has("iPhone"), has("iPad"), has("iPod"):
 		return "iphone"
-	case strings.Contains(userAgent, "Android"):
+	case has("Android"):
 		return "android"
+	case has("Windows"):
+		return "windows"
+	case has("Macintosh"):
+		return "mac"
+	case has("Linux"), has("X11"), has("CrOS"):
+		return "linux"
 	}
 	return "computer"
 }

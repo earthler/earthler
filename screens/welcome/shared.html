@@ -19,8 +19,6 @@
 
 {{define "others"}}
 <p class="small">{{t "welcome.device.others"}}
-  {{if ne .Body.Device "iphone"}}<a href="/certificate/iphone">{{t "certificate.iphone.name"}}</a>{{end}}
-  {{if ne .Body.Device "android"}}<a href="/certificate/android">{{t "certificate.android.name"}}</a>{{end}}
-  {{if ne .Body.Device "computer"}}<a href="/certificate/computer">{{t "certificate.computer.name"}}</a>{{end}}
+  {{range .Body.Devices}}{{if ne . $.Body.Device}}<a href="/certificate/{{.}}">{{t (print "certificate." . ".name")}}</a>{{end}}{{end}}
 </p>
 {{end}}

@@ -99,16 +99,22 @@ func TestDeviceWithTheCertificateGetsIn(t *testing.T) {
 	android := "Mozilla/5.0 (Linux; Android 14) Chrome/130.0 Mobile Safari/537.36"
 	safari := "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Mobile/15E148 Safari/604.1"
 	chrome := "Mozilla/5.0 (iPhone; CPU iPhone OS 27_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/156.0.8078.54 Mobile/15E148 Safari/604.1"
+	windows := "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+	mac := "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
+	linux := "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0"
 	print := a.chain.Fingerprint()
 	pages := []struct {
 		path, agent string
 		want        []string
 	}{
 		{"/", android, []string{"Boas-vindas", "Parece um Android.", `href="/certificate/android"`, `href="https://127.0.0.1/"`}},
-		{"/certificate/android", android, []string{"vila.internal", print[0:2] + " " + print[2:4], "Instale mesmo assim", `href="/certificate.crt"`, `data-step="4"`}},
+		{"/certificate/android", android, []string{"vila.internal", print[0:2] + " " + print[2:4], "Instalar assim mesmo", `href="/certificate.crt"`, `data-step="4"`}},
 		{"/certificate/iphone", safari, []string{"Certificados Confiáveis", "Vila Teste (Earthler)", `href="/certificate.mobileconfig"`, "8 minutos"}},
 		{"/certificate/iphone", chrome, []string{"Abra esta página no Safari", "http://127.0.0.1"}},
-		{"/certificate/computer", "curl/8.7.1", []string{"Firefox", `href="/certificate.crt"`}},
+		{"/certificate/windows", windows, []string{"Autoridades de Certificação Raiz Confiáveis", `href="/certificate.crt"`, `href="/certificate/mac"`}},
+		{"/certificate/mac", mac, []string{"Acesso às Chaves", "Confiar Sempre", "Vila Teste (Earthler)"}},
+		{"/certificate/linux", linux, []string{"Gerenciar certificados", "Autoridades", `data-step="4"`}},
+		{"/certificate/computer", "curl/8.7.1", []string{`href="/certificate/windows"`, `href="/certificate/mac"`, `href="/certificate/linux"`, "Não reconhecemos"}},
 	}
 	for _, pg := range pages {
 		res, body := get(pg.path, pg.agent)

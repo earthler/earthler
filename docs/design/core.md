@@ -71,7 +71,7 @@ The server issues its own certificate each time it starts, for the addresses the
 
 This is the hardest step a resident ever takes, and the phone makers made it hard on purpose: a root installed by mistake would let someone read everything the person does. So the welcome screen does not try to make it short. It tries to make it impossible to get lost:
 
-- One page per kind of device, at `/certificate/iphone`, `/certificate/android` and `/certificate/computer`, chosen from what the browser says about itself. Every page links to the others.
+- One page per kind of device, at `/certificate/iphone`, `/certificate/android`, `/certificate/windows`, `/certificate/mac` and `/certificate/linux`, chosen from what the browser says about itself. A browser the system does not recognise gets `/certificate/computer`, which only asks which system it is. Every page links to the others.
 - One card per step, saying what the device will show and what to tap, with the names the device uses in the community's language. A step that commonly goes wrong carries a note.
 - The person marks each step done, so the right card is highlighted when they come back from the settings of the device. The page loads a small image from the secure site every few seconds, and the moment it loads the page says the device trusts the certificate and offers the way in.
 - An iPhone receives the root inside a configuration profile, which carries the community's name and an explanation and is what the Settings app expects. Installing the profile is not the end on an iPhone: trust has to be turned on in a second place, and that has a card of its own. Only Safari hands a profile to Settings, so an iPhone on another browser is sent to Safari first.
@@ -81,7 +81,7 @@ This is the hardest step a resident ever takes, and the phone makers made it har
 
 On 2026-11-09, an iPhone 13 Pro with iOS 27.0.1 installed the certificate through Safari, opened the system with no warning once trust was on, got a secure context, Web Crypto, a service worker, persistent storage, camera and microphone, and refused forged certificates for two names outside the community. That is the part of the design that no documentation covered: Apple's verifier enforces the limits written in the root. The same run showed that Chrome for iOS cannot install the profile, and that a three-line guide is not enough even for someone experienced, which is why the welcome screen is shaped as above.
 
-Not shown yet: a Wi-Fi network with no internet, and any Android device. The texts of the Android and computer pages follow the documentation and have not been checked on a device.
+Not shown yet: a Wi-Fi network with no internet, and any Android device. The texts of the Android, Windows, Mac and Linux pages use the menu names from the official documentation and from the systems' own language files (Android's settings, Firefox's and macOS's translations), and have not been checked on a device.
 
 ## Screens
 

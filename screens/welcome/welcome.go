@@ -24,7 +24,7 @@ var files embed.FS
 var probeImage = []byte("GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;")
 
 // devices are the kinds of device that have a page of their own.
-var devices = []string{"iphone", "android", "computer"}
+var devices = []string{"iphone", "android", "windows", "mac", "linux", "computer"}
 
 // Screen serves the welcome page, the certificate pages and the certificate.
 type Screen struct {
@@ -74,8 +74,9 @@ type step struct {
 }
 
 type body struct {
-	Device    string // the kind of device this page is for
-	Guess     string // the kind of device the browser seems to be
+	Device    string   // the kind of device this page is for
+	Devices   []string // every kind that has a page, for the links
+	Guess     string   // the kind of device the browser seems to be
 	Domain    string
 	RootName  string // what the device shows for the root once installed
 	Print     string // first characters of the fingerprint, to compare with the poster
@@ -115,6 +116,7 @@ func (s *Screen) body(r *http.Request, d string) body {
 	print := s.chain.Fingerprint()
 	b := body{
 		Device:    d,
+		Devices:   devices,
 		Domain:    s.chain.Domain(),
 		RootName:  s.chain.RootName(),
 		Print:     pairs(print[:8]),

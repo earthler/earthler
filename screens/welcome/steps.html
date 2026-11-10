@@ -5,6 +5,7 @@
 {{template "print" .}}
 <p class="muted">{{.Body.Scope}}</p>
 
+{{if .Body.Steps}}
 <div id="steps" data-count="{{len .Body.Steps}}">
 {{range .Body.Steps}}
 <section class="card step" data-step="{{.Number}}">
@@ -18,6 +19,9 @@
 </div>
 
 <p class="notice hidden" id="late">{{.Body.Late}}</p>
+{{else}}
+<p class="notice">{{.Body.Late}}</p>
+{{end}}
 {{template "trust" .}}
 {{template "others" .}}
 {{end}}
