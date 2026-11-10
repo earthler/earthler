@@ -31,9 +31,16 @@ type Scribe struct {
 	stopped  chan struct{}
 	once     sync.Once
 
-	mu    sync.Mutex
-	cause error // why the scribe stopped by itself, if it did
+	mu        sync.Mutex
+	cause     error // why the scribe stopped by itself, if it did
+	listeners []Listener
 }
+
+// Listener is told about every batch once the indexes applied it and before
+// the writers get their answer, which is how a page that is open learns of
+// a change before the page that made it. The scribe waits for it, so it
+// must return at once and never write through the scribe itself.
+type Listener func(entries []journal.Entry)
 
 type request struct {
 	contents [][]byte
@@ -90,6 +97,13 @@ func (s *Scribe) Write(ctx context.Context, contents ...[]byte) ([]journal.Entry
 	return r.entries, r.err
 }
 
+// Listen adds a listener.
+func (s *Scribe) Listen(l Listener) {
+	s.mu.Lock()
+	s.listeners = append(s.listeners, l)
+	s.mu.Unlock()
+}
+
 // run is the only place that writes.
 func (s *Scribe) run() {
 	defer close(s.stopped)
@@ -137,6 +151,14 @@ func (s *Scribe) commit(batch []*request) error {
 			if err = ix.Apply(entries); err != nil {
 				break
 			}
+		}
+	}
+	if err == nil {
+		s.mu.Lock()
+		listeners := s.listeners
+		s.mu.Unlock()
+		for _, l := range listeners {
+			l(entries)
 		}
 	}
 	next := 0

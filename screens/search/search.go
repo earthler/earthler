@@ -29,6 +29,7 @@ var Area = index.Area{
 	Name: "search",
 	Schema: `
 		CREATE VIRTUAL TABLE terms USING fts5(body);
+		INSERT INTO terms (terms, rank) VALUES ('secure-delete', 1);
 		CREATE TABLE docs (
 			number INTEGER PRIMARY KEY, kind TEXT NOT NULL, account INTEGER NOT NULL,
 			time INTEGER NOT NULL, text TEXT NOT NULL);
@@ -58,6 +59,15 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 			return err
 		}
 		_, err = tx.Exec(`INSERT INTO terms (rowid, body) VALUES (?, ?)`, entry.Number, strings.Join(terms.Terms(d.Text), " "))
+	case event.MessageDeleted:
+		var d event.MessageDeletedData
+		if e.Read(&d) != nil {
+			return nil
+		}
+		if _, err = tx.Exec(`DELETE FROM docs WHERE number = ?`, d.Message); err != nil {
+			return err
+		}
+		_, err = tx.Exec(`DELETE FROM terms WHERE rowid = ?`, d.Message)
 	}
 	return err
 }

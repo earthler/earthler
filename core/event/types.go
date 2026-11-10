@@ -21,6 +21,14 @@ const (
 
 	// MessageCreated is a message in an open channel.
 	MessageCreated = "message.created"
+
+	// MessageDeleted takes a message out of its channel. The text leaves the
+	// indexes at once; the entry that holds it is erased later, see EntryErased.
+	MessageDeleted = "message.deleted"
+
+	// EntryErased records that the contents of some entries were physically
+	// replaced by the erased mark in the journal.
+	EntryErased = "entry.erased"
 )
 
 type CommunityCreatedData struct {
@@ -42,6 +50,15 @@ type DeviceCreatedData struct {
 type MessageCreatedData struct {
 	Channel uint64 `json:"channel"`
 	Text    string `json:"text"`
+}
+
+type MessageDeletedData struct {
+	Channel uint64 `json:"channel"`
+	Message uint64 `json:"message"` // the entry that created the message
+}
+
+type EntryErasedData struct {
+	Entries []uint64 `json:"entries"`
 }
 
 // Read decodes the data of the event into v, which is a pointer to the data
