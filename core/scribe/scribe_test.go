@@ -217,3 +217,28 @@ func TestClosedScribeRefusesWrites(t *testing.T) {
 		t.Fatalf("a normal Close left an error: %v", f.scribe.Err())
 	}
 }
+
+func TestListenersHearEachBatchBeforeTheAnswer(t *testing.T) {
+	f := start(t, t.TempDir())
+	heard := make(chan []journal.Entry, 8)
+	answered := false
+	f.scribe.Listen(func(entries []journal.Entry) {
+		if answered {
+			t.Error("the listener ran after the writer got its answer")
+		}
+		// The index already has the entries when a listener hears of them.
+		if n := count(t, f.index); n < int(entries[len(entries)-1].Number) {
+			t.Errorf("the index has %d notes when the listener hears of entry %d", n, entries[len(entries)-1].Number)
+		}
+		heard <- entries
+	})
+	entries, err := f.scribe.Write(context.Background(), note("one"), note("two"))
+	answered = true
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := <-heard
+	if len(got) != 2 || got[0].Number != entries[0].Number || got[1].Number != entries[1].Number {
+		t.Fatalf("the listener heard %v, want %v", got, entries)
+	}
+}

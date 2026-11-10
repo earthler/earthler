@@ -81,8 +81,13 @@ When a segment file is created, the folder is confirmed too, so the new file nam
 - **How strict to be after a power cut.** Today, only an unfinished final line is cut, and any other problem stops the journal. If real disks leave other shapes behind in the part that was never confirmed, this rule will need to change, based on what the power cut proof shows.
 - **A failed confirmation followed by a restart.** After a failed confirmation the operating system may still hold in memory data that never reached the disk. Reading the file again would then look fine. The safe answer may be to restart the machine, not only the program.
 
+## Erasing
+
+`Erase` replaces the content of given entries with the erased mark. Every segment that holds one of them is read whole, written again into a new file with those contents replaced, confirmed, and moved over the old file, which the file system does in one step. A file left behind by a power cut in the middle of that is removed the next time the journal opens. The writer, if it was appending to that segment, goes on in the new file. An entry that is already erased is left alone, so the same erasure can be asked again after a failure.
+
+- The tests cover: erasing in old segments and in the one being written, the chain verified afterwards, the writer continuing with the right seal, a repeated erasure changing no byte, a leftover file from an interrupted erasure, and the refusal after a failed write.
+
 ## Not built yet
 
-- Erasing a content, which rewrites one segment and replaces it.
 - Shipping new entries to a second machine.
 - Marking an entry as lost when there is no copy to restore it from.

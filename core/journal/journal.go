@@ -82,6 +82,9 @@ func Open(dir string, opts Options) (*Journal, error) {
 // recover finds the last confirmed entry and leaves the last segment ready
 // for appending.
 func (j *Journal) recover() error {
+	if err := removeRewrites(j.dir); err != nil {
+		return err
+	}
 	names, err := os.ReadDir(j.dir)
 	if err != nil {
 		return err

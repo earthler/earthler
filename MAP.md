@@ -24,6 +24,9 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/scribe`](core/scribe) | The single writer: journal first, then the indexes, then the answer |
 | [`core/accounts`](core/accounts) | Residents, their browsers and the session cookie |
 | [`core/certificate`](core/certificate) | The community's own certificate authority, for HTTPS with no internet |
+| [`core/live`](core/live) | The connection that every open page keeps, on which the server sends what just changed |
+| [`core/erasure`](core/erasure) | The night's work that takes deleted content out of the journal for good |
+| [`core/copies`](core/copies) | Encrypted copies of the journal and the secrets, and the way back from one |
 | [`core/search`](core/search) | How text becomes search terms, in Portuguese |
 | [`core/page`](core/page) | The layout and the base style that every screen is drawn in |
 | [`screens/welcome`](screens/welcome) | The only screen without HTTPS: it walks a new device through installing the certificate, one page per kind of device |
@@ -44,7 +47,7 @@ The server keeps everything under one data folder:
 | --- | --- | --- |
 | `journal/` | The segments of the journal | It comes back from a copy. Nothing else can rebuild it |
 | `indexes/` | One SQLite file per area | Deleted and rebuilt from the journal |
-| `secrets/` | The key that signs the session cookies, and the certificate chain | Everyone signs in again, and every device installs a new certificate |
+| `secrets/` | The key that signs the session cookies, the certificate chain and the copy key | Everyone signs in again, and every device installs a new certificate. The copy key comes back from the paper it was written on |
 
 ## How to add something
 
@@ -71,5 +74,21 @@ Without `-dev`, the server answers on port 80 with the welcome page and on port 
 ```bash
 go run ./cmd/earthler -community "My community" -name mine
 ```
+
+To write an encrypted copy of the data into a folder, to print the key that opens it, and to bring the data back on another machine:
+
+```bash
+go run ./cmd/earthler -copy /path/to/disk
+```
+
+```bash
+go run ./cmd/earthler -print-copy-key
+```
+
+```bash
+go run ./cmd/earthler -restore /path/to/disk -copy-key "THE-KEY-WRITTEN-DOWN"
+```
+
+With `-copies /path/to/disk`, the server makes the copy every night by itself.
 
 It is in early development and must not be used to run a real community.

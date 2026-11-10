@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -11,6 +12,8 @@ import (
 
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/certificate"
+	"github.com/earthler/earthler/core/copies"
+	"github.com/earthler/earthler/core/erasure"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/journal"
@@ -29,6 +32,7 @@ type config struct {
 	short     string // short name for the address <short>.internal, fixed at birth
 	lang      string // language of the screens
 	httpsPort int    // where the secure site answers, for the links of the welcome page
+	copyDir   string // where the night's copy goes, or empty for no copies yet
 }
 
 var validShort = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$`)
@@ -41,16 +45,23 @@ type app struct {
 	scribe  *scribe.Scribe
 	chain   *certificate.Chain
 	name    string
+	byName  map[string]*index.Index
+	dataDir string
+	copyDir string
 
 	handler http.Handler // the system, served only over HTTPS
 	welcome http.Handler // the welcome page and the certificate, served over plain HTTP
+	stop    context.CancelFunc
 }
+
+// nightHour is when the night's work runs, in the machine's local time.
+const nightHour = 3
 
 // open starts everything from the data folder. The indexes are brought level
 // with the journal before any screen is served, which is also how the system
 // comes back after a power cut.
 func open(cfg config) (*app, error) {
-	a := &app{}
+	a := &app{dataDir: cfg.dataDir, copyDir: cfg.copyDir}
 	ok := false
 	defer func() {
 		if !ok {
@@ -62,7 +73,7 @@ func open(cfg config) (*app, error) {
 	if a.journal, err = journal.Open(filepath.Join(cfg.dataDir, "journal"), journal.Options{}); err != nil {
 		return nil, err
 	}
-	areas := []index.Area{accounts.Area, chat.Area, search.Area}
+	areas := []index.Area{accounts.Area, chat.Area, search.Area, erasure.Area}
 	byName := map[string]*index.Index{}
 	for _, area := range areas {
 		ix, err := index.Open(filepath.Join(cfg.dataDir, "indexes"), area)
@@ -72,15 +83,29 @@ func open(cfg config) (*app, error) {
 		a.indexes = append(a.indexes, ix)
 		byName[area.Name] = ix
 	}
+	a.byName = byName
 	if a.scribe, err = scribe.Start(a.journal, a.indexes...); err != nil {
 		return nil, err
 	}
 	if a.name, err = a.community(cfg); err != nil {
 		return nil, err
 	}
+	// What was deleted before the last stop is erased before any screen is
+	// served, so a restored copy never serves a text that was deleted.
+	if _, err := a.erase(context.Background(), time.Now()); err != nil {
+		return nil, err
+	}
+	var ctx context.Context
+	ctx, a.stop = context.WithCancel(context.Background())
+	go a.nights(ctx)
 
 	key, err := accounts.LoadKey(filepath.Join(cfg.dataDir, "secrets"))
 	if err != nil {
+		return nil, err
+	}
+	// The copy key is born with the community, so the first copy can be
+	// read back with the key written down on the first day.
+	if _, err := copies.LoadKey(filepath.Join(cfg.dataDir, "secrets")); err != nil {
 		return nil, err
 	}
 	pages, err := page.New(cfg.lang, a.name)
@@ -168,8 +193,42 @@ func (a *app) community(cfg config) (string, error) {
 	return name, nil
 }
 
+// erase runs the physical erasure of deleted content.
+func (a *app) erase(ctx context.Context, now time.Time) (int, error) {
+	n, err := erasure.Run(ctx, a.journal, a.byName[erasure.Area.Name], a.scribe, now)
+	if n > 0 {
+		log.Printf("erased the content of %d entries", n)
+	}
+	return n, err
+}
+
+// nights runs the night's work: first the erasure, then the copy, so a
+// copy never carries a text that was deleted before it.
+func (a *app) nights(ctx context.Context) {
+	for {
+		wait := time.NewTimer(time.Until(erasure.NextNight(time.Now(), nightHour)))
+		select {
+		case <-ctx.Done():
+			wait.Stop()
+			return
+		case <-wait.C:
+		}
+		if _, err := a.erase(ctx, time.Now()); err != nil {
+			log.Printf("erasure: %v", err)
+		}
+		if a.copyDir != "" {
+			if err := makeCopy(a.dataDir, a.copyDir); err != nil {
+				log.Printf("copy: %v", err)
+			}
+		}
+	}
+}
+
 // Close stops the scribe and closes the files.
 func (a *app) Close() {
+	if a.stop != nil {
+		a.stop()
+	}
 	if a.scribe != nil {
 		a.scribe.Close()
 	}

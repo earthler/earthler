@@ -1,18 +1,10 @@
 {{define "content"}}
 {{with .Body}}
 <h1>{{.Channel}}</h1>
-{{if .Messages}}
-<ul class="messages">
-  {{range .Messages}}
-  <li {{if .Mine}}class="mine"{{end}}>
-    <div class="meta"><strong>{{.Author}}</strong><span>{{.Time}}</span></div>
-    <p>{{.Text}}</p>
-  </li>
-  {{end}}
+<p class="muted" id="empty"{{if .Messages}} hidden{{end}}>{{t "chat.empty"}}</p>
+<ul class="messages" id="messages" data-me="{{.Me}}" data-deleted="{{t "chat.deleted"}}">
+  {{range .Messages}}{{template "message" .}}{{end}}
 </ul>
-{{else}}
-<p class="muted">{{t "chat.empty"}}</p>
-{{end}}
 {{if .Error}}<p class="notice" role="alert">{{.Error}}</p>{{end}}
 <form class="card" id="end" action="/chat" method="post">
   <label for="text">{{t "chat.message"}}</label>
@@ -20,4 +12,12 @@
   <button type="submit">{{t "chat.send"}}</button>
 </form>
 {{end}}
+{{end}}
+
+{{define "message"}}
+<li data-number="{{.Number}}" data-account="{{.Account}}"{{if .Deleted}} data-deleted="{{.Deleted}}"{{end}}{{if .Mine}} class="mine"{{end}}>
+  <div class="meta"><strong>{{.Author}}</strong><span>{{.Time}}</span></div>
+  {{if .Deleted}}<p class="muted">{{t "chat.deleted"}}</p>{{else}}<p>{{.Text}}</p>{{end}}
+  {{if and .Mine (not .Deleted)}}<form class="inline" action="/chat/delete" method="post"><input type="hidden" name="number" value="{{.Number}}"><button type="submit" class="delete">{{t "chat.delete"}}</button></form>{{end}}
+</li>
 {{end}}

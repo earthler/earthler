@@ -77,8 +77,9 @@ func Open(dir string, area Area) (*Index, error) {
 func (ix *Index) connect() error {
 	// WAL lets screens read while the scribe writes. NORMAL is enough because
 	// the journal is the truth: an index that loses its last moments is
-	// brought level again by Follow.
-	dsn := ix.path + "?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_txlock=immediate"
+	// brought level again by Follow. secure_delete overwrites what is
+	// deleted, so an erased text does not linger in the file.
+	dsn := ix.path + "?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=secure_delete(ON)&_pragma=busy_timeout(5000)&_txlock=immediate"
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return err
