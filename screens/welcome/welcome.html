@@ -1,0 +1,14 @@
+{{define "content"}}
+<h1>{{t "welcome.title"}}</h1>
+<p>{{t "welcome.intro"}}</p>
+<p>{{t "welcome.why"}}</p>
+
+<section class="card">
+  <h2>{{t "welcome.device.title"}}</h2>
+  <p>{{t (print "welcome.device." .Body.Guess)}}</p>
+  <a class="button" href="/certificate/{{.Body.Guess}}">{{t "welcome.device.start"}}</a>
+  {{template "others" .}}
+</section>
+
+{{template "trust" .}}
+{{end}}

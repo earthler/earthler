@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Earthler access proof</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <p class="tag">Experiment</p>
+  <h1>This page should not have opened</h1>
+  <section class="card warning">
+    <p>This device accepted a certificate for <strong>{{.Host}}</strong>, a name the community certificate is not allowed to cover.</p>
+    <p>It means this device does not enforce the limits written in the certificate. The result was recorded.</p>
+  </section>
+  <p class="small"><a href="{{.HomeURL}}">Back to the secure site</a></p>
+</main>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Earthler access proof</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-secure-url="{{.SecureURL}}">
+<main>
+  <p class="tag">Experiment</p>
+  <h1>Earthler access proof</h1>
+  <p>This page checks whether a phone can reach a community server through the browser, with the community's own certificate and with no internet access. It is a test, not the Earthler system.</p>
+
+  <section class="card">
+    <h2>1. Check the fingerprint</h2>
+    <p>These characters must match the ones shown in the terminal where the experiment is running.</p>
+    <p class="print">{{.ShortPrint}}</p>
+    <details>
+      <summary>Full fingerprint (SHA-256)</summary>
+      <p class="mono">{{.FullPrint}}</p>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>2. Install the certificate</h2>
+    <p>The certificate only works for <strong>{{.Domain}}</strong> and for private network addresses. Remove it from this device when the test is over.</p>
+    <a class="button" href="/ca.crt">Download the certificate</a>
+    <details {{if eq .Device "iphone"}}open{{end}}>
+      <summary>iPhone or iPad</summary>
+      <ol>
+        <li>Open this page in Safari, tap Download and allow the profile.</li>
+        <li>Open Settings, tap Profile Downloaded and install it.</li>
+        <li>Go to Settings, General, About, Certificate Trust Settings and turn on full trust for the Earthler access proof root.</li>
+      </ol>
+    </details>
+    <details {{if eq .Device "android"}}open{{end}}>
+      <summary>Android</summary>
+      <ol>
+        <li>Tap Download to save the file.</li>
+        <li>Open Settings and search for CA certificate. It is usually under Security, Encryption and credentials, Install a certificate.</li>
+        <li>Android shows a warning. Choose to install anyway and pick the downloaded file.</li>
+      </ol>
+    </details>
+    <details {{if eq .Device "other"}}open{{end}}>
+      <summary>Computer</summary>
+      <ol>
+        <li>Download the file and open it.</li>
+        <li>Mark it as trusted for websites in the system certificate store. Firefox keeps its own list, under Settings, Certificates.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="card" id="trust">
+    <h2>3. Open the secure site</h2>
+    <p id="trust-text" role="status">Waiting for this device to trust the certificate. This page checks again every few seconds.</p>
+    <a class="button secondary" id="trust-link" href="{{.SecureURL}}">Open the secure site</a>
+  </section>
+
+  <p class="small">To see what a browser refuses without HTTPS, open the <a href="/test">control page</a>.</p>
+</main>
+<script src="/static/welcome.js"></script>
+</body>
+</html>

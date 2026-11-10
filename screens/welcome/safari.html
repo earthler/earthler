@@ -1,0 +1,13 @@
+{{define "content"}}
+<p class="tag">{{t "certificate.iphone.title"}}</p>
+<h1>{{t "certificate.iphone.safari.title"}}</h1>
+<p>{{t "certificate.iphone.safari.text"}}</p>
+
+<section class="card">
+  <h2>{{t "certificate.iphone.safari.how"}}</h2>
+  <p class="address">{{.Body.PlainURL}}</p>
+</section>
+
+{{template "trust" .}}
+{{template "others" .}}
+{{end}}

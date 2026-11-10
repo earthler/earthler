@@ -1,0 +1,12 @@
+{{define "content"}}
+{{with .Body}}
+<h1>{{t "signup.title"}}</h1>
+<p>{{t "signup.intro"}}</p>
+{{if .Error}}<p class="notice" role="alert">{{.Error}}</p>{{end}}
+<form class="card" action="/sign-up" method="post">
+  <label for="name">{{t "signup.name"}}</label>
+  <input id="name" name="name" type="text" value="{{.Name}}" maxlength="{{.MaxName}}" autocomplete="name" required>
+  <button type="submit">{{t "signup.submit"}}</button>
+</form>
+{{end}}
+{{end}}

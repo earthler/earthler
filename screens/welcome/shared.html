@@ -1,0 +1,24 @@
+{{define "print"}}
+<section class="card">
+  <h2>{{t "certificate.print.title"}}</h2>
+  <p>{{t "certificate.print.text"}}</p>
+  <p class="print">{{.Body.Print}}</p>
+  <details>
+    <summary>{{t "certificate.print.full"}}</summary>
+    <p class="mono">{{.Body.FullPrint}}</p>
+  </details>
+</section>
+{{end}}
+
+{{define "trust"}}
+<section class="card trust" id="trust" data-secure-url="{{.Body.SecureURL}}" data-trusted="{{t "welcome.open.trusted"}}">
+  <p id="trust-text" role="status">{{t "welcome.open.waiting"}}</p>
+  <a class="button quiet" id="trust-link" href="{{.Body.SecureURL}}">{{t "welcome.open.button"}}</a>
+</section>
+{{end}}
+
+{{define "others"}}
+<p class="small">{{t "welcome.device.others"}}
+  {{range .Body.Devices}}{{if ne . $.Body.Device}}<a href="/certificate/{{.}}">{{t (print "certificate." . ".name")}}</a>{{end}}{{end}}
+</p>
+{{end}}

@@ -1,0 +1,27 @@
+{{define "content"}}
+<p class="tag">{{t (print "certificate." .Body.Device ".title")}}</p>
+<h1>{{.Body.Heading}}</h1>
+
+{{template "print" .}}
+<p class="muted">{{.Body.Scope}}</p>
+
+{{if .Body.Steps}}
+<div id="steps" data-count="{{len .Body.Steps}}">
+{{range .Body.Steps}}
+<section class="card step" data-step="{{.Number}}">
+  <h2>{{.Number}}. {{.Title}}</h2>
+  <p>{{.Text}}</p>
+  {{if .Note}}<p class="notice">{{.Note}}</p>{{end}}
+  {{if .Download}}<a class="button" id="download" href="{{$.Body.Download}}">{{t (print "certificate." $.Body.Device ".download")}}</a>{{end}}
+  {{if .Confirm}}<button type="button" class="confirm quiet hidden" data-next="{{.Number}}">{{.Confirm}}</button>{{end}}
+</section>
+{{end}}
+</div>
+
+<p class="notice hidden" id="late">{{.Body.Late}}</p>
+{{else}}
+<p class="notice">{{.Body.Late}}</p>
+{{end}}
+{{template "trust" .}}
+{{template "others" .}}
+{{end}}

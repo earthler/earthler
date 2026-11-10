@@ -1,0 +1,19 @@
+{{define "content"}}
+{{with .Body}}
+<h1>{{t "search.title"}}</h1>
+{{if not .Asked}}
+<p class="muted">{{t "search.hint"}}</p>
+{{else if .Results}}
+<ul class="messages">
+  {{range .Results}}
+  <li>
+    <div class="meta"><strong>{{.Origin}}{{if .Author}} · {{.Author}}{{end}}</strong><span>{{.Time}}</span></div>
+    <p>{{.Text}}</p>
+  </li>
+  {{end}}
+</ul>
+{{else}}
+<p class="muted">{{t "search.empty"}}</p>
+{{end}}
+{{end}}
+{{end}}
