@@ -28,7 +28,7 @@ func verify(c *Chain, leaf *x509.Certificate, name string) error {
 
 func open(t *testing.T, dir string) (*Chain, bool) {
 	t.Helper()
-	c, created, err := Open(dir, "vila.internal", testTime)
+	c, created, err := Open(dir, "vila.internal", "Vila Teste", testTime)
 	if err != nil {
 		t.Fatal(err)
 	}

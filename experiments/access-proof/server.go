@@ -118,10 +118,14 @@ func (s *server) acceptTLS(ln net.Listener, ready *readyConns) {
 	}
 }
 
+// noteHandshake records what a handshake says. A finished handshake with the
+// real certificate does not prove trust: a browser warning that the person
+// tapped through finishes the same way. What proves trust is the result the
+// person saves on the secure site, saying the page opened with no warning.
 func (s *server) noteHandshake(ip, name string, err error) {
 	if s.isForged(name) {
 		res := result{Remote: ip, Scheme: "https", Host: name, Checks: map[string]string{}}
-		res.Checks["device_trusts_real_certificate"] = boolText(s.wasNoted(ip + " trusted"))
+		res.Checks["device_completed_real_handshake"] = boolText(s.wasNoted(ip + " trusted"))
 		if err != nil {
 			res.Scenario = "forged-rejected"
 			res.Notes = err.Error()
@@ -137,7 +141,7 @@ func (s *server) noteHandshake(ip, name string, err error) {
 	}
 	if err == nil {
 		if s.firstTime(ip + " trusted") {
-			log.Printf("%s trusts the community certificate.", ip)
+			log.Printf("%s completed a connection with the community certificate. Trust is only proven by a result saved from the secure site.", ip)
 		}
 		return
 	}

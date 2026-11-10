@@ -56,11 +56,15 @@ func New(lang, community string) (*Renderer, error) {
 // T returns a screen text in the community's language.
 func (r *Renderer) T(key string) string { return r.texts.T(key) }
 
-// Screen adds a screen's template to a copy of the layout. The file must
-// define a template called "content".
-func (r *Renderer) Screen(fsys fs.FS, file string) *template.Template {
+// Community is the name of the community, for screens that write it into
+// something other than the layout.
+func (r *Renderer) Community() string { return r.community }
+
+// Screen adds a screen's templates to a copy of the layout. One of the
+// files must define a template called "content".
+func (r *Renderer) Screen(fsys fs.FS, files ...string) *template.Template {
 	base := template.Must(r.base.Clone())
-	return template.Must(base.ParseFS(fsys, file))
+	return template.Must(base.ParseFS(fsys, files...))
 }
 
 // Render writes a screen.

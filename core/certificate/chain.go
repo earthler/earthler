@@ -17,13 +17,11 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/hex"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"math/big"
 	"net"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -53,11 +51,12 @@ type Chain struct {
 }
 
 // Open loads the chain kept in dir, or creates it for domain on first use.
+// name is the community's name, which devices show next to the certificate.
 // created reports whether devices have a new root to install.
-func Open(dir, domain string, now time.Time) (c *Chain, created bool, err error) {
+func Open(dir, domain, name string, now time.Time) (c *Chain, created bool, err error) {
 	c, err = load(dir)
 	if errors.Is(err, os.ErrNotExist) {
-		if c, err = create(domain, now); err != nil {
+		if c, err = create(domain, name, now); err != nil {
 			return nil, false, err
 		}
 		return c, true, c.save(dir)
@@ -67,12 +66,12 @@ func Open(dir, domain string, now time.Time) (c *Chain, created bool, err error)
 
 // create makes the root and the issuer. The root key signs the issuer and is
 // then dropped: it is never written to disk and never leaves this function.
-func create(domain string, now time.Time) (*Chain, error) {
+func create(domain, name string, now time.Time) (*Chain, error) {
 	rootKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return nil, err
 	}
-	rootTmpl, err := authority("Earthler community root", domain, now)
+	rootTmpl, err := authority(displayName(name, "Earthler"), domain, now)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +87,7 @@ func create(domain string, now time.Time) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
-	issuerTmpl, err := authority("Earthler community issuer", domain, now)
+	issuerTmpl, err := authority(displayName(name, "Earthler issuer"), domain, now)
 	if err != nil {
 		return nil, err
 	}
@@ -104,6 +103,20 @@ func create(domain string, now time.Time) (*Chain, error) {
 	return &Chain{domain: domain, root: root, issuer: issuer, issuerKey: issuerKey}, nil
 }
 
+// displayName is the name a phone shows for a certificate in its list of
+// trusted roots: the community first, so the person recognizes it. Names are
+// limited to 64 characters by the certificate format.
+func displayName(community, role string) string {
+	community = strings.Join(strings.Fields(community), " ")
+	if r := []rune(community); len(r) > 40 {
+		community = string(r[:40])
+	}
+	if community == "" {
+		return role
+	}
+	return community + " (" + role + ")"
+}
+
 // authority describes a certificate authority that may only sign for the
 // community domain and for private network addresses.
 func authority(name, domain string, now time.Time) (*x509.Certificate, error) {
@@ -113,7 +126,7 @@ func authority(name, domain string, now time.Time) (*x509.Certificate, error) {
 	}
 	return &x509.Certificate{
 		SerialNumber:                serial,
-		Subject:                     pkix.Name{CommonName: name + " (" + domain + ")"},
+		Subject:                     pkix.Name{CommonName: name},
 		NotBefore:                   now.Add(-time.Hour),
 		NotAfter:                    now.AddDate(caYears, 0, 0),
 		IsCA:                        true,
@@ -187,75 +200,14 @@ func (c *Chain) Domain() string { return c.domain }
 // Root is the certificate that devices install, in the DER form they expect.
 func (c *Chain) Root() []byte { return c.root.Raw }
 
+// RootName is the name a device shows for the root once it is installed.
+func (c *Chain) RootName() string { return c.root.Subject.CommonName }
+
 // Fingerprint is the SHA-256 of the root, in uppercase hex. People compare
 // its first characters with a printed poster before they install the root.
 func (c *Chain) Fingerprint() string {
 	sum := sha256.Sum256(c.root.Raw)
 	return strings.ToUpper(hex.EncodeToString(sum[:]))
-}
-
-func (c *Chain) save(dir string) error {
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return err
-	}
-	keyDER, err := x509.MarshalECPrivateKey(c.issuerKey)
-	if err != nil {
-		return err
-	}
-	files := []struct {
-		name  string
-		block *pem.Block
-		mode  os.FileMode
-	}{
-		{rootFile, &pem.Block{Type: "CERTIFICATE", Bytes: c.root.Raw}, 0o644},
-		{issuerFile, &pem.Block{Type: "CERTIFICATE", Bytes: c.issuer.Raw}, 0o644},
-		{issuerKeyFile, &pem.Block{Type: "EC PRIVATE KEY", Bytes: keyDER}, 0o600},
-	}
-	for _, f := range files {
-		if err := os.WriteFile(filepath.Join(dir, f.name), pem.EncodeToMemory(f.block), f.mode); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func load(dir string) (*Chain, error) {
-	root, err := readCertificate(filepath.Join(dir, rootFile))
-	if err != nil {
-		return nil, err
-	}
-	issuer, err := readCertificate(filepath.Join(dir, issuerFile))
-	if err != nil {
-		return nil, err
-	}
-	keyPEM, err := os.ReadFile(filepath.Join(dir, issuerKeyFile))
-	if err != nil {
-		return nil, err
-	}
-	block, _ := pem.Decode(keyPEM)
-	if block == nil {
-		return nil, errors.New("certificate: the issuer key is not a PEM file")
-	}
-	key, err := x509.ParseECPrivateKey(block.Bytes)
-	if err != nil {
-		return nil, fmt.Errorf("certificate: issuer key: %w", err)
-	}
-	if len(root.PermittedDNSDomains) != 1 {
-		return nil, errors.New("certificate: the root is not limited to one domain")
-	}
-	return &Chain{domain: root.PermittedDNSDomains[0], root: root, issuer: issuer, issuerKey: key}, nil
-}
-
-func readCertificate(path string) (*x509.Certificate, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	block, _ := pem.Decode(data)
-	if block == nil {
-		return nil, fmt.Errorf("certificate: %s is not a PEM file", path)
-	}
-	return x509.ParseCertificate(block.Bytes)
 }
 
 func newSerial() (*big.Int, error) {

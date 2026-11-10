@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"io"
 	"net"
 	"net/http"
@@ -95,25 +96,49 @@ func TestDeviceWithTheCertificateGetsIn(t *testing.T) {
 		body, _ := io.ReadAll(res.Body)
 		return res, string(body)
 	}
-	res, body := get("/", "Mozilla/5.0 (Linux; Android 14)")
+	android := "Mozilla/5.0 (Linux; Android 14) Chrome/130.0 Mobile Safari/537.36"
+	safari := "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0.1 Mobile/15E148 Safari/604.1"
+	chrome := "Mozilla/5.0 (iPhone; CPU iPhone OS 27_0_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/156.0.8078.54 Mobile/15E148 Safari/604.1"
 	print := a.chain.Fingerprint()
-	for _, want := range []string{"Boas-vindas", "vila.internal", print[0:2] + " " + print[2:4], `href="https://127.0.0.1/"`, `<details open>`} {
-		if !strings.Contains(body, want) {
-			t.Errorf("the welcome page is missing %q", want)
+	pages := []struct {
+		path, agent string
+		want        []string
+	}{
+		{"/", android, []string{"Boas-vindas", "Parece um Android.", `href="/certificate/android"`, `href="https://127.0.0.1/"`}},
+		{"/certificate/android", android, []string{"vila.internal", print[0:2] + " " + print[2:4], "Instale mesmo assim", `href="/certificate.crt"`, `data-step="4"`}},
+		{"/certificate/iphone", safari, []string{"Certificados Confiáveis", "Vila Teste (Earthler)", `href="/certificate.mobileconfig"`, "8 minutos"}},
+		{"/certificate/iphone", chrome, []string{"Abra esta página no Safari", "http://127.0.0.1"}},
+		{"/certificate/computer", "curl/8.7.1", []string{"Firefox", `href="/certificate.crt"`}},
+	}
+	for _, pg := range pages {
+		res, body := get(pg.path, pg.agent)
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("%s answered %d", pg.path, res.StatusCode)
+		}
+		for _, want := range pg.want {
+			if !strings.Contains(body, want) {
+				t.Errorf("%s is missing %q", pg.path, want)
+			}
+		}
+		if csp := res.Header.Get("Content-Security-Policy"); !strings.Contains(csp, "img-src 'self' https://127.0.0.1") {
+			t.Errorf("%s may not load its probe: %s", pg.path, csp)
 		}
 	}
-	if csp := res.Header.Get("Content-Security-Policy"); !strings.Contains(csp, "img-src 'self' https://127.0.0.1") {
-		t.Errorf("the welcome page may not load its probe: %s", csp)
-	}
-	res, body = get("/certificate.crt", "Mozilla/5.0 (Linux; Android 14)")
+	res, body := get("/certificate.crt", android)
 	if !bytes.Equal([]byte(body), a.chain.Root()) || res.Header.Get("Content-Type") != "application/x-x509-ca-cert" {
 		t.Error("the certificate download is not the community root")
 	}
 	if res.Header.Get("Content-Disposition") == "" {
-		t.Error("Android should get the certificate as a download")
+		t.Error("the certificate file should arrive as a download")
 	}
-	if res, _ = get("/certificate.crt", "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)"); res.Header.Get("Content-Disposition") != "" {
-		t.Error("an iPhone should get the certificate as a profile, not as a download")
+	res, body = get("/certificate.mobileconfig", safari)
+	if res.Header.Get("Content-Type") != "application/x-apple-aspen-config" || res.Header.Get("Content-Disposition") != "" {
+		t.Errorf("the profile must arrive as a profile, not a download: %s %s", res.Header.Get("Content-Type"), res.Header.Get("Content-Disposition"))
+	}
+	for _, want := range []string{base64.StdEncoding.EncodeToString(a.chain.Root()), "Vila Teste", "Certificados Confiáveis"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("the profile is missing %q", want)
+		}
 	}
 	for _, path := range []string{"/chat", "/search?q=x", "/sign-up"} {
 		if res, _ := get(path, "any"); res.StatusCode != http.StatusNotFound {

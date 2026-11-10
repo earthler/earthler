@@ -63,9 +63,25 @@ Browsers only allow camera, microphone and offline use on HTTPS pages, and a pub
 
 Both are limited to the community's own name, such as `vila.internal`, and to private network addresses, and the issuer cannot create another issuer. The root key signs the issuer and is thrown away at once: it is never written to disk. Whoever steals the machine gets the issuer key, which can only sign for that community's name and for local addresses.
 
-The server answers on two ports. Port 80 serves only the welcome page and the certificate, and no resident data ever passes through it. Port 443 serves the system. The welcome page shows the first characters of the root's fingerprint, to compare with a printed poster, because a page that arrives without HTTPS could have been changed on the way.
+The server answers on two ports. Port 80 serves only the welcome pages and the certificate, and no resident data ever passes through it. Port 443 serves the system. The welcome pages show the first characters of the root's fingerprint, to compare with a printed poster, because a page that arrives without HTTPS could have been changed on the way.
 
-The server issues its own certificate each time it starts, for the addresses the machine has at that moment.
+The server issues its own certificate each time it starts, for the addresses the machine has at that moment. The root is named after the community, because that name is what a phone lists in its trusted certificates.
+
+### Installing the certificate
+
+This is the hardest step a resident ever takes, and the phone makers made it hard on purpose: a root installed by mistake would let someone read everything the person does. So the welcome screen does not try to make it short. It tries to make it impossible to get lost:
+
+- One page per kind of device, at `/certificate/iphone`, `/certificate/android` and `/certificate/computer`, chosen from what the browser says about itself. Every page links to the others.
+- One card per step, saying what the device will show and what to tap, with the names the device uses in the community's language. A step that commonly goes wrong carries a note.
+- The person marks each step done, so the right card is highlighted when they come back from the settings of the device. The page loads a small image from the secure site every few seconds, and the moment it loads the page says the device trusts the certificate and offers the way in.
+- An iPhone receives the root inside a configuration profile, which carries the community's name and an explanation and is what the Settings app expects. Installing the profile is not the end on an iPhone: trust has to be turned on in a second place, and that has a card of its own. Only Safari hands a profile to Settings, so an iPhone on another browser is sent to Safari first.
+- Android and computers receive the root as a file.
+
+### What the first proof showed
+
+On 2026-11-09, an iPhone 13 Pro with iOS 27.0.1 installed the certificate through Safari, opened the system with no warning once trust was on, got a secure context, Web Crypto, a service worker, persistent storage, camera and microphone, and refused forged certificates for two names outside the community. That is the part of the design that no documentation covered: Apple's verifier enforces the limits written in the root. The same run showed that Chrome for iOS cannot install the profile, and that a three-line guide is not enough even for someone experienced, which is why the welcome screen is shaped as above.
+
+Not shown yet: a Wi-Fi network with no internet, and any Android device. The texts of the Android and computer pages follow the documentation and have not been checked on a device.
 
 ## Screens
 
@@ -73,7 +89,7 @@ Pages are built on the server and work without JavaScript, except for the welcom
 
 ## What is not built yet
 
-- The proof that real phones accept this design. The [access proof](../../experiments/access-proof) is the experiment for it, and the access design may change with what it shows.
+- The rest of the [access proof](../../experiments/access-proof): Android, and a Wi-Fi network with no internet.
 - Renewing the server certificate while the server runs, and the screens of the setup.
 - The passphrase, the personal layer and everything that depends on them.
 - Live updates. A page shows new messages when it is loaded again.

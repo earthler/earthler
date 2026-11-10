@@ -77,6 +77,11 @@
   }
 
   async function save() {
+    const opened = document.querySelector('input[name="opened"]:checked');
+    if (document.querySelector('input[name="opened"]') && !opened) {
+      status.textContent = 'First say how this page opened.';
+      return;
+    }
     saveButton.disabled = true;
     status.textContent = 'Saving.';
     try {
@@ -85,13 +90,14 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           scenario: document.getElementById('scenario').value,
+          opened: opened ? opened.value : '',
           notes: document.getElementById('notes').value,
           checks: checks
         })
       });
       status.textContent = res.ok
         ? 'Saved at ' + new Date().toLocaleTimeString() + '.'
-        : 'Could not save. The server answered ' + res.status + '.';
+        : (res.status === 400 ? 'First say how this page opened.' : 'Could not save. The server answered ' + res.status + '.');
     } catch (err) {
       status.textContent = 'Could not reach the server.';
     }

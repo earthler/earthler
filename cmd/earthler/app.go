@@ -94,7 +94,7 @@ func open(cfg config) (*app, error) {
 	if !validShort.MatchString(cfg.short) {
 		return nil, fmt.Errorf("the short name %q must use lowercase letters, digits and hyphens", cfg.short)
 	}
-	a.chain, _, err = certificate.Open(filepath.Join(cfg.dataDir, "secrets", "certificate"), cfg.short+".internal", time.Now())
+	a.chain, _, err = certificate.Open(filepath.Join(cfg.dataDir, "secrets", "certificate"), cfg.short+".internal", a.name, time.Now())
 	if err != nil {
 		return nil, err
 	}

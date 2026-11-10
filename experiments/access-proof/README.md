@@ -57,9 +57,23 @@ Repeat this on every phone you can, and write down the model and the system vers
 
 Everything is appended to `access-proof-data/results.jsonl`, one JSON object per line, and shown in the terminal.
 
-- A saved result lists each check with `true`, `false` or a short text.
-- `forged-rejected` means a device refused a forged certificate. It only counts when `device_trusts_real_certificate` is `true`, because a device that has not installed the certificate refuses everything.
+- A saved result lists each check with `true`, `false` or a short text. On the secure site it also carries `opened`: `no-warning` or `through-warning`. Only `no-warning` proves that the device trusts the certificate. A browser warning that the person tapped through gives the server exactly the same connection, so the server cannot tell the two apart and the person has to say.
+- The terminal line "completed a connection with the community certificate" means just that. It is not proof of trust, for the same reason.
+- `forged-rejected` means a device refused a forged certificate. It only counts for a device that also saved a `no-warning` result, because a device that has not installed the certificate refuses everything. `device_completed_real_handshake` says whether the same address ever completed a connection with the real certificate, and nothing more.
 - `forged-accepted` means a device accepted a forged certificate. One such line from a phone means that phone does not enforce the limits.
+
+## Results so far
+
+| Date | Device | Installed | Opened with no warning | Allowed on the secure site | Forged certificates | Wi-Fi with no internet |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-09 | iPhone 13 Pro, iOS 27.0.1, Safari 27 | Yes, through Safari. Chrome for iOS downloaded the file and installed nothing | Yes, after turning trust on in Settings | Secure context, Web Crypto, persistent storage, service worker, camera and microphone | Refused for a `.local` name and for an `sslip.io` name | Not tested |
+
+What the first run taught, beyond the table:
+
+- The three-line install guide was not enough for a person who knows computers well. The guide now in the system has one page per kind of device and one card per step, and the iPhone receives a configuration profile with the community's name instead of a bare certificate file.
+- On the iPhone, installing the profile is not the end: trust has to be turned on in Settings, General, About, Certificate Trust Settings, and the site shows a warning until then.
+- The iPhone has to be using Safari. The pages now send other browsers there.
+- No Android has been tested yet.
 
 ## Clean up
 

@@ -144,12 +144,17 @@ func (s *server) saveResult(w http.ResponseWriter, r *http.Request, secure bool)
 	}
 	var in struct {
 		Scenario string            `json:"scenario"`
+		Opened   string            `json:"opened"` // how the page opened: no-warning or through-warning
 		Notes    string            `json:"notes"`
 		Checks   map[string]string `json:"checks"`
 	}
 	body := http.MaxBytesReader(w, r.Body, 8<<10)
 	if err := json.NewDecoder(body).Decode(&in); err != nil || !scenarios[in.Scenario] || len(in.Checks) > 24 {
 		http.Error(w, "invalid result", http.StatusBadRequest)
+		return
+	}
+	if secure && in.Opened != "no-warning" && in.Opened != "through-warning" {
+		http.Error(w, "say how the page opened", http.StatusBadRequest)
 		return
 	}
 	res := result{
@@ -166,6 +171,9 @@ func (s *server) saveResult(w http.ResponseWriter, r *http.Request, secure bool)
 	}
 	for k, v := range in.Checks {
 		res.Checks[clip(k, 40)] = clip(v, 120)
+	}
+	if secure {
+		res.Checks["opened"] = in.Opened
 	}
 	if err := s.results.add(res); err != nil {
 		log.Printf("save result: %v", err)

@@ -128,3 +128,17 @@ ol li { margin-bottom: 6px; }
 }
 .tabs a[aria-current="page"] { color: var(--green); }
 .tabs .who { font-size: 15px; color: var(--muted); }
+
+/* Welcome and certificate pages */
+.tag { margin: 0 0 4px; font-size: 15px; font-weight: 600; color: var(--muted); }
+.small { font-size: 15px; color: var(--muted); }
+.small a { margin-right: 12px; }
+.hidden { display: none; }
+.step { border: 2px solid transparent; }
+.step.current { border-color: var(--green); }
+.step.done { opacity: 0.55; }
+.step.done h2::after { content: " ✓"; color: var(--green); }
+body.trusted .step { opacity: 0.55; border-color: transparent; }
+button.quiet { background: var(--soft); color: var(--green); }
+.notice { font-size: 15px; }
+.address { font: 600 22px/1.3 ui-monospace, Menlo, Consolas, monospace; overflow-wrap: anywhere; margin: 0; }

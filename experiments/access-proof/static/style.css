@@ -96,3 +96,7 @@ select, input {
 .links li { padding: 12px 0; border-top: 1px solid var(--line); margin: 0; }
 .links a { display: block; min-height: 44px; font-weight: 600; word-break: break-all; }
 .links span { display: block; font-size: 15px; color: var(--muted); }
+
+.label { font-weight: 600; margin: 12px 0 6px; }
+.choice { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; margin: 0 0 6px; font-weight: 400; }
+.choice input { width: 22px; height: 22px; min-height: 0; margin: 2px 0 0; flex: none; }

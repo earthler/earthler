@@ -25,6 +25,12 @@
 
   <section class="card">
     <h2>Record this result</h2>
+    {{if .Secure}}
+    <p class="label">How did this page open?</p>
+    <label class="choice"><input type="radio" name="opened" value="no-warning"> With no warning, like any other site</label>
+    <label class="choice"><input type="radio" name="opened" value="through-warning"> After a warning that I chose to go past</label>
+    <p class="small">Only the first answer proves that this device trusts the certificate. The server cannot tell the two apart.</p>
+    {{end}}
     <label for="scenario">Situation</label>
     <select id="scenario">
       <option value="internet-on">The network has internet</option>

@@ -26,7 +26,7 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/certificate`](core/certificate) | The community's own certificate authority, for HTTPS with no internet |
 | [`core/search`](core/search) | How text becomes search terms, in Portuguese |
 | [`core/page`](core/page) | The layout and the base style that every screen is drawn in |
-| [`screens/welcome`](screens/welcome) | The only screen without HTTPS: it hands the certificate to a new device |
+| [`screens/welcome`](screens/welcome) | The only screen without HTTPS: it walks a new device through installing the certificate, one page per kind of device |
 | [`screens/signup`](screens/signup) | Creating an account |
 | [`screens/chat`](screens/chat) | The open channel |
 | [`screens/search`](screens/search) | The search field and its results |
