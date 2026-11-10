@@ -12,6 +12,7 @@ import (
 
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/certificate"
+	"github.com/earthler/earthler/core/copies"
 	"github.com/earthler/earthler/core/erasure"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
@@ -31,6 +32,7 @@ type config struct {
 	short     string // short name for the address <short>.internal, fixed at birth
 	lang      string // language of the screens
 	httpsPort int    // where the secure site answers, for the links of the welcome page
+	copyDir   string // where the night's copy goes, or empty for no copies yet
 }
 
 var validShort = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$`)
@@ -44,6 +46,8 @@ type app struct {
 	chain   *certificate.Chain
 	name    string
 	byName  map[string]*index.Index
+	dataDir string
+	copyDir string
 
 	handler http.Handler // the system, served only over HTTPS
 	welcome http.Handler // the welcome page and the certificate, served over plain HTTP
@@ -57,7 +61,7 @@ const nightHour = 3
 // with the journal before any screen is served, which is also how the system
 // comes back after a power cut.
 func open(cfg config) (*app, error) {
-	a := &app{}
+	a := &app{dataDir: cfg.dataDir, copyDir: cfg.copyDir}
 	ok := false
 	defer func() {
 		if !ok {
@@ -97,6 +101,11 @@ func open(cfg config) (*app, error) {
 
 	key, err := accounts.LoadKey(filepath.Join(cfg.dataDir, "secrets"))
 	if err != nil {
+		return nil, err
+	}
+	// The copy key is born with the community, so the first copy can be
+	// read back with the key written down on the first day.
+	if _, err := copies.LoadKey(filepath.Join(cfg.dataDir, "secrets")); err != nil {
 		return nil, err
 	}
 	pages, err := page.New(cfg.lang, a.name)
@@ -193,7 +202,8 @@ func (a *app) erase(ctx context.Context, now time.Time) (int, error) {
 	return n, err
 }
 
-// nights runs the night's work: the erasure, and later the copies.
+// nights runs the night's work: first the erasure, then the copy, so a
+// copy never carries a text that was deleted before it.
 func (a *app) nights(ctx context.Context) {
 	for {
 		wait := time.NewTimer(time.Until(erasure.NextNight(time.Now(), nightHour)))
@@ -205,6 +215,11 @@ func (a *app) nights(ctx context.Context) {
 		}
 		if _, err := a.erase(ctx, time.Now()); err != nil {
 			log.Printf("erasure: %v", err)
+		}
+		if a.copyDir != "" {
+			if err := makeCopy(a.dataDir, a.copyDir); err != nil {
+				log.Printf("copy: %v", err)
+			}
 		}
 	}
 }

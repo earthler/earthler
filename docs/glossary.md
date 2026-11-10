@@ -26,7 +26,11 @@ The words the code uses. A word listed here means one thing everywhere: in packa
 | Area | The description of one index: its tables and how each event changes them |
 | Event | What an entry carries: who did what, and when |
 | Snapshot | A saved copy of the indexes, to avoid rebuilding everything |
-| Backup | A copy of the journal and the files, kept somewhere else |
+| Copy | An encrypted copy of the journal and the secrets, kept somewhere else. Only the copy key opens it |
+| Copy key | The key that encrypts the copies, made when the community is born and written down on paper |
+| Deletion | An entry that takes a message out of its channel. The text leaves the indexes at once |
+| Erasure | The night's work that replaces deleted content in the journal with the erased mark |
+| Live updates | The connection an open page keeps, on which the server sends what just changed |
 
 ## People and access
 

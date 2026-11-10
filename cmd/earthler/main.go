@@ -32,9 +32,25 @@ func main() {
 	plain := flag.String("http", ":80", "address of the welcome page")
 	secure := flag.String("https", ":443", "address of the system")
 	dev := flag.String("dev", "", "serve the system over plain HTTP on this address, for development only")
+	flag.StringVar(&cfg.copyDir, "copies", "", "folder that receives an encrypted copy of the data every night")
+	copyTo := flag.String("copy", "", "write an encrypted copy of the data into this folder, then exit")
+	restoreFrom := flag.String("restore", "", "bring the data back from the copy in this folder into an empty data folder, then exit; needs -copy-key")
+	copyKey := flag.String("copy-key", "", "the copy key, as written down, for -restore")
+	showKey := flag.Bool("print-copy-key", false, "print the copy key, to write it down, then exit")
 	flag.Parse()
 
-	if err := run(cfg, *plain, *secure, *dev); err != nil {
+	var err error
+	switch {
+	case *restoreFrom != "":
+		err = restore(cfg.dataDir, *restoreFrom, *copyKey)
+	case *copyTo != "":
+		err = makeCopy(cfg.dataDir, *copyTo)
+	case *showKey:
+		err = printCopyKey(cfg.dataDir)
+	default:
+		err = run(cfg, *plain, *secure, *dev)
+	}
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "earthler:", err)
 		os.Exit(1)
 	}

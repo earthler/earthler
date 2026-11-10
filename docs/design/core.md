@@ -83,15 +83,36 @@ On 2026-11-09, an iPhone 13 Pro with iOS 27.0.1 installed the certificate throug
 
 Not shown yet: a Wi-Fi network with no internet, and any Android device. The texts of the Android, Windows, Mac and Linux pages use the menu names from the official documentation and from the systems' own language files (Android's settings, Firefox's and macOS's translations), and have not been checked on a device.
 
+## Live updates
+
+A page that is open keeps one connection to the server, over Server-Sent Events, and the server sends on it each change the page should show. The scribe tells its listeners about every batch once the indexes have it and before it answers the writer, so an open page learns of a message before the page that sent it. The screen renders each change once and the hub in [`core/live`](../../core/live) hands it to every connection.
+
+- The browser reopens the connection by itself after a dropped Wi-Fi, saying the number of the last entry it saw, and the page catches up from the index. More than 500 changes behind, it reloads instead.
+- A connection that falls more than 32 messages behind is dropped. Its browser reconnects and catches up the same way.
+- A comment line every 25 seconds keeps the connection open and lets the browser notice a dead one.
+- Everything is sent to everyone, because today everything is open to every resident. The permission table will decide who receives what.
+
+The page works without the script: it only saves the reload.
+
+## Deletion
+
+A deletion is an entry like any other, so it survives a rebuild of the indexes. The text leaves the indexes at once, the screen says a message was deleted, and the open pages hear of it. Only the author can delete, until roles exist.
+
+The entry that holds the text stays in the journal until the night's work, in [`core/erasure`](../../core/erasure), rewrites its segment with the content replaced by the erased mark. The digest and the seals stay, so the chain stays whole; the salt goes with the text, so the digest that stays cannot confirm a guess of what the text was. What is pending is itself an index derived from the journal, and the erasure is recorded as an entry, so a rebuilt index asks for the same work again and erasing twice changes nothing. The erasure also runs when the system starts, before any screen is served, so a restored copy never serves a text that was deleted. The indexes overwrite what they delete, and the search table does the same.
+
+## Copies
+
+The [copies](copies.md) have a note of their own: what goes in one, the key the person writes down, and the encrypted format.
+
 ## Screens
 
-Pages are built on the server and work without JavaScript, except for the welcome page, which uses a small script to notice when the device starts trusting the certificate. Every text a person reads comes from a file in [`locales`](../../locales), one per language, with Brazilian Portuguese as the first.
+Pages are built on the server and work without JavaScript, except for the welcome page, which uses a small script to notice when the device starts trusting the certificate, and the conversation, which uses one to show new messages without a reload. Every text a person reads comes from a file in [`locales`](../../locales), one per language, with Brazilian Portuguese as the first.
 
 ## What is not built yet
 
 - The rest of the [access proof](../../experiments/access-proof): Android, and a Wi-Fi network with no internet.
 - Renewing the server certificate while the server runs, and the screens of the setup.
 - The passphrase, the personal layer and everything that depends on them.
-- Live updates. A page shows new messages when it is loaded again.
-- Roles and the permission table. Today a resident can do everything there is to do.
-- Erasing, backups, and the record of searches that found nothing.
+- Roles and the permission table. Today a resident can do everything there is to do, and every live update goes to everyone.
+- A second machine that receives the entries as they are written, and the copies screen.
+- Editing a message, and the record of searches that found nothing.
