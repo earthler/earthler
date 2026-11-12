@@ -6,7 +6,7 @@ Those Who Steward Their World. An Earthler is someone who takes care of their ow
 
 ## Where we are
 
-Earthler is at the design stage. There is no published code and no version to install yet, and this text describes what we want to build. Once the code is published, the project will live on, with no promise of individual support, at earthler.org and on the forum at forum.earthler.org.
+Earthler is in early development. The first code is public on GitHub, and there is no version to install yet. There is no launch date and no promise of individual support. This text describes what we want to build. The project lives at earthler.org and on the forum at forum.earthler.org.
 
 ## What we believe
 
