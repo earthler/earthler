@@ -8,6 +8,10 @@ The words the code uses. A word listed here means one thing everywhere: in packa
 | --- | --- |
 | Community | The group of people that runs one installation, up to about a thousand |
 | Resident | A person who belongs to the community |
+| Role | What a resident may do: resident, child, moderator or administrator. The table of who may do what is in one file, [`core/permissions`](../core/permissions) |
+| Administrator | The role that gives roles. The first account of a community has it, until the setup names one |
+| Moderator | The role that may remove what someone else wrote in an open channel, always with a reason |
+| Log | The screen that shows what the people with powers did with them. Every resident can read it |
 | Core | The program that serves the screens and owns the data |
 | Screen | One page of the system, with its own folder in the code |
 | Service | A ready-made program that the core talks to, such as a video converter |

@@ -24,7 +24,13 @@ const (
 
 	// MessageDeleted takes a message out of its channel. The text leaves the
 	// indexes at once; the entry that holds it is erased later, see EntryErased.
+	// The author deletes without a reason. Someone else who has the power to
+	// remove content does it with one, and the act goes to the log.
 	MessageDeleted = "message.deleted"
+
+	// RoleChanged gives an account another role. Only an administrator's act
+	// counts: the indexes ignore it from anyone else.
+	RoleChanged = "role.changed"
 
 	// EntryErased records that the contents of some entries were physically
 	// replaced by the erased mark in the journal.
@@ -61,6 +67,16 @@ type MessageCreatedData struct {
 type MessageDeletedData struct {
 	Channel uint64 `json:"channel"`
 	Message uint64 `json:"message"` // the entry that created the message
+
+	// Author and Reason are set only when the one who deletes is not the
+	// author: whose message it was, and why it was removed.
+	Author uint64 `json:"author,omitempty"`
+	Reason string `json:"reason,omitempty"`
+}
+
+type RoleChangedData struct {
+	Account uint64 `json:"account"` // whose role changes
+	Role    string `json:"role"`
 }
 
 type EntryErasedData struct {

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/earthler/earthler/core/permissions"
 	"github.com/earthler/earthler/locales"
 )
 
@@ -30,6 +31,7 @@ type Data struct {
 	Title  string // title of the screen, already in the community's language
 	Active string // which item of the navigation is this screen
 	User   string // name of the person, or empty when nobody is signed in
+	Role   string // role of the person, which decides what the navigation offers
 	Query  string // what is in the search field
 	Body   any    // whatever the screen's own template needs
 	Script string // address of the screen's own script, for the few that need one
@@ -47,7 +49,14 @@ func New(lang, community string) (*Renderer, error) {
 		return nil, err
 	}
 	r := &Renderer{lang: lang, community: community, texts: texts}
-	r.base, err = template.New("layout.html").Funcs(template.FuncMap{"t": texts.T}).ParseFS(files, "layout.html")
+	r.base, err = template.New("layout.html").Funcs(template.FuncMap{
+		"t": texts.T,
+		// can asks the permission table, so a screen offers only what the
+		// person's role allows.
+		"can": func(role, action string) bool {
+			return permissions.Can(permissions.Role(role), permissions.Action(action))
+		},
+	}).ParseFS(files, "layout.html")
 	if err != nil {
 		return nil, err
 	}

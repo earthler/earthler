@@ -31,6 +31,8 @@ import (
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/journal"
+	"github.com/earthler/earthler/core/permissions"
+	"github.com/earthler/earthler/core/roster"
 	"github.com/earthler/earthler/core/scribe"
 )
 
@@ -38,12 +40,17 @@ import (
 var Area = index.Area{
 	Name: "accounts",
 	Schema: `
-		CREATE TABLE accounts (number INTEGER PRIMARY KEY, name TEXT NOT NULL, folded TEXT NOT NULL UNIQUE);
+		CREATE TABLE accounts (number INTEGER PRIMARY KEY, name TEXT NOT NULL, folded TEXT NOT NULL UNIQUE,
+			joined INTEGER NOT NULL DEFAULT 0);
+		` + roster.Schema + `
 		CREATE TABLE devices (number INTEGER PRIMARY KEY, account INTEGER NOT NULL, counter INTEGER NOT NULL DEFAULT 0);`,
 	Apply: apply,
 }
 
 func apply(tx *sql.Tx, entry journal.Entry) error {
+	if _, err := roster.Apply(tx, entry); err != nil {
+		return err
+	}
 	e, err := event.Decode(entry.Content)
 	if err != nil {
 		return nil
@@ -56,8 +63,8 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		}
 		// Sign up checks the name first. If two entries with the same name
 		// exist anyway, the first one keeps it.
-		if _, err = tx.Exec(`INSERT INTO accounts (number, name, folded) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`,
-			entry.Number, d.Name, fold(d.Name)); err == nil && d.FirstDevice {
+		if _, err = tx.Exec(`INSERT INTO accounts (number, name, folded, joined) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING`,
+			entry.Number, d.Name, fold(d.Name), e.Time); err == nil && d.FirstDevice {
 			_, err = tx.Exec(`INSERT INTO devices (number, account) VALUES (?, ?) ON CONFLICT DO NOTHING`, entry.Number, entry.Number)
 		}
 	case event.DeviceCreated:
@@ -116,6 +123,7 @@ type Session struct {
 	Account uint64
 	Device  uint64
 	Name    string
+	Role    permissions.Role
 }
 
 // Service signs residents up and recognises their browsers.
@@ -124,6 +132,7 @@ type Service struct {
 	scribe *scribe.Scribe
 	key    []byte
 	signup sync.Mutex // one sign up at a time, so a name is checked and taken together
+	roles  sync.Mutex // one change of role at a time, so the last administrator is counted right
 }
 
 // New returns the service. key signs the session cookies.
@@ -219,8 +228,10 @@ func (s *Service) Lookup(r *http.Request) (Session, error) {
 	}
 	sess := Session{Device: device}
 	err = s.index.DB().QueryRowContext(r.Context(), `
-		SELECT a.number, a.name FROM devices d JOIN accounts a ON a.number = d.account
-		WHERE d.number = ? AND d.counter = ?`, device, counter).Scan(&sess.Account, &sess.Name)
+		SELECT a.number, a.name, r.role FROM devices d
+		JOIN accounts a ON a.number = d.account
+		JOIN roster r ON r.account = a.number
+		WHERE d.number = ? AND d.counter = ?`, device, counter).Scan(&sess.Account, &sess.Name, &sess.Role)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return Session{}, ErrNoSession

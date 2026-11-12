@@ -54,6 +54,18 @@ Forms are read in one place, in front of every screen, with a limit of 64 KB. An
 
 A failure of the system while looking up a session is a failure, not a signed out visitor: the resident gets an error and is not sent to the sign up screen.
 
+## Roles and permissions
+
+A resident has one of four roles: resident, child, moderator or administrator. Who may do what is one table in [`core/permissions`](../../core/permissions), and a screen asks it before it acts and before it offers a button. A test writes the table out a second time by hand, so a change of the rules has to be made twice, on purpose.
+
+The first account of a community is its administrator, until the setup names one. An administrator gives a role from the list of residents. A role can be given by hand only if it is a real one other than child, because a child is made through a guardian, which is not built yet. The last administrator cannot step down, and a role given to someone who already has it writes nothing.
+
+Roles are not stored on the account. [`core/roster`](../../core/roster) follows them from the journal, with the same rules for every index that needs them: a change of role counts only if the one who made it was an administrator at that moment. A forged entry, or one that a bug let through, changes nothing in any index, and the log does not show it.
+
+A moderator or an administrator removes what someone else wrote in an open channel, and must give a reason of up to 200 letters. The author still deletes their own message without one. Only the removal by someone else is an act, and acts go to the log: [`screens/auditlog`](../../screens/auditlog) lists the latest hundred, with who did it, to whom, and why. The log is open to every resident on purpose. A child reads the open channel and does not write in it.
+
+Not built yet: the guardian that makes a child, the roles that depend on the rules of the community (the charter), approval of new residents, and a role for the curator.
+
 ## Search
 
 The full text search of SQLite only knows how to reduce English words to their root. So the text is prepared before it reaches the index: split into words, lowercased, reduced by the Portuguese Snowball stemmer and stripped of accents. The question typed in the search field goes through the same function, so the two always meet.
@@ -98,7 +110,7 @@ A page that is open keeps one connection to the server, over Server-Sent Events,
 - The browser reopens the connection by itself after a dropped Wi-Fi, saying the number of the last entry it saw, and the page catches up from the index. More than 500 changes behind, it reloads instead.
 - A connection that falls more than 32 messages behind is dropped. Its browser reconnects and catches up the same way.
 - A comment line every 25 seconds keeps the connection open and lets the browser notice a dead one.
-- Everything is sent to everyone, because today everything is open to every resident. The permission table will decide who receives what.
+- Everything is sent to everyone, because every channel is open. The permission table will decide who receives what once there are conversations that are not.
 
 - Text that carries line ends is written to the stream with every kind of line end turned into one, so a message can never start a field of its own.
 - A server that is stopping closes the hub first, because connections that never go quiet would keep it waiting.
@@ -124,6 +136,6 @@ Pages are built on the server and work without JavaScript, except for the welcom
 - The rest of the [access proof](../../experiments/access-proof): Android, and a Wi-Fi network with no internet.
 - Renewing the server certificate while the server runs, and the screens of the setup.
 - The passphrase, the personal layer and everything that depends on them.
-- Roles and the permission table. Today a resident can do everything there is to do, and every live update goes to everyone.
+- Guardians and children, approval of new residents, and every live update still goes to everyone: the table decides who writes and removes, and will decide who receives what once there are conversations that are not open.
 - A second machine that receives the entries as they are written, and the copies screen.
 - Editing a message, and the record of searches that found nothing.

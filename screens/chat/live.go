@@ -50,7 +50,7 @@ func (s *Screen) announce(entries []journal.Entry) {
 func (s *Screen) message(ctx context.Context, number uint64) (message, error) {
 	row := s.index.DB().QueryRowContext(ctx, `SELECT `+messageColumns+` FROM messages m
 		LEFT JOIN authors a ON a.account = m.account WHERE m.number = ?`, number)
-	return s.scanMessage(row, 0)
+	return s.scanMessage(row, 0, false)
 }
 
 // posted renders a message as the page would, with the controls of its
@@ -86,7 +86,7 @@ func (s *Screen) live(w http.ResponseWriter, r *http.Request) {
 				send(live.Message{Event: "reload", Data: "too far behind"})
 				return nil
 			}
-			m, err := s.scanMessage(rows, 0)
+			m, err := s.scanMessage(rows, 0, false)
 			if err != nil {
 				return err
 			}

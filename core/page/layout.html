@@ -21,6 +21,8 @@
 {{if .User}}
 <nav class="tabs">
   <a href="/chat" {{if eq .Active "chat"}}aria-current="page"{{end}}>{{t "nav.chat"}}</a>
+  {{if can .Role "log.read"}}<a href="/log" {{if eq .Active "log"}}aria-current="page"{{end}}>{{t "nav.log"}}</a>{{end}}
+  {{if can .Role "residents.see"}}<a href="/admin/residents" {{if eq .Active "residents"}}aria-current="page"{{end}}>{{t "nav.residents"}}</a>{{end}}
   <span class="who">{{.User}}</span>
 </nav>
 {{end}}
