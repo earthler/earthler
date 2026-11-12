@@ -20,7 +20,9 @@ import (
 	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/page"
 	"github.com/earthler/earthler/core/scribe"
+	"github.com/earthler/earthler/screens/auditlog"
 	"github.com/earthler/earthler/screens/chat"
+	people "github.com/earthler/earthler/screens/residents"
 	"github.com/earthler/earthler/screens/search"
 	"github.com/earthler/earthler/screens/signup"
 	"github.com/earthler/earthler/screens/welcome"
@@ -76,7 +78,7 @@ func open(cfg config) (*app, error) {
 	if a.journal, err = journal.Open(filepath.Join(cfg.dataDir, "journal"), journal.Options{}); err != nil {
 		return nil, err
 	}
-	areas := []index.Area{accounts.Area, chat.Area, search.Area, erasure.Area}
+	areas := []index.Area{accounts.Area, chat.Area, search.Area, auditlog.Area, erasure.Area}
 	byName := map[string]*index.Index{}
 	for _, area := range areas {
 		ix, err := index.Open(filepath.Join(cfg.dataDir, "indexes"), area)
@@ -149,6 +151,8 @@ func open(cfg config) (*app, error) {
 	a.chat = chat.New(byName[chat.Area.Name], a.scribe, pages)
 	a.chat.Routes(mux, residents.Require)
 	search.New(byName[search.Area.Name], pages).Routes(mux, residents.Require)
+	auditlog.New(byName[auditlog.Area.Name], pages).Routes(mux, residents.Require)
+	people.New(residents, pages).Routes(mux, residents.Require)
 	a.handler = pages.Guard(mux)
 
 	ok = true

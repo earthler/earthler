@@ -1,0 +1,26 @@
+{{define "content"}}
+{{with .Body}}
+<h1>{{t "residents.title"}}</h1>
+{{if .Error}}<p class="notice" role="alert">{{.Error}}</p>{{end}}
+<ul class="messages">
+  {{range .Residents}}
+  <li>
+    <div class="meta"><strong>{{.Name}}</strong><span>{{.Joined}}</span></div>
+    {{if .Options}}
+    <form class="inline" action="/admin/residents/role" method="post">
+      <input type="hidden" name="number" value="{{.Number}}">
+      <label for="role-{{.Number}}">{{t "residents.role"}}</label>
+      <select id="role-{{.Number}}" name="role">
+        {{range .Options}}<option value="{{.Value}}"{{if .Selected}} selected{{end}}>{{.Label}}</option>{{end}}
+      </select>
+      <button type="submit">{{t "residents.save"}}</button>
+    </form>
+    {{else}}
+    <p class="muted">{{.Role}}</p>
+    {{end}}
+  </li>
+  {{end}}
+</ul>
+<p class="muted">{{t "residents.note"}}</p>
+{{end}}
+{{end}}

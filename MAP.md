@@ -23,6 +23,8 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/event`](core/event) | What goes inside an entry, and the catalog of event types |
 | [`core/scribe`](core/scribe) | The single writer: journal first, then the indexes, then the answer |
 | [`core/accounts`](core/accounts) | Residents, their browsers and the session cookie |
+| [`core/permissions`](core/permissions) | The roles, and the one table that says who may do what |
+| [`core/roster`](core/roster) | Who has which role, followed from the journal by every index that needs it |
 | [`core/certificate`](core/certificate) | The community's own certificate authority, for HTTPS with no internet |
 | [`core/live`](core/live) | The connection that every open page keeps, on which the server sends what just changed |
 | [`core/erasure`](core/erasure) | The night's work that takes deleted content out of the journal for good |
@@ -33,6 +35,8 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`screens/welcome`](screens/welcome) | The only screen without HTTPS: it walks a new device through installing the certificate, one page per kind of device |
 | [`screens/signup`](screens/signup) | Creating an account |
 | [`screens/chat`](screens/chat) | The open channel |
+| [`screens/auditlog`](screens/auditlog) | The log of what administrators and moderators did |
+| [`screens/residents`](screens/residents) | The list of residents, where an administrator gives roles |
 | [`screens/search`](screens/search) | The search field and its results |
 | [`locales`](locales) | Every text people read on a screen, one file per language |
 | [`experiments`](experiments) | Disposable programs that test the design on real devices. Not part of the system |

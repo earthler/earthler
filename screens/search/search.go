@@ -137,5 +137,5 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request) {
 			b.Results = append(b.Results, res)
 		}
 	}
-	s.pages.Render(w, http.StatusOK, s.tmpl, page.Data{Title: s.pages.T("search.title"), User: sess.Name, Query: asked, Body: b})
+	s.pages.Render(w, http.StatusOK, s.tmpl, page.Data{Title: s.pages.T("search.title"), User: sess.Name, Role: string(sess.Role), Query: asked, Body: b})
 }

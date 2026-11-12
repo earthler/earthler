@@ -14,6 +14,7 @@ import (
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/page"
+	"github.com/earthler/earthler/core/permissions"
 	"github.com/earthler/earthler/core/scribe"
 )
 
@@ -24,6 +25,10 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sess := accounts.From(r.Context())
+	if !permissions.Can(sess.Role, permissions.WriteInOpenChannel) {
+		http.Error(w, s.pages.T("chat.error.readonly"), http.StatusForbidden)
+		return
+	}
 	text, valid := cleanText(r.FormValue("text"))
 	switch {
 	case !valid:
@@ -68,9 +73,11 @@ func cleanText(raw string) (string, bool) {
 	return strings.TrimSpace(raw), true
 }
 
-// delete takes a message out of the channel. Only its author can, for now:
-// the roles that let someone else remove content come with the permission
-// table.
+// MaxReason is the longest reason for removing a message, in characters.
+const MaxReason = 200
+
+// delete takes a message out of the channel. Its author can. Someone whose
+// role may remove content can too, with a reason that goes to the log.
 func (s *Screen) delete(w http.ResponseWriter, r *http.Request) {
 	if !page.SameOrigin(r) {
 		http.Error(w, s.pages.T("error.origin"), http.StatusForbidden)
@@ -93,15 +100,27 @@ func (s *Screen) delete(w http.ResponseWriter, r *http.Request) {
 		log.Printf("chat: %v", err)
 		http.Error(w, s.pages.T("error.internal"), http.StatusInternalServerError)
 		return
-	case account != sess.Account:
-		http.Error(w, s.pages.T("chat.error.notyours"), http.StatusForbidden)
-		return
-	case deleted != 0:
+	}
+	data := event.MessageDeletedData{Channel: channel, Message: number}
+	if account != sess.Account {
+		// Someone else's message goes only by the hand of a role that may
+		// remove content, and with a reason that stays in the log.
+		if !permissions.Can(sess.Role, permissions.RemoveContent) {
+			http.Error(w, s.pages.T("chat.error.notyours"), http.StatusForbidden)
+			return
+		}
+		reason, valid := cleanText(r.FormValue("reason"))
+		if !valid || reason == "" || len([]rune(reason)) > MaxReason {
+			http.Error(w, s.pages.T("chat.error.reason"), http.StatusBadRequest)
+			return
+		}
+		data.Author, data.Reason = account, reason
+	}
+	if deleted != 0 {
 		http.Redirect(w, r, "/chat", http.StatusSeeOther)
 		return
 	}
-	content, err := event.New(event.MessageDeleted, sess.Account, sess.Device, time.Now(),
-		event.MessageDeletedData{Channel: channel, Message: number})
+	content, err := event.New(event.MessageDeleted, sess.Account, sess.Device, time.Now(), data)
 	if err == nil {
 		_, err = s.scribe.Write(r.Context(), content)
 	}

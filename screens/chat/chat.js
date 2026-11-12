@@ -8,6 +8,8 @@
   if (!list || !window.EventSource) return;
   const empty = document.getElementById('empty');
   const me = list.dataset.me;
+  const canRemove = list.dataset.canRemove === '1';
+  const removeForm = document.getElementById('remove-form');
 
   // The last entry this page knows of: a message, or the deletion of one.
   function last() {
@@ -32,6 +34,12 @@
     if (li.dataset.account !== me) {
       li.classList.remove('mine');
       li.querySelectorAll('form').forEach(function (f) { f.remove(); });
+      // Someone who may remove content gets the form to do it, with a reason.
+      if (canRemove && removeForm && !li.dataset.deleted) {
+        const form = removeForm.content.firstElementChild.cloneNode(true);
+        form.querySelector('input[name="number"]').value = li.dataset.number;
+        li.appendChild(form);
+      }
     }
     const wasAtEnd = atEnd();
     list.appendChild(li);

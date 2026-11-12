@@ -44,7 +44,7 @@ main { max-width: 720px; margin: 0 auto; padding: 0 16px 96px; }
 .muted { color: var(--muted); }
 
 label { display: block; margin: 0 0 6px; font-weight: 600; }
-input, textarea {
+input, textarea, select {
   width: 100%;
   min-height: 54px;
   padding: 12px 14px;

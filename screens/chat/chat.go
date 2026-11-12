@@ -17,6 +17,7 @@ import (
 	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/live"
 	"github.com/earthler/earthler/core/page"
+	"github.com/earthler/earthler/core/permissions"
 	"github.com/earthler/earthler/core/scribe"
 )
 
@@ -130,6 +131,10 @@ type message struct {
 	Text    string
 	Mine    bool
 	Deleted uint64 // the entry that deleted it, or zero
+
+	// Removable says that the reader may remove this message, though it is
+	// not theirs, with a reason.
+	Removable bool
 }
 
 type body struct {
@@ -139,24 +144,30 @@ type body struct {
 	Error    string // a text to show, or empty
 	Draft    string // what the person had written when an error happened
 	MaxText  int
+
+	CanWrite  bool // the role allows writing in the channel
+	CanRemove bool // the role allows removing what others wrote
 }
 
 // messageColumns is what every query of messages reads, in the order that
 // scanMessage expects.
 const messageColumns = `m.number, m.account, coalesce(a.name, ''), m.time, m.text, m.deleted`
 
-func (s *Screen) scanMessage(rows interface{ Scan(...any) error }, me uint64) (message, error) {
+func (s *Screen) scanMessage(rows interface{ Scan(...any) error }, me uint64, canRemove bool) (message, error) {
 	var m message
 	var ms int64
 	err := rows.Scan(&m.Number, &m.Account, &m.Author, &ms, &m.Text, &m.Deleted)
 	m.Time = time.UnixMilli(ms).Format(s.pages.T("time.short"))
 	m.Mine = m.Account == me
+	m.Removable = canRemove && !m.Mine
 	return m, err
 }
 
 func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey, draft string) {
 	sess := accounts.From(r.Context())
-	b := body{Me: sess.Account, Draft: draft, MaxText: MaxText}
+	b := body{Me: sess.Account, Draft: draft, MaxText: MaxText,
+		CanWrite:  permissions.Can(sess.Role, permissions.WriteInOpenChannel),
+		CanRemove: permissions.Can(sess.Role, permissions.RemoveContent)}
 	if errKey != "" {
 		b.Error = s.pages.T(errKey)
 	}
@@ -179,7 +190,7 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey
 	}
 	defer rows.Close()
 	for rows.Next() {
-		m, err := s.scanMessage(rows, sess.Account)
+		m, err := s.scanMessage(rows, sess.Account, b.CanRemove)
 		if err != nil {
 			log.Printf("chat: %v", err)
 			continue
@@ -189,7 +200,7 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey
 	for i, j := 0, len(b.Messages)-1; i < j; i, j = i+1, j-1 {
 		b.Messages[i], b.Messages[j] = b.Messages[j], b.Messages[i]
 	}
-	s.pages.Render(w, status, s.tmpl, page.Data{Title: s.pages.T("chat.title"), Active: "chat", User: sess.Name, Script: "/chat.js", Body: b})
+	s.pages.Render(w, status, s.tmpl, page.Data{Title: s.pages.T("chat.title"), Active: "chat", User: sess.Name, Role: string(sess.Role), Script: "/chat.js", Body: b})
 }
 
 // channel returns the open channel. There is one for now, created together
