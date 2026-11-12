@@ -54,6 +54,8 @@ There is a single writer. `Append` writes all the entries of one call together a
 
 If writing or confirming fails, the journal stops accepting writes until it is opened again. It never tries to confirm the same file a second time, because after a failed confirmation nobody knows what is on the disk.
 
+The small files beside the journal, such as the keys, are written to a new file, confirmed, and then put in place, so after a power cut each one is whole or not there at all. The certificate folder is built the same way, and a server that finds it incomplete refuses to start instead of making a new authority that no device would trust.
+
 When a segment file is created, the folder is confirmed too, so the new file name survives a power cut. A lock on the folder keeps a second process from opening the same journal.
 
 ## Opening after a power cut

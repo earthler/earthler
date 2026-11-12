@@ -115,3 +115,74 @@ func TestEncode(t *testing.T) {
 		t.Fatalf("%q", got)
 	}
 }
+
+// TestTextCannotStartAFieldOfItsOwn sends data that carries every kind of
+// line end and the names of the fields. A browser ends a line at a line
+// feed, at a carriage return and at both together, so after it reads the
+// message the only fields left must be the ones the server wrote.
+func TestTextCannotStartAFieldOfItsOwn(t *testing.T) {
+	wire := string(encode(Message{ID: 7, Event: "posted", Data: "oi\rid: 99999999\revent: reload\rretry: 99999999\r\ndata: x\nid: 5"}))
+	asBrowser := strings.NewReplacer("\r\n", "\n", "\r", "\n").Replace(wire)
+	var fields []string
+	for _, line := range strings.Split(strings.TrimSuffix(asBrowser, "\n\n"), "\n") {
+		name, _, _ := strings.Cut(line, ": ")
+		fields = append(fields, name)
+	}
+	for i, name := range fields {
+		want := "data"
+		if i == 0 {
+			want = "id"
+		} else if i == 1 {
+			want = "event"
+		}
+		if name != want {
+			t.Fatalf("line %d is a %q field, want %q:\n%q", i, name, want, wire)
+		}
+	}
+	if len(fields) != 8 {
+		t.Fatalf("%d lines, want the id, the event and six data lines:\n%q", len(fields), wire)
+	}
+}
+
+// TestClosingTheHubEndsEveryConnection is what a stopping server relies on:
+// connections that never go quiet end when the hub is closed, and a page
+// that tries again is told the server is stopping.
+func TestClosingTheHubEndsEveryConnection(t *testing.T) {
+	hub := NewHub()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		hub.Serve(w, r, func(func(Message)) error { return nil })
+	}))
+	defer srv.Close()
+
+	var pages []*bufio.Scanner
+	for i := 0; i < 3; i++ {
+		sc, stop := listen(t, srv.URL)
+		defer stop()
+		next(t, sc) // the reconnection hint
+		pages = append(pages, sc)
+	}
+	if hub.Connections() != 3 {
+		t.Fatalf("%d connections, want 3", hub.Connections())
+	}
+	hub.Close()
+	for i, sc := range pages {
+		done := make(chan bool, 1)
+		go func() { done <- !sc.Scan() }()
+		select {
+		case ended := <-done:
+			if !ended {
+				t.Fatalf("page %d received something after the hub closed", i)
+			}
+		case <-time.After(3 * time.Second):
+			t.Fatalf("page %d is still connected after the hub closed", i)
+		}
+	}
+	res, err := http.Get(srv.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("a connection after the close got status %d", res.StatusCode)
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -136,5 +137,65 @@ func TestNextNight(t *testing.T) {
 	early := time.Date(2026, 11, 10, 2, 59, 0, 0, loc)
 	if got := NextNight(early, 3); !got.Equal(time.Date(2026, 11, 10, 3, 0, 0, 0, loc)) {
 		t.Fatalf("next night from before the hour: %v", got)
+	}
+}
+
+// TestEverythingPendingIsErasedInOneRun deletes more messages than fit in one
+// batch. The night's copy comes right after the run, so a run that stopped
+// at the first batch would put texts that were deleted into the copy.
+func TestEverythingPendingIsErasedInOneRun(t *testing.T) {
+	defer func(old int) { batch = old }(batch)
+	batch = 7
+
+	root := t.TempDir()
+	j, err := journal.Open(filepath.Join(root, "journal"), journal.Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer j.Close()
+	pending, err := index.Open(filepath.Join(root, "indexes"), Area)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer pending.Close()
+	s, err := scribe.Start(j, pending)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	now, ctx := time.Now(), context.Background()
+
+	const messages = 30
+	var numbers []uint64
+	for i := 0; i < messages; i++ {
+		content, _ := event.New(event.MessageCreated, 1, 1, now, event.MessageCreatedData{Channel: 1, Text: "segredo de " + string(rune('a'+i%26))})
+		entries, err := s.Write(ctx, content)
+		if err != nil {
+			t.Fatal(err)
+		}
+		numbers = append(numbers, entries[0].Number)
+	}
+	for _, n := range numbers {
+		content, _ := event.New(event.MessageDeleted, 1, 1, now, event.MessageDeletedData{Channel: 1, Message: n})
+		if _, err := s.Write(ctx, content); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if n, err := Run(ctx, j, pending, s, now); err != nil || n != messages {
+		t.Fatalf("one run erased %d of %d, %v", n, messages, err)
+	}
+	var left int
+	if err := pending.DB().QueryRow(`SELECT count(*) FROM pending`).Scan(&left); err != nil || left != 0 {
+		t.Fatalf("%d entries are still pending, %v", left, err)
+	}
+	for _, path := range func() []string { m, _ := filepath.Glob(filepath.Join(root, "journal", "*.journal")); return m }() {
+		raw, _ := os.ReadFile(path)
+		if strings.Contains(string(raw), "segredo de") {
+			t.Fatalf("a deleted text is still in %s", path)
+		}
+	}
+	if err := j.Verify(); err != nil {
+		t.Fatal(err)
 	}
 }

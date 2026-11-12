@@ -29,8 +29,9 @@ var heartbeat = 25 * time.Second
 
 // Hub is one group of connections that all receive the same messages.
 type Hub struct {
-	mu   sync.Mutex
-	subs map[*subscriber]struct{}
+	mu     sync.Mutex
+	subs   map[*subscriber]struct{}
+	closed bool
 }
 
 type subscriber struct {
@@ -64,12 +65,28 @@ func (h *Hub) Connections() int {
 	return len(h.subs)
 }
 
-func (h *Hub) subscribe() *subscriber {
+// Close ends every connection and refuses new ones. A server that is
+// stopping calls it first: a connection that never goes quiet would
+// otherwise keep the server waiting until its patience ran out.
+func (h *Hub) Close() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	h.closed = true
+	for s := range h.subs {
+		s.once.Do(func() { close(s.dropped) })
+		delete(h.subs, s)
+	}
+}
+
+func (h *Hub) subscribe() (*subscriber, bool) {
 	s := &subscriber{ch: make(chan Message, queue), dropped: make(chan struct{})}
 	h.mu.Lock()
+	defer h.mu.Unlock()
+	if h.closed {
+		return nil, false
+	}
 	h.subs[s] = struct{}{}
-	h.mu.Unlock()
-	return s
+	return s, true
 }
 
 func (h *Hub) unsubscribe(s *subscriber) {
@@ -100,7 +117,11 @@ func (h *Hub) Serve(w http.ResponseWriter, r *http.Request, catchUp func(send fu
 		http.Error(w, "streaming is not supported", http.StatusInternalServerError)
 		return
 	}
-	sub := h.subscribe()
+	sub, ok := h.subscribe()
+	if !ok {
+		http.Error(w, "the server is stopping", http.StatusServiceUnavailable)
+		return
+	}
 	defer h.unsubscribe(sub)
 
 	w.Header().Set("Content-Type", "text/event-stream")
@@ -141,6 +162,8 @@ func (h *Hub) Serve(w http.ResponseWriter, r *http.Request, catchUp func(send fu
 	}
 }
 
+var lineEnds = strings.NewReplacer("\r\n", "\n", "\r", "\n")
+
 // encode writes a message in the wire format: one field per line and an
 // empty line at the end. Data that spans lines becomes one data line per
 // line, and the browser joins them again.
@@ -156,7 +179,10 @@ func encode(m Message) []byte {
 		b.WriteString(m.Event)
 		b.WriteByte('\n')
 	}
-	for _, line := range strings.Split(m.Data, "\n") {
+	// A browser ends a line at a line feed, at a carriage return and at both
+	// together, so every kind is turned into one line feed first. Otherwise a
+	// carriage return in a text could start a field of its own.
+	for _, line := range strings.Split(lineEnds.Replace(m.Data), "\n") {
 		b.WriteString("data: ")
 		b.WriteString(line)
 		b.WriteByte('\n')

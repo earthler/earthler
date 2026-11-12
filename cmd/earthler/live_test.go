@@ -68,21 +68,21 @@ func TestMessagesArriveLiveAndCanBeDeleted(t *testing.T) {
 	ana.say(s, garden)
 	got := block(t, stream)
 	wantIn(t, got, "event: posted", "the live event")
-	wantIn(t, got, "id: 7", "the entry number of the message")
+	wantIn(t, got, "id: 5", "the entry number of the message")
 	wantIn(t, got, garden, "the text in the live event")
 	wantIn(t, got, `data-account="3"`, "the author in the live event")
 
 	// Only the author may delete, and the deletion reaches the open page.
-	if status, _ := bia.remove(s, "7"); status != http.StatusForbidden {
+	if status, _ := bia.remove(s, "5"); status != http.StatusForbidden {
 		t.Fatalf("deleting someone else's message: status %d", status)
 	}
 	if status, _ := ana.remove(s, "70"); status != http.StatusNotFound {
 		t.Fatalf("deleting a message that does not exist: status %d", status)
 	}
-	_, body := ana.remove(s, "7")
+	_, body := ana.remove(s, "5")
 	wantOut(t, body, garden, "the channel after deleting")
 	wantIn(t, body, "Mensagem apagada.", "the channel after deleting")
-	if got := block(t, stream); got != "id: 8\nevent: deleted\ndata: 7" {
+	if got := block(t, stream); got != "id: 6\nevent: deleted\ndata: 5" {
 		t.Fatalf("the deletion event was %q", got)
 	}
 	_, body = bia.get(s, "/search?q=agua")
@@ -99,8 +99,8 @@ func TestMessagesArriveLiveAndCanBeDeleted(t *testing.T) {
 	wantOut(t, got, garden, "catching up on a deleted message")
 	wantIn(t, block(t, late), "enxada", "catching up on a new message")
 	stopLate()
-	known, stopKnown := bia.listen(s, "7")
-	if got := block(t, known); got != "id: 8\nevent: deleted\ndata: 7" {
+	known, stopKnown := bia.listen(s, "5")
+	if got := block(t, known); got != "id: 6\nevent: deleted\ndata: 5" {
 		t.Fatalf("a page that had the message catches up with %q", got)
 	}
 	stopKnown()

@@ -30,6 +30,8 @@ The files inside a copy have random names. The one file with a fixed name is the
 
 The last segment of the journal changes every day, so it is copied every day. An erased segment has a new digest and is copied again, which is how an erasure reaches the copies.
 
+A copy goes into a folder that is empty or already holds a copy. A folder that holds other things, such as the root of a pen drive, is refused before anything is written, and a folder that already holds a copy keeps whatever else is in it: only the copy's own files, named at random, are ever removed.
+
 The program makes a copy with `-copy <folder>`, or every night into the folder given with `-copies`, after the night's erasure, so a copy never carries a text that was deleted before it.
 
 ## Restoring

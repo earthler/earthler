@@ -58,7 +58,6 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, s.pages.T("error.origin"), http.StatusForbidden)
 		return
 	}
-	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
 	name := r.FormValue("name")
 	cookie, err := s.accounts.SignUp(r.Context(), name, r.TLS != nil)
 	switch {
@@ -66,6 +65,8 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 		s.show(w, http.StatusBadRequest, "signup.error.empty", "")
 	case errors.Is(err, accounts.ErrNameLong):
 		s.show(w, http.StatusBadRequest, "signup.error.long", name)
+	case errors.Is(err, accounts.ErrNameInvalid):
+		s.show(w, http.StatusBadRequest, "signup.error.invalid", "")
 	case errors.Is(err, accounts.ErrNameTaken):
 		s.show(w, http.StatusConflict, "signup.error.taken", name)
 	case errors.Is(err, scribe.ErrStopped):

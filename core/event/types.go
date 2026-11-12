@@ -41,6 +41,12 @@ type ChannelCreatedData struct {
 
 type AccountCreatedData struct {
 	Name string `json:"name"`
+
+	// FirstDevice says that the browser that signed up is registered in the
+	// same entry, and that the entry number is the device too. Account and
+	// device are born together or not at all: with two entries, a cut
+	// between them left a name taken by an account nobody could open.
+	FirstDevice bool `json:"first_device,omitempty"`
 }
 
 type DeviceCreatedData struct {

@@ -164,8 +164,8 @@ func TestResidentWritesAndFindsText(t *testing.T) {
 	if err := s.app.journal.Verify(); err != nil {
 		t.Fatal(err)
 	}
-	if last, _ := s.app.journal.Last(); last != 8 {
-		t.Fatalf("the journal has %d entries, want 8: the community, the channel, two accounts with a device each, two messages", last)
+	if last, _ := s.app.journal.Last(); last != 6 {
+		t.Fatalf("the journal has %d entries, want 6: the community, the channel, two accounts that each come with their device, two messages", last)
 	}
 }
 

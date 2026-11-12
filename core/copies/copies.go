@@ -81,6 +81,16 @@ func Copy(dataDir, dest string, key Key, now time.Time) (Report, error) {
 	if err != nil {
 		return rep, err
 	}
+	if old.Version == 0 {
+		// There is no copy here yet. A folder that already holds other
+		// things is refused, so a copy never ends up mixed with someone's
+		// files, whatever the person typed as the destination.
+		if others, err := foreign(dest); err != nil {
+			return rep, err
+		} else if len(others) > 0 {
+			return rep, fmt.Errorf("copies: %s holds %d things that are not a copy, such as %q: pick an empty folder for the copies", dest, len(others), others[0])
+		}
+	}
 	paths, err := sources(dataDir)
 	if err != nil {
 		return rep, err
