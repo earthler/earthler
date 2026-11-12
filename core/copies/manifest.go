@@ -84,6 +84,12 @@ func ours(name string) bool {
 	return err == nil && name == strings.ToLower(name)
 }
 
+// IsOurs says whether a name in the folder of a copy is a file of the copy
+// itself: the manifest or a file with a random name, not a temporary file.
+func IsOurs(name string) bool {
+	return ours(name) && !strings.HasSuffix(name, ".tmp")
+}
+
 // foreign lists what is in dir that this package did not write.
 func foreign(dir string) ([]string, error) {
 	entries, err := os.ReadDir(dir)

@@ -119,10 +119,29 @@ func Copy(dataDir, dest string, key Key, now time.Time) (Report, error) {
 		rep.Written++
 		rep.Bytes += int64(len(raw))
 	}
-	if err := writeManifest(dest, next, key); err != nil {
-		return rep, err
+	// A copy that has nothing new keeps its manifest as it is, so whoever
+	// follows the copy, a second machine for one, sees that nothing changed.
+	// The time in the manifest is then the last time something did.
+	if old.Version == 0 || !sameFiles(old.Files, next.Files) {
+		if err := writeManifest(dest, next, key); err != nil {
+			return rep, err
+		}
 	}
 	return rep, sweep(dest, next)
+}
+
+// sameFiles says whether two manifests list the same files with the same
+// content.
+func sameFiles(a, b map[string]entry) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for path, e := range a {
+		if b[path] != e {
+			return false
+		}
+	}
+	return true
 }
 
 // Check reads the whole copy in src and confirms every file against the

@@ -31,6 +31,8 @@ The words the code uses. A word listed here means one thing everywhere: in packa
 | Event | What an entry carries: who did what, and when |
 | Snapshot | A saved copy of the indexes, to avoid rebuilding everything |
 | Copy | An encrypted copy of the journal and the secrets, kept somewhere else. Only the copy key opens it |
+| Second machine | The same program in a mode that opens no screens and keeps an up to date encrypted copy. It never holds the copy key. See [the second machine](design/replica.md) |
+| Pairing code | A code that works once, for ten minutes, and trades for the token a second machine pulls with |
 | Copy key | The key that encrypts the copies, made when the community is born and written down on paper |
 | Deletion | An entry that takes a message out of its channel. The text leaves the indexes at once |
 | Erasure | The night's work that replaces deleted content in the journal with the erased mark |

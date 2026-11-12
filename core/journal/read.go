@@ -180,6 +180,32 @@ func (j *Journal) Read(from uint64, fn func(Entry) error) error {
 	return fmt.Errorf("journal: entry %d was confirmed but is not in the files", last)
 }
 
+// SealAt returns the seal of entry n, and zero for n equal to zero. Two
+// machines that have the same seal at the same number have the same history
+// up to it, which is how a second machine knows it is still following the
+// same journal.
+func (j *Journal) SealAt(n uint64) (Seal, error) {
+	if n == 0 {
+		return Seal{}, nil
+	}
+	var seal Seal
+	found := errors.New("found")
+	err := j.Read(n, func(e Entry) error {
+		if e.Number == n {
+			seal = e.Seal()
+			return found
+		}
+		return nil
+	})
+	switch {
+	case errors.Is(err, found):
+		return seal, nil
+	case err == nil:
+		return Seal{}, fmt.Errorf("journal: entry %d does not exist", n)
+	}
+	return Seal{}, err
+}
+
 // Verify reads the whole journal and checks every entry and every seal, from
 // entry 1 to the last entry that was confirmed when Verify was called. It
 // returns a *DamageError that names the first entry that fails.

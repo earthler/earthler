@@ -239,3 +239,49 @@ func TestACopyNeverTouchesWhatIsNotACopy(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// TestACopyWithNothingNewIsLeftAlone checks that a second copy of the same
+// data changes no file at all, the manifest included, so whoever follows the
+// copy sees that nothing happened.
+func TestACopyWithNothingNewIsLeftAlone(t *testing.T) {
+	root := t.TempDir()
+	data, dest := filepath.Join(root, "data"), filepath.Join(root, "copy")
+	fill(t, data, 4)
+	key, err := LoadKey(filepath.Join(data, "secrets"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Copy(data, dest, key, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	snapshot := func() map[string][]byte {
+		m := map[string][]byte{}
+		entries, _ := os.ReadDir(dest)
+		for _, e := range entries {
+			raw, _ := os.ReadFile(filepath.Join(dest, e.Name()))
+			m[e.Name()] = raw
+		}
+		return m
+	}
+	before := snapshot()
+	if _, err := Copy(data, dest, key, time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	after := snapshot()
+	if len(before) != len(after) {
+		t.Fatalf("%d files before, %d after", len(before), len(after))
+	}
+	for name, raw := range before {
+		if !bytes.Equal(raw, after[name]) {
+			t.Fatalf("%s changed in a copy with nothing new", name)
+		}
+	}
+	// And a change shows in the manifest again.
+	fill(t, data, 5)
+	if _, err := Copy(data, dest, key, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(before["manifest"], snapshot()["manifest"]) {
+		t.Fatal("the manifest did not change after the data did")
+	}
+}

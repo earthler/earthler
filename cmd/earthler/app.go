@@ -19,6 +19,7 @@ import (
 	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/page"
+	"github.com/earthler/earthler/core/replica"
 	"github.com/earthler/earthler/core/scribe"
 	"github.com/earthler/earthler/screens/auditlog"
 	"github.com/earthler/earthler/screens/chat"
@@ -114,7 +115,8 @@ func open(cfg config) (*app, error) {
 	}
 	// The copy key is born with the community, so the first copy can be
 	// read back with the key written down on the first day.
-	if _, err := copies.LoadKey(filepath.Join(cfg.dataDir, "secrets")); err != nil {
+	copyKey, err := copies.LoadKey(filepath.Join(cfg.dataDir, "secrets"))
+	if err != nil {
 		return nil, err
 	}
 	pages, err := page.New(cfg.lang, a.name)
@@ -153,6 +155,17 @@ func open(cfg config) (*app, error) {
 	search.New(byName[search.Area.Name], pages).Routes(mux, residents.Require)
 	auditlog.New(byName[auditlog.Area.Name], pages).Routes(mux, residents.Require)
 	people.New(residents, pages).Routes(mux, residents.Require)
+
+	// A second machine pulls the encrypted copy from here, with a token of
+	// its own that a pairing code gave it.
+	pairings, err := replica.OpenRegistry(filepath.Join(cfg.dataDir, "replication"))
+	if err != nil {
+		return nil, err
+	}
+	(&replica.Server{
+		Registry: pairings, Journal: a.journal, DataDir: cfg.dataDir, Key: copyKey,
+		Out: filepath.Join(cfg.dataDir, "replication", "out"), MinGap: 5 * time.Second,
+	}).Routes(mux)
 	a.handler = pages.Guard(mux)
 
 	ok = true
