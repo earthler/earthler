@@ -4,6 +4,7 @@ package page
 
 import (
 	"embed"
+	"errors"
 	"html/template"
 	"io/fs"
 	"log"
@@ -95,12 +96,54 @@ func Static() http.Handler {
 
 // SameOrigin reports whether a request that changes something came from one
 // of the system's own pages. Browsers send Origin with every form they post,
-// so a request without it, or with another site in it, is refused.
+// so a request without it, or with another site in it, is refused. The
+// scheme counts too: a page served over plain HTTP, which anyone on the
+// network could have changed on the way, is not the secure site.
 func SameOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
 	if origin == "" {
 		return false
 	}
 	u, err := url.Parse(origin)
-	return err == nil && u.Host == r.Host
+	if err != nil {
+		return false
+	}
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	return u.Scheme == scheme && u.Host == r.Host
+}
+
+// MaxForm is the most a form may send, in bytes.
+const MaxForm = 64 << 10
+
+// Guard stands in front of every screen. A request that changes something
+// is read here, once, with a limit, so no screen can forget it. Only forms
+// that are sent as plain text are read: anything else, a file for instance,
+// arrives as an empty form and is refused by the screen, and its body is
+// never read or kept on the disk.
+func (r *Renderer) Guard(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		switch req.Method {
+		case http.MethodGet, http.MethodHead, http.MethodOptions:
+			next.ServeHTTP(w, req)
+			return
+		}
+		if req.ContentLength > MaxForm {
+			http.Error(w, r.T("error.toolarge"), http.StatusRequestEntityTooLarge)
+			return
+		}
+		req.Body = http.MaxBytesReader(w, req.Body, MaxForm)
+		if err := req.ParseForm(); err != nil {
+			status := http.StatusBadRequest
+			var tooBig *http.MaxBytesError
+			if errors.As(err, &tooBig) {
+				status = http.StatusRequestEntityTooLarge
+			}
+			http.Error(w, r.T("error.toolarge"), status)
+			return
+		}
+		next.ServeHTTP(w, req)
+	})
 }

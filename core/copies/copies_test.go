@@ -183,3 +183,59 @@ func TestCopyKeepsUpAndRestoresWhole(t *testing.T) {
 		t.Fatal("a damaged copy was restored")
 	}
 }
+
+// TestACopyNeverTouchesWhatIsNotACopy points the copy at folders that hold
+// someone's files, the way a person does when they choose the root of a
+// pen drive. A folder that holds other things and no copy is refused before
+// anything is written. A folder that already has a copy keeps whatever else
+// is in it, and only the copy's own old files are swept.
+func TestACopyNeverTouchesWhatIsNotACopy(t *testing.T) {
+	root := t.TempDir()
+	data := filepath.Join(root, "data")
+	fill(t, data, 3)
+	key, err := LoadKey(filepath.Join(data, "secrets"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	drive := filepath.Join(root, "drive")
+	os.MkdirAll(filepath.Join(drive, "Photos"), 0o700)
+	photo := filepath.Join(drive, "family-photo.jpg")
+	os.WriteFile(photo, []byte("precious"), 0o600)
+	before, _ := os.ReadDir(drive)
+	if _, err := Copy(data, drive, key, time.Now()); err == nil {
+		t.Fatal("a folder that holds other things was accepted for a first copy")
+	}
+	if after, _ := os.ReadDir(drive); len(after) != len(before) {
+		t.Fatalf("a refused copy left %d things in the folder, there were %d", len(after), len(before))
+	}
+	if got, err := os.ReadFile(photo); err != nil || string(got) != "precious" {
+		t.Fatalf("the photo: %q, %v", got, err)
+	}
+
+	// The leftovers of a first copy that was cut short are ours, not foreign.
+	dest := filepath.Join(root, "copy")
+	os.MkdirAll(dest, 0o700)
+	os.WriteFile(filepath.Join(dest, "0123456789abcdef0123456789abcdef"), []byte("half"), 0o600)
+	os.WriteFile(filepath.Join(dest, "manifest.tmp"), []byte("half"), 0o600)
+	if _, err := Copy(data, dest, key, time.Now()); err != nil {
+		t.Fatalf("a first copy after one that was cut short: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(dest, "0123456789abcdef0123456789abcdef")); err == nil {
+		t.Fatal("the leftover of the cut copy was not swept")
+	}
+
+	// A copy that exists tolerates the things the system puts in a folder.
+	finder := filepath.Join(dest, ".DS_Store")
+	os.WriteFile(finder, []byte("finder"), 0o600)
+	fill(t, data, 2)
+	if _, err := Copy(data, dest, key, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := os.ReadFile(finder); err != nil || string(got) != "finder" {
+		t.Fatalf("a file that is not the copy's was touched: %q, %v", got, err)
+	}
+	if _, err := Check(dest, key); err != nil {
+		t.Fatal(err)
+	}
+}

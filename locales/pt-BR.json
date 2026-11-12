@@ -119,6 +119,7 @@
   "signup.submit": "Entrar na comunidade",
   "signup.error.empty": "Escreva um nome para continuar.",
   "signup.error.long": "O nome pode ter até 40 letras.",
+  "signup.error.invalid": "O nome tem letras que não podem ser usadas. Use letras, números e sinais comuns, com os acentos escritos direto.",
   "signup.error.taken": "Já existe alguém com esse nome. Escolha outro.",
 
   "chat.title": "Conversa",
@@ -130,6 +131,7 @@
   "chat.error.long": "A mensagem pode ter até 4.000 letras.",
   "chat.delete": "Apagar",
   "chat.deleted": "Mensagem apagada.",
+  "chat.error.invalid": "O texto tem caracteres que o sistema não consegue guardar.",
   "chat.error.notyours": "Só quem escreveu uma mensagem pode apagá-la.",
 
   "search.title": "Busca",
@@ -140,5 +142,6 @@
 
   "error.stopped": "O sistema está em somente leitura e não aceita nada novo agora. Avise quem cuida da máquina.",
   "error.origin": "Este pedido veio de outro lugar e foi recusado.",
+  "error.toolarge": "O que foi enviado é maior do que o sistema aceita.",
   "error.internal": "Algo deu errado deste lado. Tente de novo."
 }

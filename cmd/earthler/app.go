@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/earthler/earthler/core/accounts"
@@ -52,6 +53,8 @@ type app struct {
 	handler http.Handler // the system, served only over HTTPS
 	welcome http.Handler // the welcome page and the certificate, served over plain HTTP
 	stop    context.CancelFunc
+	nights  sync.WaitGroup // the night's work, which must end before the files close
+	chat    *chat.Screen
 }
 
 // nightHour is when the night's work runs, in the machine's local time.
@@ -97,7 +100,11 @@ func open(cfg config) (*app, error) {
 	}
 	var ctx context.Context
 	ctx, a.stop = context.WithCancel(context.Background())
-	go a.nights(ctx)
+	a.nights.Add(1)
+	go func() {
+		defer a.nights.Done()
+		a.night(ctx)
+	}()
 
 	key, err := accounts.LoadKey(filepath.Join(cfg.dataDir, "secrets"))
 	if err != nil {
@@ -126,7 +133,7 @@ func open(cfg config) (*app, error) {
 	plain := http.NewServeMux()
 	plain.Handle("GET /static/", page.Static())
 	welcome.New(a.chain, pages, cfg.httpsPort).Routes(plain)
-	a.welcome = plain
+	a.welcome = pages.Guard(plain)
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", page.Static())
@@ -139,9 +146,10 @@ func open(cfg config) (*app, error) {
 		http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
 	})
 	signup.New(residents, pages).Routes(mux)
-	chat.New(byName[chat.Area.Name], a.scribe, pages).Routes(mux, residents.Require)
+	a.chat = chat.New(byName[chat.Area.Name], a.scribe, pages)
+	a.chat.Routes(mux, residents.Require)
 	search.New(byName[search.Area.Name], pages).Routes(mux, residents.Require)
-	a.handler = mux
+	a.handler = pages.Guard(mux)
 
 	ok = true
 	return a, nil
@@ -202,9 +210,9 @@ func (a *app) erase(ctx context.Context, now time.Time) (int, error) {
 	return n, err
 }
 
-// nights runs the night's work: first the erasure, then the copy, so a
+// night runs the night's work: first the erasure, then the copy, so a
 // copy never carries a text that was deleted before it.
-func (a *app) nights(ctx context.Context) {
+func (a *app) night(ctx context.Context) {
 	for {
 		wait := time.NewTimer(time.Until(erasure.NextNight(time.Now(), nightHour)))
 		select {
@@ -224,11 +232,24 @@ func (a *app) nights(ctx context.Context) {
 	}
 }
 
-// Close stops the scribe and closes the files.
+// Hush ends the connections that pages keep open, which never go quiet by
+// themselves. A server that is stopping calls it before it waits for the
+// requests that are still running.
+func (a *app) Hush() {
+	if a.chat != nil {
+		a.chat.Close()
+	}
+}
+
+// Close stops the night's work, the scribe and the files. The night's work
+// finishes what it is doing first: closing the indexes under an erasure or a
+// copy would leave it half done.
 func (a *app) Close() {
+	a.Hush()
 	if a.stop != nil {
 		a.stop()
 	}
+	a.nights.Wait()
 	if a.scribe != nil {
 		a.scribe.Close()
 	}

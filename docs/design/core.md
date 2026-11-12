@@ -42,9 +42,17 @@ An index is one SQLite file for one area: accounts, chat, search. Each area decl
 
 This is the first, minimal form. A resident signs up with a name, and that browser stays signed in. There is no passphrase yet: an account cannot be opened from a second device, and nothing personal is protected. Both arrive with the personal layer, which encrypts in the browser.
 
+The account and its first device are one entry of the journal. With two entries, a cut between them left a name taken by an account that nobody could open. Journals written with the two entries still work.
+
+A name is made of letters, digits, punctuation, symbols and the plain space. Characters that cannot be seen, or that fool the eye, are refused: zero-width characters, direction overrides, private use characters, text that is not valid UTF-8, and combining marks, because an accented letter can be written as one character or as two and the same name could be taken twice. Two names that differ only in case or in spaces are the same name. What is not done yet: names in a script that needs joiners or marks, and letters from another alphabet that look like Latin ones.
+
 The session cookie holds the number of the device, a counter and a signature of the two made with a key that only the server has. There is no table of sessions, so rebuilding every index signs nobody out. The cookie is not readable by scripts and is never sent by another site.
 
-Every request that changes something must carry the `Origin` of the system itself. Browsers send it with every form they post.
+Every request that changes something must carry the `Origin` of the system itself, with the same scheme and the same host. Browsers send it with every form they post. A page served over plain HTTP, which anyone on the network could have changed on the way, does not count as the secure site.
+
+Forms are read in one place, in front of every screen, with a limit of 64 KB. Anything that is not a plain form, a file for instance, arrives as an empty form and is refused by the screen, and its body is never read or kept on the disk, where it could fill the space the journal needs.
+
+A failure of the system while looking up a session is a failure, not a signed out visitor: the resident gets an error and is not sent to the sign up screen.
 
 ## Search
 
@@ -91,6 +99,9 @@ A page that is open keeps one connection to the server, over Server-Sent Events,
 - A connection that falls more than 32 messages behind is dropped. Its browser reconnects and catches up the same way.
 - A comment line every 25 seconds keeps the connection open and lets the browser notice a dead one.
 - Everything is sent to everyone, because today everything is open to every resident. The permission table will decide who receives what.
+
+- Text that carries line ends is written to the stream with every kind of line end turned into one, so a message can never start a field of its own.
+- A server that is stopping closes the hub first, because connections that never go quiet would keep it waiting.
 
 The page works without the script: it only saves the reload.
 

@@ -56,6 +56,12 @@ type Chain struct {
 func Open(dir, domain, name string, now time.Time) (c *Chain, created bool, err error) {
 	c, err = load(dir)
 	if errors.Is(err, os.ErrNotExist) {
+		// A new authority is made only where there is none at all. With
+		// some of the files missing, a new one would silently replace the
+		// one every device already trusts.
+		if present := filesIn(dir); len(present) > 0 {
+			return nil, false, fmt.Errorf("certificate: the folder %s is incomplete, it has %v and lacks the rest: bring it back from a copy", dir, present)
+		}
 		if c, err = create(domain, name, now); err != nil {
 			return nil, false, err
 		}

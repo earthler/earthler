@@ -74,8 +74,10 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		}
 		// The text goes now. Once the entry that created the message is
 		// erased from the journal and the index is rebuilt, there is no row
-		// to update, and the deletion creates the empty row itself.
-		res, err := tx.Exec(`UPDATE messages SET text = '', deleted = ? WHERE number = ? AND deleted = 0`, entry.Number, d.Message)
+		// to update, and the deletion creates the empty row itself. Both
+		// ways must leave the same row, so the time of a deleted message is
+		// the time of its deletion: the original time is gone with the text.
+		res, err := tx.Exec(`UPDATE messages SET text = '', deleted = ?, time = ? WHERE number = ? AND deleted = 0`, entry.Number, e.Time, d.Message)
 		if err != nil {
 			return err
 		}

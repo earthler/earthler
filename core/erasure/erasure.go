@@ -51,26 +51,41 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 	return err
 }
 
-// batch is how many entries one run erases at most.
-const batch = 1000
+// batch is how many entries are erased and recorded together.
+var batch = 1000
 
-// Run erases what is pending and records in the journal that it did. It
-// returns how many entries it erased.
+// Run erases everything that is pending, a batch at a time, and records in
+// the journal that it did. A run does not stop until nothing is pending, so
+// what was deleted before the night's copy is never in the copy. It returns
+// how many entries it erased.
 func Run(ctx context.Context, j *journal.Journal, ix *index.Index, s *scribe.Scribe, now time.Time) (int, error) {
+	total := 0
+	for {
+		n, err := runBatch(ctx, j, ix, s, now)
+		total += n
+		if err != nil || n == 0 {
+			return total, err
+		}
+	}
+}
+
+func runBatch(ctx context.Context, j *journal.Journal, ix *index.Index, s *scribe.Scribe, now time.Time) (int, error) {
 	rows, err := ix.DB().QueryContext(ctx, `SELECT entry FROM pending ORDER BY entry LIMIT ?`, batch)
 	if err != nil {
 		return 0, err
 	}
-	defer rows.Close()
 	var numbers []uint64
 	for rows.Next() {
 		var n uint64
 		if err := rows.Scan(&n); err != nil {
+			rows.Close()
 			return 0, err
 		}
 		numbers = append(numbers, n)
 	}
-	if err := rows.Err(); err != nil || len(numbers) == 0 {
+	err = rows.Err()
+	rows.Close()
+	if err != nil || len(numbers) == 0 {
 		return 0, err
 	}
 	if err := j.Erase(numbers...); err != nil {
@@ -80,8 +95,10 @@ func Run(ctx context.Context, j *journal.Journal, ix *index.Index, s *scribe.Scr
 	if err != nil {
 		return 0, err
 	}
-	_, err = s.Write(ctx, content)
-	return len(numbers), err
+	if _, err = s.Write(ctx, content); err != nil {
+		return 0, err
+	}
+	return len(numbers), nil
 }
 
 // NextNight says when the next run is due: the next time the clock reaches

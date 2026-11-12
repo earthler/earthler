@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/event"
@@ -22,9 +24,11 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sess := accounts.From(r.Context())
-	r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
-	text := strings.TrimSpace(strings.ReplaceAll(r.FormValue("text"), "\r\n", "\n"))
+	text, valid := cleanText(r.FormValue("text"))
 	switch {
+	case !valid:
+		s.show(w, r, http.StatusBadRequest, "chat.error.invalid", "")
+		return
 	case text == "":
 		s.show(w, r, http.StatusBadRequest, "chat.error.empty", "")
 		return
@@ -46,6 +50,24 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 	s.answer(w, r, err, text)
 }
 
+// cleanText gets a message ready to be written. Every kind of line end
+// becomes a line feed, so a text cannot carry one that another program reads
+// differently. Control characters other than the line feed and the tab are
+// dropped. Text that is not valid UTF-8 is refused.
+func cleanText(raw string) (string, bool) {
+	if !utf8.ValidString(raw) {
+		return "", false
+	}
+	raw = strings.NewReplacer("\r\n", "\n", "\r", "\n").Replace(raw)
+	raw = strings.Map(func(r rune) rune {
+		if r != '\n' && r != '\t' && unicode.IsControl(r) {
+			return -1
+		}
+		return r
+	}, raw)
+	return strings.TrimSpace(raw), true
+}
+
 // delete takes a message out of the channel. Only its author can, for now:
 // the roles that let someone else remove content come with the permission
 // table.
@@ -55,8 +77,8 @@ func (s *Screen) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sess := accounts.From(r.Context())
-	number, err := strconv.ParseUint(r.FormValue("number"), 10, 64)
-	if err != nil {
+	number, err := strconv.ParseUint(r.FormValue("number"), 10, 63)
+	if err != nil || number == 0 {
 		http.NotFound(w, r)
 		return
 	}

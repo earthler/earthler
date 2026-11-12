@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"strings"
 	"unicode"
+
+	"github.com/earthler/earthler/core/durable"
 )
 
 // Key encrypts every copy of one community. It is made once, when the
@@ -38,7 +40,7 @@ func LoadKey(dir string) (Key, error) {
 		if err := os.MkdirAll(dir, 0o700); err != nil {
 			return k, err
 		}
-		return k, os.WriteFile(path, []byte(k.Text()+"\n"), 0o600)
+		return k, durable.WriteFile(path, []byte(k.Text()+"\n"), 0o600)
 	}
 	if err != nil {
 		return Key{}, err

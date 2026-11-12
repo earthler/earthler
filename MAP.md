@@ -26,6 +26,7 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/certificate`](core/certificate) | The community's own certificate authority, for HTTPS with no internet |
 | [`core/live`](core/live) | The connection that every open page keeps, on which the server sends what just changed |
 | [`core/erasure`](core/erasure) | The night's work that takes deleted content out of the journal for good |
+| [`core/durable`](core/durable) | Writing a small file so that it is whole or not there after a power cut |
 | [`core/copies`](core/copies) | Encrypted copies of the journal and the secrets, and the way back from one |
 | [`core/search`](core/search) | How text becomes search terms, in Portuguese |
 | [`core/page`](core/page) | The layout and the base style that every screen is drawn in |

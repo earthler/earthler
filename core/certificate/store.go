@@ -7,16 +7,18 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/earthler/earthler/core/durable"
 )
 
 // The chain is kept as three PEM files in the secrets folder. The root and
 // the issuer are public; the issuer key is the one secret, readable only by
 // the server's own user.
 
+// save writes the three files into a new folder and then puts the folder in
+// its place, so a power cut during the birth of the community leaves either
+// the whole chain or nothing, never part of it.
 func (c *Chain) save(dir string) error {
-	if err := os.MkdirAll(dir, 0o700); err != nil {
-		return err
-	}
 	keyDER, err := x509.MarshalECPrivateKey(c.issuerKey)
 	if err != nil {
 		return err
@@ -30,12 +32,42 @@ func (c *Chain) save(dir string) error {
 		{issuerFile, &pem.Block{Type: "CERTIFICATE", Bytes: c.issuer.Raw}, 0o644},
 		{issuerKeyFile, &pem.Block{Type: "EC PRIVATE KEY", Bytes: keyDER}, 0o600},
 	}
+	parent := filepath.Dir(dir)
+	if err := os.MkdirAll(parent, 0o700); err != nil {
+		return err
+	}
+	building := dir + ".new"
+	if err := os.RemoveAll(building); err != nil {
+		return err
+	}
+	if err := os.Mkdir(building, 0o700); err != nil {
+		return err
+	}
 	for _, f := range files {
-		if err := os.WriteFile(filepath.Join(dir, f.name), pem.EncodeToMemory(f.block), f.mode); err != nil {
+		if err := durable.WriteFile(filepath.Join(building, f.name), pem.EncodeToMemory(f.block), f.mode); err != nil {
 			return err
 		}
 	}
-	return nil
+	// An empty folder may already be there; a folder with files in it is
+	// never replaced.
+	if err := os.Remove(dir); err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	if err := os.Rename(building, dir); err != nil {
+		return err
+	}
+	return durable.SyncDir(parent)
+}
+
+// filesIn lists which of the chain's files are in dir.
+func filesIn(dir string) []string {
+	var present []string
+	for _, name := range []string{rootFile, issuerFile, issuerKeyFile} {
+		if _, err := os.Stat(filepath.Join(dir, name)); err == nil {
+			present = append(present, name)
+		}
+	}
+	return present
 }
 
 func load(dir string) (*Chain, error) {

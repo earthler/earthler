@@ -16,6 +16,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -24,7 +25,9 @@ import (
 	"sync"
 	"time"
 	"unicode"
+	"unicode/utf8"
 
+	"github.com/earthler/earthler/core/durable"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/journal"
@@ -53,8 +56,10 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		}
 		// Sign up checks the name first. If two entries with the same name
 		// exist anyway, the first one keeps it.
-		_, err = tx.Exec(`INSERT INTO accounts (number, name, folded) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`,
-			entry.Number, d.Name, fold(d.Name))
+		if _, err = tx.Exec(`INSERT INTO accounts (number, name, folded) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`,
+			entry.Number, d.Name, fold(d.Name)); err == nil && d.FirstDevice {
+			_, err = tx.Exec(`INSERT INTO devices (number, account) VALUES (?, ?) ON CONFLICT DO NOTHING`, entry.Number, entry.Number)
+		}
 	case event.DeviceCreated:
 		var d event.DeviceCreatedData
 		if e.Read(&d) != nil {
@@ -69,10 +74,42 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 const MaxName = 40
 
 var (
-	ErrNameEmpty = errors.New("accounts: the name is empty")
-	ErrNameLong  = errors.New("accounts: the name is too long")
-	ErrNameTaken = errors.New("accounts: the name is taken")
+	ErrNameEmpty   = errors.New("accounts: the name is empty")
+	ErrNameLong    = errors.New("accounts: the name is too long")
+	ErrNameTaken   = errors.New("accounts: the name is taken")
+	ErrNameInvalid = errors.New("accounts: the name has characters that cannot be used")
 )
+
+// ErrNoSession is what a request with no valid cookie gets. Any other error
+// from looking a session up is the system failing, which is not the same as
+// nobody being signed in.
+var ErrNoSession = errors.New("accounts: nobody is signed in")
+
+// checkName says whether a name that was already tidied (spaces collapsed)
+// can be shown to everyone. Only letters, digits, punctuation, symbols and
+// the plain space are allowed. Everything else is refused because it cannot
+// be seen, or is shown in a way that fools: zero-width characters and
+// direction overrides make two names look the same, and marks are written
+// in more than one way (an accent can be a part of the letter or a mark
+// after it), so the same name could be taken twice. A name in a script that
+// needs joiners or marks has to wait until names are compared after
+// normalisation.
+func checkName(name string) error {
+	if !utf8.ValidString(name) {
+		return ErrNameInvalid
+	}
+	for _, r := range name {
+		switch {
+		case r == ' ':
+		case r == utf8.RuneError:
+			return ErrNameInvalid
+		case unicode.IsLetter(r), unicode.IsNumber(r), unicode.IsPunct(r), unicode.IsSymbol(r):
+		default:
+			return ErrNameInvalid
+		}
+	}
+	return nil
+}
 
 // Session says who is behind a request.
 type Session struct {
@@ -95,16 +132,21 @@ func New(ix *index.Index, s *scribe.Scribe, key []byte) *Service {
 }
 
 // SignUp creates an account and a device for it, and returns the cookie that
-// keeps this browser signed in.
+// keeps this browser signed in. The account and its first device are one
+// entry of the journal, so there is never one without the other.
 func (s *Service) SignUp(ctx context.Context, name string, secure bool) (*http.Cookie, error) {
+	if !utf8.ValidString(name) {
+		return nil, ErrNameInvalid
+	}
 	name = strings.Join(strings.Fields(name), " ")
 	switch {
 	case name == "":
 		return nil, ErrNameEmpty
 	case len([]rune(name)) > MaxName:
 		return nil, ErrNameLong
-	case strings.ContainsFunc(name, unicode.IsControl):
-		return nil, ErrNameEmpty
+	}
+	if err := checkName(name); err != nil {
+		return nil, err
 	}
 
 	s.signup.Lock()
@@ -117,22 +159,12 @@ func (s *Service) SignUp(ctx context.Context, name string, secure bool) (*http.C
 		return nil, ErrNameTaken
 	}
 
-	now := time.Now()
-	content, err := event.New(event.AccountCreated, 0, 0, now, event.AccountCreatedData{Name: name})
+	content, err := event.New(event.AccountCreated, 0, 0, time.Now(), event.AccountCreatedData{Name: name, FirstDevice: true})
 	if err != nil {
 		return nil, err
 	}
 	entries, err := s.scribe.Write(ctx, content)
 	if err != nil {
-		return nil, err
-	}
-	account := entries[0].Number
-
-	content, err = event.New(event.DeviceCreated, account, 0, now, event.DeviceCreatedData{Account: account})
-	if err != nil {
-		return nil, err
-	}
-	if entries, err = s.scribe.Write(ctx, content); err != nil {
 		return nil, err
 	}
 	return s.cookie(entries[0].Number, 0, secure), nil
@@ -165,27 +197,37 @@ func (s *Service) sign(value string) string {
 // Session returns who sent the request, if the cookie is one this server
 // signed and the device still exists with the same counter.
 func (s *Service) Session(r *http.Request) (Session, bool) {
+	sess, err := s.Lookup(r)
+	return sess, err == nil
+}
+
+// Lookup is Session with the reason: ErrNoSession when the request is from
+// nobody, and the database's own error when the lookup itself failed.
+func (s *Service) Lookup(r *http.Request) (Session, error) {
 	c, err := r.Cookie(cookieName)
 	if err != nil {
-		return Session{}, false
+		return Session{}, ErrNoSession
 	}
 	parts := strings.Split(c.Value, ".")
 	if len(parts) != 3 || !hmac.Equal([]byte(s.sign(parts[0]+"."+parts[1])), []byte(parts[2])) {
-		return Session{}, false
+		return Session{}, ErrNoSession
 	}
-	device, err1 := strconv.ParseUint(parts[0], 10, 64)
-	counter, err2 := strconv.ParseUint(parts[1], 10, 64)
+	device, err1 := strconv.ParseUint(parts[0], 10, 63)
+	counter, err2 := strconv.ParseUint(parts[1], 10, 63)
 	if err1 != nil || err2 != nil {
-		return Session{}, false
+		return Session{}, ErrNoSession
 	}
 	sess := Session{Device: device}
 	err = s.index.DB().QueryRowContext(r.Context(), `
 		SELECT a.number, a.name FROM devices d JOIN accounts a ON a.number = d.account
 		WHERE d.number = ? AND d.counter = ?`, device, counter).Scan(&sess.Account, &sess.Name)
-	if err != nil {
-		return Session{}, false
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return Session{}, ErrNoSession
+	case err != nil:
+		return Session{}, err
 	}
-	return sess, true
+	return sess, nil
 }
 
 type contextKey struct{}
@@ -194,9 +236,16 @@ type contextKey struct{}
 // browser. Everyone else is sent to the sign up screen.
 func (s *Service) Require(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sess, ok := s.Session(r)
-		if !ok {
+		sess, err := s.Lookup(r)
+		switch {
+		case errors.Is(err, ErrNoSession):
 			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
+			return
+		case err != nil:
+			// The system failed. Sending a resident to the sign up screen
+			// would look like being signed out.
+			log.Printf("accounts: %v", err)
+			http.Error(w, "service unavailable", http.StatusServiceUnavailable)
 			return
 		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), contextKey{}, sess)))
@@ -214,22 +263,26 @@ func fold(name string) string {
 	return strings.ToLower(strings.Join(strings.Fields(name), " "))
 }
 
-// LoadKey reads the key that signs the cookies, creating it on first use.
+// LoadKey reads the key that signs the cookies, creating it on first use. A
+// key file that is there but is not a key is an error, never a reason to
+// make a new key: that would sign everyone out without anyone knowing why.
 func LoadKey(dir string) ([]byte, error) {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return nil, err
 	}
 	path := filepath.Join(dir, "session.key")
 	key, err := os.ReadFile(path)
-	if err == nil && len(key) == 32 {
+	switch {
+	case err == nil && len(key) == 32:
 		return key, nil
-	}
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
+	case err == nil:
+		return nil, fmt.Errorf("accounts: %s has %d bytes and is not a session key: restore it from a copy, or remove it to sign everyone out", path, len(key))
+	case !errors.Is(err, os.ErrNotExist):
 		return nil, err
 	}
 	key = make([]byte, 32)
 	if _, err := rand.Read(key); err != nil {
 		return nil, err
 	}
-	return key, os.WriteFile(path, key, 0o600)
+	return key, durable.WriteFile(path, key, 0o600)
 }

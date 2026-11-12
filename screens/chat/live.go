@@ -12,6 +12,10 @@ import (
 	"github.com/earthler/earthler/core/live"
 )
 
+// Close ends the connections of the pages that are open and refuses new
+// ones, so a server that is stopping does not wait for them.
+func (s *Screen) Close() { s.hub.Close() }
+
 // catchUpLimit is how many changes a page may have missed and still catch up
 // on the same connection. Past that, it reloads instead.
 const catchUpLimit = 500

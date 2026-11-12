@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func readManifest(dir string, key Key) (manifest, error) {
@@ -68,8 +69,40 @@ func writeFile(path, name string, content []byte, key Key) error {
 	return d.Sync()
 }
 
+// ours says whether a name in the folder of a copy is one this package
+// writes: the manifest, a random name, or the temporary file of either.
+// Anything else in the folder belongs to someone else.
+func ours(name string) bool {
+	name = strings.TrimSuffix(name, ".tmp")
+	if name == manifestName {
+		return true
+	}
+	if len(name) != 32 {
+		return false
+	}
+	_, err := hex.DecodeString(name)
+	return err == nil && name == strings.ToLower(name)
+}
+
+// foreign lists what is in dir that this package did not write.
+func foreign(dir string) ([]string, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var others []string
+	for _, e := range entries {
+		if e.IsDir() || !ours(e.Name()) {
+			others = append(others, e.Name())
+		}
+	}
+	return others, nil
+}
+
 // sweep removes from the copy whatever the manifest does not name: old
-// versions of files, and leftovers of an interrupted copy.
+// versions of files, and leftovers of an interrupted copy. It only ever
+// removes files the package wrote, so a folder shared with other things
+// loses nothing it did not get from here.
 func sweep(dest string, m manifest) error {
 	keep := map[string]bool{manifestName: true}
 	for _, e := range m.Files {
@@ -80,7 +113,7 @@ func sweep(dest string, m manifest) error {
 		return err
 	}
 	for _, e := range entries {
-		if !e.IsDir() && !keep[e.Name()] {
+		if !e.IsDir() && ours(e.Name()) && !keep[e.Name()] {
 			if err := os.Remove(filepath.Join(dest, e.Name())); err != nil {
 				return err
 			}
