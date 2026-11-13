@@ -42,7 +42,6 @@ The program makes a copy with `-copy <folder>`, or every night into the folder g
 
 ## Not built yet
 
-- A second machine that pulls the new entries over HTTPS and keeps them encrypted, and the pairing of that machine.
 - The copies screen, with the destinations, the age of the last copy and the restore test.
 - Showing the key as words on the day the community is born, in the setup.
 - A copy that is older than the journal cannot be told from a copy that was rolled back on purpose. The seal that the community writes down each week is what shows that.

@@ -29,6 +29,7 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/live`](core/live) | The connection that every open page keeps, on which the server sends what just changed |
 | [`core/erasure`](core/erasure) | The night's work that takes deleted content out of the journal for good |
 | [`core/durable`](core/durable) | Writing a small file so that it is whole or not there after a power cut |
+| [`core/replica`](core/replica) | The second machine: pairing, the token, and pulling the encrypted copy over HTTPS |
 | [`core/copies`](core/copies) | Encrypted copies of the journal and the secrets, and the way back from one |
 | [`core/search`](core/search) | How text becomes search terms, in Portuguese |
 | [`core/page`](core/page) | The layout and the base style that every screen is drawn in |
@@ -94,6 +95,22 @@ go run ./cmd/earthler -print-copy-key
 go run ./cmd/earthler -restore /path/to/disk -copy-key "THE-KEY-WRITTEN-DOWN"
 ```
 
-With `-copies /path/to/disk`, the server makes the copy every night by itself.
+With `-copies /path/to/disk`, the server makes the copy every night by itself. To read a whole copy with the key and know that it can be restored:
+
+```bash
+go run ./cmd/earthler -check /path/to/disk -copy-key "THE-KEY-WRITTEN-DOWN"
+```
+
+To keep a second machine, ask the main machine for a pairing code while it runs, and give it to the second machine with the fingerprint that comes with it:
+
+```bash
+go run ./cmd/earthler -pair
+```
+
+```bash
+go run ./cmd/earthler -follow https://ADDRESS-OF-THE-MAIN-MACHINE -pair-code THE-CODE -fingerprint THE-FINGERPRINT
+```
+
+`-machines` lists the second machines that are paired, and `-unpair NUMBER` takes one away. To take over, turn the first machine off and restore the second machine's folder with the copy key, as above.
 
 It is in early development and must not be used to run a real community.

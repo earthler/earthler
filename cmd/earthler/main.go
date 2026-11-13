@@ -37,6 +37,17 @@ func main() {
 	restoreFrom := flag.String("restore", "", "bring the data back from the copy in this folder into an empty data folder, then exit; needs -copy-key")
 	copyKey := flag.String("copy-key", "", "the copy key, as written down, for -restore")
 	showKey := flag.Bool("print-copy-key", false, "print the copy key, to write it down, then exit")
+	checkDir := flag.String("check", "", "read the whole copy in this folder with -copy-key and say if it is whole, then exit")
+	pairing := flag.Bool("pair", false, "print a code and a fingerprint to pair a second machine, then exit")
+	followURL := flag.String("follow", "", "run as a second machine of the one at this https address, keeping its encrypted copy")
+	followDir := flag.String("follow-dir", "earthler-second", "folder where the second machine keeps the copy")
+	givenCode := flag.String("pair-code", "", "the code that -pair printed on the main machine, for the first -follow")
+	fingerprint := flag.String("fingerprint", "", "the fingerprint that -pair printed on the main machine, for the first -follow")
+	plainURL := flag.String("plain-url", "", "address of the main machine's welcome page, if it is not the same host on port 80")
+	label := flag.String("label", "", "a name for this second machine, shown on the main one")
+	every := flag.Duration("follow-every", time.Minute, "how often the second machine pulls")
+	machines := flag.Bool("machines", false, "list the second machines that are paired, then exit")
+	unpairID := flag.String("unpair", "", "take the token of the second machine with this number away, then exit")
 	flag.Parse()
 
 	var err error
@@ -47,6 +58,16 @@ func main() {
 		err = makeCopy(cfg.dataDir, *copyTo)
 	case *showKey:
 		err = printCopyKey(cfg.dataDir)
+	case *checkDir != "":
+		err = checkCopy(*checkDir, *copyKey)
+	case *pairing:
+		err = pairCode(cfg.dataDir)
+	case *machines:
+		err = listMachines(cfg.dataDir)
+	case *unpairID != "":
+		err = unpair(cfg.dataDir, *unpairID)
+	case *followURL != "":
+		err = follow(*followDir, *followURL, *plainURL, *givenCode, *fingerprint, *label, *every)
 	default:
 		err = run(cfg, *plain, *secure, *dev)
 	}

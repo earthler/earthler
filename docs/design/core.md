@@ -137,5 +137,5 @@ Pages are built on the server and work without JavaScript, except for the welcom
 - Renewing the server certificate while the server runs, and the screens of the setup.
 - The passphrase, the personal layer and everything that depends on them.
 - Guardians and children, approval of new residents, and every live update still goes to everyone: the table decides who writes and removes, and will decide who receives what once there are conversations that are not open.
-- A second machine that receives the entries as they are written, and the copies screen.
+- The copies screen, with the pairing of second machines. The second machine itself is built, see [the second machine](replica.md).
 - Editing a message, and the record of searches that found nothing.

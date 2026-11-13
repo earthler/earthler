@@ -50,6 +50,10 @@ type Chain struct {
 	issuerKey *ecdsa.PrivateKey
 }
 
+// Load reads the chain kept in dir and never creates one. It is for the
+// commands that only need to read what the community already has.
+func Load(dir string) (*Chain, error) { return load(dir) }
+
 // Open loads the chain kept in dir, or creates it for domain on first use.
 // name is the community's name, which devices show next to the certificate.
 // created reports whether devices have a new root to install.
