@@ -4,7 +4,7 @@ A community server is one machine with one disk, and a dead disk takes everythin
 
 ## What a copy holds
 
-Only what cannot be rebuilt: the segments of the [journal](journal.md) and the secrets folder, which has the key that signs the session cookies, the certificate chain and the copy key itself. The indexes stay out, because they are rebuilt from the journal. The downloaded collection stays out too, because it comes back from a pen drive or from another community.
+Only what cannot be rebuilt: the segments of the [journal](journal.md) and the secrets folder, which has the key that signs the session cookies, the certificate chain and the copy key itself. On a community with more than one machine, a copy also carries the copies this machine keeps of the other machines' journals and their addresses, so a machine restored from its copy comes back whole, knowing its community and where the others are (see [how the machines live together](machines.md)). The indexes stay out, because they are rebuilt from the journal. The downloaded collection stays out too, because it comes back from a pen drive or from another community.
 
 ## The copy key
 

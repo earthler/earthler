@@ -33,7 +33,7 @@ The field names are whole words on purpose. Single letters would save a few byte
 
 Everything is known by the machine whose journal holds the entry that created it and by the number of that entry. The two make one number, the id: machine × 1,000,000,000,000 + entry, so 3000000000017 is entry 17 of machine 3. Every number in an event that points at something, an account, a channel or a message, is an id. The [code](../../core/event/id.go) keeps machine numbers up to 9000, so every id stays below 2^53, where a script in the browser still reads a number exactly.
 
-The machine that founded the community is machine 0, so its ids are its entry numbers, and a journal written before there were many machines is already in this form. Today every community has that one machine: how others join is in [many machines, one community](many-machines.md) and is not built yet.
+The machine that founded the community is machine 0, so its ids are its entry numbers, and a journal written before there were many machines is already in this form. How other machines join and get their numbers is in [how the machines live together](machines.md).
 
 ## Indexes
 
@@ -114,7 +114,8 @@ Not shown yet: a Wi-Fi network with no internet, and any Android device. The tex
 
 A page that is open keeps one connection to the server, over Server-Sent Events, and the server sends on it each change the page should show. The scribe tells its listeners about every batch once the indexes have it and before it answers the writer, so an open page learns of a message before the page that sent it. The screen renders each change once and the hub in [`core/live`](../../core/live) hands it to every connection.
 
-- The browser reopens the connection by itself after a dropped Wi-Fi, saying the number of the last entry it saw, and the page catches up from the index. More than 500 changes behind, it reloads instead.
+- The browser reopens the connection by itself after a dropped Wi-Fi, saying how far it had seen, as a position in each machine's journal, and the page catches up from the index, on whichever machine it reconnects to. More than 500 changes behind, it reloads instead. See [how the machines live together](machines.md#picking-up-live).
+- The scribe tells the page about entries that came from another machine the same way as about its own, so a page open on one machine hears what is written on another. A message that arrives late goes in its place.
 - A connection that falls more than 32 messages behind is dropped. Its browser reconnects and catches up the same way.
 - A comment line every 25 seconds keeps the connection open and lets the browser notice a dead one.
 - Everything is sent to everyone, because every channel is open. The permission table will decide who receives what once there are conversations that are not.
@@ -146,4 +147,4 @@ Pages are built on the server and work without JavaScript, except for the welcom
 - Guardians and children, approval of new residents, and every live update still goes to everyone: the table decides who writes and removes, and will decide who receives what once there are conversations that are not open.
 - The copies screen, with the pairing of second machines. The second machine itself is built, see [the second machine](replica.md).
 - Editing a message, and the record of searches that found nothing.
-- What comes next, which is proposed and not built: [many machines, one community](many-machines.md) and [four apps on one address](apps.md).
+- Most of [many machines, one community](many-machines.md): what is built is in [how the machines live together](machines.md). And [four apps on one address](apps.md).

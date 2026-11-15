@@ -1,9 +1,6 @@
 package main
 
 import (
-	"context"
-	"crypto/tls"
-	"errors"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -13,117 +10,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/earthler/earthler/core/copies"
 	"github.com/earthler/earthler/core/machines"
 	"github.com/earthler/earthler/core/replica"
 )
-
-// secureServer is the secure site of one machine, on an address that stays
-// the same when the machine goes away and comes back.
-type secureServer struct {
-	t       *testing.T
-	addr    string
-	cert    tls.Certificate
-	handler func() http.Handler
-
-	mu  sync.Mutex
-	srv *http.Server
-}
-
-func newSecure(t *testing.T, cert tls.Certificate) *secureServer {
-	ln, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	s := &secureServer{t: t, addr: ln.Addr().String(), cert: cert}
-	s.serve(ln)
-	t.Cleanup(s.stop)
-	return s
-}
-
-func (s *secureServer) url() string { return "https://" + s.addr }
-
-func (s *secureServer) serve(ln net.Listener) {
-	srv := &http.Server{Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if h := s.handler; h != nil && h() != nil {
-			h().ServeHTTP(w, r)
-			return
-		}
-		http.Error(w, "not yet", http.StatusServiceUnavailable)
-	})}
-	tlsLn := tls.NewListener(ln, &tls.Config{Certificates: []tls.Certificate{s.cert}})
-	s.mu.Lock()
-	s.srv = srv
-	s.mu.Unlock()
-	go srv.Serve(tlsLn)
-}
-
-// stop takes the machine off the network, as a power cut or a broken
-// antenna would, with the program still running.
-func (s *secureServer) stop() {
-	s.mu.Lock()
-	srv := s.srv
-	s.srv = nil
-	s.mu.Unlock()
-	if srv != nil {
-		srv.Close()
-	}
-}
-
-func (s *secureServer) start() {
-	ln, err := net.Listen("tcp", s.addr)
-	if err != nil {
-		s.t.Fatal(err)
-	}
-	s.serve(ln)
-}
-
-// between returns the text between two marks.
-func between(body, start, end string) string {
-	_, rest, ok := strings.Cut(body, start)
-	if !ok {
-		return ""
-	}
-	text, _, _ := strings.Cut(rest, end)
-	return text
-}
-
-// eventually waits for a condition that depends on another machine.
-func eventually(t *testing.T, what string, ok func() bool) {
-	t.Helper()
-	deadline := time.Now().Add(15 * time.Second)
-	for !ok() {
-		if time.Now().After(deadline) {
-			t.Fatalf("%s did not happen", what)
-		}
-		time.Sleep(20 * time.Millisecond)
-	}
-}
-
-// order returns the texts of the conversation in the order a page shows them.
-func order(body string, texts ...string) []string {
-	type at struct {
-		pos  int
-		text string
-	}
-	var found []at
-	for _, text := range texts {
-		if i := strings.Index(body, text); i >= 0 {
-			found = append(found, at{i, text})
-		}
-	}
-	for i := range found {
-		for j := i + 1; j < len(found); j++ {
-			if found[j].pos < found[i].pos {
-				found[i], found[j] = found[j], found[i]
-			}
-		}
-	}
-	var out []string
-	for _, f := range found {
-		out = append(out, f.text)
-	}
-	return out
-}
 
 // TestTwoMachinesOneCommunity is the proof of the second image: a machine
 // joins with a code, takes the community's secrets, and from then on the two
@@ -274,13 +164,30 @@ func TestTwoMachinesOneCommunity(t *testing.T) {
 		return strings.Contains(body, "Depois de a casa da Bia religar") && strings.Contains(body, "Voltei")
 	})
 
-	// The copies are where they should be.
-	for _, dir := range []string{filepath.Join(dir0, "journals", "1"), filepath.Join(dir1, "journals", "0")} {
-		if _, err := filepath.Glob(filepath.Join(dir, "*.journal")); err != nil {
-			t.Fatal(err)
-		}
-	}
-	if err := context.Cause(context.Background()); err != nil && !errors.Is(err, context.Canceled) {
+	// The night's copy of machine 1 brings the whole machine back: its
+	// number, its copy of machine 0's journal, and where machine 0 is.
+	key, err := copies.LoadKey(filepath.Join(dir1, "secrets"))
+	if err != nil {
 		t.Fatal(err)
+	}
+	copyDir, restored := t.TempDir(), filepath.Join(t.TempDir(), "restored")
+	if _, err := copies.Copy(dir1, copyDir, key, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := copies.Restore(copyDir, restored, key); err != nil {
+		t.Fatal(err)
+	}
+	back, err := open(config{dataDir: restored, community: "x", short: "x", lang: "pt-BR", httpsPort: 443})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer back.Close()
+	if address, ok := back.peers.Get(0); back.self() != 1 || back.name != "Vila Teste" || !ok || address != secure0.url() {
+		t.Fatalf("restored as machine %d of %q, machine 0 at %q", back.self(), back.name, address)
+	}
+	var messages int
+	back.byName["chat"].DB().QueryRow(`SELECT count(*) FROM messages`).Scan(&messages)
+	if messages < 6 {
+		t.Fatalf("the restored machine has %d messages", messages)
 	}
 }
