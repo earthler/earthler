@@ -1,12 +1,18 @@
-// Package erasure takes deleted content out of the journal for good. A
+// Package erasure takes deleted content out of the journals for good. A
 // deletion only hides a text: the entry that holds it stays in the journal
 // until this job rewrites its segment with the content replaced by the
 // erased mark. It runs when the system starts and once a night.
+//
+// Each machine erases its own files: its own journal and the copies it keeps
+// of the other machines' journals. So what is waiting to be erased is a
+// matter of each machine, and a record of an erasure only counts for the
+// machine that wrote it.
 package erasure
 
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/earthler/earthler/core/event"
@@ -15,17 +21,22 @@ import (
 	"github.com/earthler/earthler/core/scribe"
 )
 
-// Area is the index of what is waiting to be erased. It is derived from the
-// journal like every index: a deletion adds the entry, and the record of an
-// erasure removes it, so a rebuilt index asks for the same work again, and
-// erasing an entry twice changes nothing.
-var Area = index.Area{
-	Name:   "erasure",
-	Schema: `CREATE TABLE pending (entry INTEGER PRIMARY KEY, asked INTEGER NOT NULL);`,
-	Apply:  apply,
+// Area returns the index of what machine self still has to erase. It is
+// derived from the journals like every index: a deletion adds the entry, and
+// this machine's record of an erasure removes it, so a rebuilt index asks for
+// the same work again, and erasing an entry twice changes nothing.
+func Area(self uint64) index.Area {
+	return index.Area{
+		Name: "erasure",
+		// The machine is in the schema so the index is rebuilt if it were
+		// ever opened by another one.
+		Schema: fmt.Sprintf(`-- machine %d
+			CREATE TABLE pending (entry INTEGER PRIMARY KEY, asked INTEGER NOT NULL);`, self),
+		Apply: func(tx *sql.Tx, entry index.Entry) error { return apply(tx, entry, self) },
+	}
 }
 
-func apply(tx *sql.Tx, entry journal.Entry) error {
+func apply(tx *sql.Tx, entry index.Entry, self uint64) error {
 	e, err := event.Decode(entry.Content)
 	if err != nil {
 		return nil
@@ -36,14 +47,17 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		if e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT OR IGNORE INTO pending (entry, asked) VALUES (?, ?)`, d.Message, entry.Number)
+		// Two machines can delete the same message. Whichever deletion
+		// arrives first, the one that asked is the one with the lower id.
+		_, err = tx.Exec(`INSERT INTO pending (entry, asked) VALUES (?, ?)
+			ON CONFLICT (entry) DO UPDATE SET asked = min(asked, excluded.asked)`, d.Message, entry.ID)
 	case event.EntryErased:
 		var d event.EntryErasedData
-		if e.Read(&d) != nil {
+		if entry.Machine != self || e.Read(&d) != nil {
 			return nil
 		}
-		for _, n := range d.Entries {
-			if _, err = tx.Exec(`DELETE FROM pending WHERE entry = ?`, n); err != nil {
+		for _, id := range d.Entries {
+			if _, err = tx.Exec(`DELETE FROM pending WHERE entry = ?`, id); err != nil {
 				return err
 			}
 		}
@@ -54,14 +68,16 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 // batch is how many entries are erased and recorded together.
 var batch = 1000
 
-// Run erases everything that is pending, a batch at a time, and records in
-// the journal that it did. A run does not stop until nothing is pending, so
-// what was deleted before the night's copy is never in the copy. It returns
-// how many entries it erased.
-func Run(ctx context.Context, j *journal.Journal, ix *index.Index, s *scribe.Scribe, now time.Time) (int, error) {
+// Run erases everything that is pending in the journals the machine holds,
+// by machine, a batch at a time, and records in its own journal that it did.
+// A run does not stop until nothing it can reach is pending, so what was
+// deleted before the night's copy is never in the copy. An entry of a journal
+// the machine does not hold yet stays pending. It returns how many entries
+// it erased.
+func Run(ctx context.Context, journals map[uint64]*journal.Journal, ix *index.Index, s *scribe.Scribe, now time.Time) (int, error) {
 	total := 0
 	for {
-		n, err := runBatch(ctx, j, ix, s, now)
+		n, err := runBatch(ctx, journals, ix, s, now)
 		total += n
 		if err != nil || n == 0 {
 			return total, err
@@ -69,36 +85,50 @@ func Run(ctx context.Context, j *journal.Journal, ix *index.Index, s *scribe.Scr
 	}
 }
 
-func runBatch(ctx context.Context, j *journal.Journal, ix *index.Index, s *scribe.Scribe, now time.Time) (int, error) {
-	rows, err := ix.DB().QueryContext(ctx, `SELECT entry FROM pending ORDER BY entry LIMIT ?`, batch)
-	if err != nil {
+func runBatch(ctx context.Context, journals map[uint64]*journal.Journal, ix *index.Index, s *scribe.Scribe, now time.Time) (int, error) {
+	ids, err := pending(ctx, ix, journals)
+	if err != nil || len(ids) == 0 {
 		return 0, err
 	}
-	var numbers []uint64
-	for rows.Next() {
-		var n uint64
-		if err := rows.Scan(&n); err != nil {
-			rows.Close()
+	byMachine := map[uint64][]uint64{}
+	for _, id := range ids {
+		m, n := event.Split(id)
+		byMachine[m] = append(byMachine[m], n)
+	}
+	for m, numbers := range byMachine {
+		if err := journals[m].Erase(numbers...); err != nil {
 			return 0, err
 		}
-		numbers = append(numbers, n)
 	}
-	err = rows.Err()
-	rows.Close()
-	if err != nil || len(numbers) == 0 {
-		return 0, err
-	}
-	if err := j.Erase(numbers...); err != nil {
-		return 0, err
-	}
-	content, err := event.New(event.EntryErased, 0, 0, now, event.EntryErasedData{Entries: numbers})
+	content, err := event.New(event.EntryErased, 0, 0, now, event.EntryErasedData{Entries: ids})
 	if err != nil {
 		return 0, err
 	}
 	if _, err = s.Write(ctx, content); err != nil {
 		return 0, err
 	}
-	return len(numbers), nil
+	return len(ids), nil
+}
+
+// pending returns up to a batch of ids waiting to be erased in the journals
+// the machine holds.
+func pending(ctx context.Context, ix *index.Index, journals map[uint64]*journal.Journal) ([]uint64, error) {
+	rows, err := ix.DB().QueryContext(ctx, `SELECT entry FROM pending ORDER BY entry`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []uint64
+	for rows.Next() && len(ids) < batch {
+		var id uint64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		if m, _ := event.Split(id); journals[m] != nil {
+			ids = append(ids, id)
+		}
+	}
+	return ids, rows.Err()
 }
 
 // NextNight says when the next run is due: the next time the clock reaches

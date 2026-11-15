@@ -21,7 +21,8 @@ The words the code uses. A word listed here means one thing everywhere: in packa
 | Word | Meaning |
 | --- | --- |
 | Journal | The append-only record of everything that happened. The single source of truth |
-| Entry | One line of the journal. Its number is the identity of what it created |
+| Entry | One line of a journal. With the number of its machine, its number makes the id of what it created |
+| Id | How a thing is known on every machine: machine × 1,000,000,000,000 + entry number. On the machine that founded the community, it is the entry number. See [the core](design/core.md#ids) |
 | Segment | One file of the journal |
 | Digest | The SHA-256 of the content of an entry |
 | Seal | What ties an entry to the previous one, so a change in the past shows |

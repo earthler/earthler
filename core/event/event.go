@@ -26,12 +26,14 @@ type Event struct {
 	Type string `json:"type"`
 
 	// Time is the server clock when the event was written, in milliseconds
-	// since 1970. It is for showing to people. The order of events is the
-	// order of the entries, never this field.
+	// since 1970. It is for showing to people, and it is also the order of
+	// events that are in the journals of different machines, which is why
+	// the scribe never writes a time earlier than one it has already seen
+	// (see Stamp). Inside one journal, the entry number decides.
 	Time int64 `json:"time"`
 
-	// Account and Device are the entry numbers of the account and of the
-	// device that acted. Zero means the system itself.
+	// Account and Device are the ids of the account and of the device that
+	// acted (see ID). Zero means the system itself.
 	Account uint64 `json:"account,omitempty"`
 	Device  uint64 `json:"device,omitempty"`
 

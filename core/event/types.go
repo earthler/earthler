@@ -5,18 +5,22 @@ import "encoding/json"
 // The event types, and the data each one carries. This file is the catalog:
 // a type that exists in a journal somewhere is never removed from here and
 // never given another meaning. A new need gets a new type.
+//
+// Every number in the data that points at something, an account, a channel
+// or a message, is the id of the entry that created it (see ID).
 const (
-	// CommunityCreated is entry 1 of every journal: the birth of the community.
+	// CommunityCreated is entry 1 of the journal of the machine that founded
+	// the community: its birth.
 	CommunityCreated = "community.created"
 
 	// ChannelCreated opens a channel that every resident can read.
 	ChannelCreated = "channel.created"
 
-	// AccountCreated registers a resident. The entry number is the account.
+	// AccountCreated registers a resident. The id of the entry is the account.
 	AccountCreated = "account.created"
 
-	// DeviceCreated registers a browser that an account uses. The entry
-	// number is the device.
+	// DeviceCreated registers a browser that an account uses. The id of the
+	// entry is the device.
 	DeviceCreated = "device.created"
 
 	// MessageCreated is a message in an open channel.
@@ -49,7 +53,7 @@ type AccountCreatedData struct {
 	Name string `json:"name"`
 
 	// FirstDevice says that the browser that signed up is registered in the
-	// same entry, and that the entry number is the device too. Account and
+	// same entry, and that the id of the entry is the device too. Account and
 	// device are born together or not at all: with two entries, a cut
 	// between them left a name taken by an account nobody could open.
 	FirstDevice bool `json:"first_device,omitempty"`
@@ -72,6 +76,11 @@ type MessageDeletedData struct {
 	// author: whose message it was, and why it was removed.
 	Author uint64 `json:"author,omitempty"`
 	Reason string `json:"reason,omitempty"`
+
+	// Placed is the time of the message itself, so its place in the
+	// conversation survives the erasure of the entry that holds its text.
+	// Deletions written before there were many machines do not carry it.
+	Placed int64 `json:"placed,omitempty"`
 }
 
 type RoleChangedData struct {
@@ -79,6 +88,10 @@ type RoleChangedData struct {
 	Role    string `json:"role"`
 }
 
+// EntryErasedData lists the ids of the entries whose contents the machine
+// that writes it replaced by the erased mark, in its own journal or in the
+// copies it keeps of the other machines' journals. Each machine erases its
+// own files, so the record only speaks for the machine that wrote it.
 type EntryErasedData struct {
 	Entries []uint64 `json:"entries"`
 }

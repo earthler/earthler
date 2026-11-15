@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/earthler/earthler/core/event"
-	"github.com/earthler/earthler/core/journal"
+	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/live"
 )
 
@@ -23,7 +23,7 @@ const catchUpLimit = 500
 // announce is called by the scribe after each batch reached the indexes. It
 // turns the entries that change the conversation into messages for the
 // open pages, rendered once for everyone.
-func (s *Screen) announce(entries []journal.Entry) {
+func (s *Screen) announce(entries []index.Entry) {
 	for _, entry := range entries {
 		e, err := event.Decode(entry.Content)
 		if err != nil {
@@ -31,16 +31,16 @@ func (s *Screen) announce(entries []journal.Entry) {
 		}
 		switch e.Type {
 		case event.MessageCreated:
-			m, err := s.message(context.Background(), entry.Number)
+			m, err := s.message(context.Background(), entry.ID)
 			if err != nil {
-				log.Printf("chat: announcing entry %d: %v", entry.Number, err)
+				log.Printf("chat: announcing entry %d: %v", entry.ID, err)
 				continue
 			}
 			s.hub.Send(s.posted(m))
 		case event.MessageDeleted:
 			var d event.MessageDeletedData
 			if e.Read(&d) == nil {
-				s.hub.Send(live.Message{ID: entry.Number, Event: "deleted", Data: strconv.FormatUint(d.Message, 10)})
+				s.hub.Send(live.Message{ID: entry.ID, Event: "deleted", Data: strconv.FormatUint(d.Message, 10)})
 			}
 		}
 	}

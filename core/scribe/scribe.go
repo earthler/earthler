@@ -1,7 +1,10 @@
-// Package scribe is the single writer of the community. Every change goes
-// through it: it writes the entries in the journal, applies them to the
-// indexes and only then answers. Because the answer comes after the indexes,
-// whoever wrote always sees what they wrote.
+// Package scribe is the single writer of a machine. Every change goes
+// through it: it writes the entries in the machine's own journal, applies
+// them to the indexes and only then answers. Because the answer comes after
+// the indexes, whoever wrote always sees what they wrote.
+//
+// A machine also keeps copies of the other machines' journals, and the
+// scribe applies their entries to the same indexes. It never writes in them.
 package scribe
 
 import (
@@ -10,6 +13,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/journal"
 )
@@ -21,8 +25,22 @@ const maxBatch = 50
 // closed, or a write failed and the system is waiting for a restart.
 var ErrStopped = errors.New("scribe: not accepting writes")
 
-// Scribe owns the journal and the indexes while it runs.
+// Journals are the journals a machine holds.
+type Journals struct {
+	// Self is the number of this machine. The machine that founded the
+	// community is 0.
+	Self uint64
+
+	// Own is the machine's own journal, which only this scribe writes.
+	Own *journal.Journal
+
+	// Kept are the copies of the other machines' journals, by machine.
+	Kept map[uint64]*journal.Journal
+}
+
+// Scribe owns the journals and the indexes while it runs.
 type Scribe struct {
+	self    uint64
 	journal *journal.Journal
 	indexes []*index.Index
 
@@ -34,13 +52,18 @@ type Scribe struct {
 	mu        sync.Mutex
 	cause     error // why the scribe stopped by itself, if it did
 	listeners []Listener
+
+	// The clock rule. own is the latest time in this machine's journal, and
+	// seen the latest time among the other machines' entries. Nothing is
+	// written earlier than own, nor at or before seen. Only run touches them.
+	own, seen int64
 }
 
 // Listener is told about every batch once the indexes applied it and before
 // the writers get their answer, which is how a page that is open learns of
 // a change before the page that made it. The scribe waits for it, so it
 // must return at once and never write through the scribe itself.
-type Listener func(entries []journal.Entry)
+type Listener func(entries []index.Entry)
 
 type request struct {
 	contents [][]byte
@@ -48,31 +71,85 @@ type request struct {
 }
 
 type reply struct {
-	entries []journal.Entry
+	entries []index.Entry
 	err     error
 }
 
-// Start brings every index level with the journal and starts the scribe.
+// Start starts the scribe of a machine that holds only its own journal, as
+// the founding machine does while it is alone.
 func Start(j *journal.Journal, indexes ...*index.Index) (*Scribe, error) {
+	return Open(Journals{Own: j}, indexes...)
+}
+
+// Open brings every index level with every journal and starts the scribe.
+func Open(js Journals, indexes ...*index.Index) (*Scribe, error) {
+	if js.Own == nil || js.Self > event.MaxMachine {
+		return nil, fmt.Errorf("scribe: machine %d needs its own journal and a number up to %d", js.Self, event.MaxMachine)
+	}
+	all := map[uint64]*journal.Journal{js.Self: js.Own}
+	for m, j := range js.Kept {
+		if m == js.Self || m > event.MaxMachine || j == nil {
+			return nil, fmt.Errorf("scribe: the copy of machine %d cannot be kept by machine %d", m, js.Self)
+		}
+		all[m] = j
+	}
 	for _, ix := range indexes {
-		if err := ix.Follow(j); err != nil {
+		if err := ix.Follow(all); err != nil {
 			return nil, err
 		}
 	}
 	s := &Scribe{
-		journal:  j,
+		self:     js.Self,
+		journal:  js.Own,
 		indexes:  indexes,
 		requests: make(chan *request),
 		quit:     make(chan struct{}),
 		stopped:  make(chan struct{}),
 	}
+	var err error
+	if s.own, err = latest(js.Own); err != nil {
+		return nil, err
+	}
+	for _, j := range js.Kept {
+		t, err := latest(j)
+		if err != nil {
+			return nil, err
+		}
+		s.seen = max(s.seen, t)
+	}
 	go s.run()
 	return s, nil
 }
 
-// Write records the contents, in order, as consecutive entries. It returns
-// after the disk confirmed them and every index applied them.
-func (s *Scribe) Write(ctx context.Context, contents ...[]byte) ([]journal.Entry, error) {
+// tail is how many entries at the end of a journal are read to find its
+// latest time. An erased entry has lost its time, so one is not enough.
+const tail = 64
+
+// latest returns the latest time among the last entries of a journal.
+func latest(j *journal.Journal) (int64, error) {
+	last, _ := j.Last()
+	if last == 0 {
+		return 0, nil
+	}
+	from := uint64(1)
+	if last > tail {
+		from = last - tail + 1
+	}
+	var t int64
+	err := j.Read(from, func(e journal.Entry) error {
+		t = max(t, event.TimeOf(e.Content))
+		return nil
+	})
+	return t, err
+}
+
+// Self returns the number of this machine.
+func (s *Scribe) Self() uint64 { return s.self }
+
+// Write records the contents, in order, as consecutive entries of the
+// machine's own journal. It returns after the disk confirmed them and every
+// index applied them.
+func (s *Scribe) Write(ctx context.Context, contents ...[]byte) ([]index.Entry, error) {
 	if len(contents) == 0 || len(contents) > maxBatch {
 		return nil, fmt.Errorf("scribe: a write takes from 1 to %d contents", maxBatch)
 	}
@@ -135,64 +212,4 @@ func (s *Scribe) run() {
 			}
 		}
 	}
-}
-
-// commit writes one batch. An error means the scribe has to stop: either the
-// journal refused the write, or the entries are in the journal but an index
-// did not take them, and only a restart brings the indexes level again.
-func (s *Scribe) commit(batch []*request) error {
-	var contents [][]byte
-	for _, r := range batch {
-		contents = append(contents, r.contents...)
-	}
-	entries, err := s.journal.Append(contents...)
-	if err == nil {
-		for _, ix := range s.indexes {
-			if err = ix.Apply(entries); err != nil {
-				break
-			}
-		}
-	}
-	if err == nil {
-		s.mu.Lock()
-		listeners := s.listeners
-		s.mu.Unlock()
-		for _, l := range listeners {
-			l(entries)
-		}
-	}
-	next := 0
-	for _, r := range batch {
-		if err != nil {
-			r.reply <- reply{err: fmt.Errorf("%w: %v", ErrStopped, err)}
-			continue
-		}
-		r.reply <- reply{entries: entries[next : next+len(r.contents) : next+len(r.contents)]}
-		next += len(r.contents)
-	}
-	return err
-}
-
-func (s *Scribe) stopError() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.cause != nil {
-		return fmt.Errorf("%w: %v", ErrStopped, s.cause)
-	}
-	return ErrStopped
-}
-
-// Err reports why the scribe stopped by itself, or nil while it is running
-// or after a normal Close.
-func (s *Scribe) Err() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	return s.cause
-}
-
-// Close stops the scribe after the batch it is writing. It does not close
-// the journal or the indexes.
-func (s *Scribe) Close() {
-	s.once.Do(func() { close(s.quit) })
-	<-s.stopped
 }

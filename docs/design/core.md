@@ -23,18 +23,25 @@ If the journal refuses a write, or an index fails after the journal accepted the
 An entry carries one event: its type, the server clock, the account and the device that acted, a random salt and the data of that type.
 
 - **Type.** A noun and a verb in the past, such as `message.created`. Types are written in journals forever, so a type that was once used is never removed and never given another meaning. The catalog is [`core/event/types.go`](../../core/event/types.go).
-- **Time.** For showing to people. The order of events is the order of the entries, so a wrong clock cannot scramble the journal.
-- **Account and device.** The entry numbers of who acted. Zero means the system.
+- **Time.** For showing to people, and the order of events that are in the journals of different machines. Inside one journal the order is the order of the entries, so a wrong clock cannot scramble it. The scribe never writes a time earlier than the latest entry of its own journal, and always writes one later than every entry it has seen from another machine, so an answer comes after its question even when a clock is wrong.
+- **Account and device.** The ids of who acted. Zero means the system.
 - **Salt.** Random bytes that go away with the content when an entry is erased. Without it, the digest that stays in the journal could be used to confirm a guess of what the erased text said.
 
 The field names are whole words on purpose. Single letters would save a few bytes per entry, and whole words can be read by whoever opens the file with nothing but a text editor.
+
+## Ids
+
+Everything is known by the machine whose journal holds the entry that created it and by the number of that entry. The two make one number, the id: machine × 1,000,000,000,000 + entry, so 3000000000017 is entry 17 of machine 3. Every number in an event that points at something, an account, a channel or a message, is an id. The [code](../../core/event/id.go) keeps machine numbers up to 9000, so every id stays below 2^53, where a script in the browser still reads a number exactly.
+
+The machine that founded the community is machine 0, so its ids are its entry numbers, and a journal written before there were many machines is already in this form. Today every community has that one machine: how others join is in [many machines, one community](many-machines.md) and is not built yet.
 
 ## Indexes
 
 An index is one SQLite file for one area: accounts, chat, search. Each area declares its tables and one function that says how an event changes them.
 
 - The function ignores events it does not understand, and only fails when the database fails. One strange entry must never be able to stop an index, and with it the whole system, from starting.
-- Each index remembers the number and the seal of the last entry it applied. When that does not match the journal, the index is deleted and rebuilt from entry 1. That covers an index that is ahead of a journal that lost its unconfirmed tail, and a journal that was restored from a copy.
+- An index applies the entries of every journal the machine holds: its own and the copies of the others'. Each journal comes in its own order, but two journals can come in any order relative to each other, so the function must reach the same tables whichever came first. A deletion written on one machine can arrive before the message it deletes, which was written on another: the deletion leaves the empty row and the message does not take it back. Two deletions of the same message keep the earlier one. A test applies two journals in many orders and compares every table.
+- Each index remembers, for each journal, the number and the seal of the last entry it applied. When that does not match the journal, or a journal it applied is no longer there, the index is deleted and rebuilt from the start. That covers an index that is ahead of a journal that lost its unconfirmed tail, and a journal that was restored from a copy.
 - An index made with another schema is rebuilt too, which is how an upgrade changes an index without migrating anything.
 - Each index keeps its own copy of what it shows, such as the author names, so no query ever crosses two files.
 
@@ -121,7 +128,7 @@ The page works without the script: it only saves the reload.
 
 A deletion is an entry like any other, so it survives a rebuild of the indexes. The text leaves the indexes at once, the screen says a message was deleted, and the open pages hear of it. Only the author can delete, until roles exist.
 
-The entry that holds the text stays in the journal until the night's work, in [`core/erasure`](../../core/erasure), rewrites its segment with the content replaced by the erased mark. The digest and the seals stay, so the chain stays whole; the salt goes with the text, so the digest that stays cannot confirm a guess of what the text was. What is pending is itself an index derived from the journal, and the erasure is recorded as an entry, so a rebuilt index asks for the same work again and erasing twice changes nothing. The erasure also runs when the system starts, before any screen is served, so a restored copy never serves a text that was deleted. The indexes overwrite what they delete, and the search table does the same.
+The entry that holds the text stays in the journal until the night's work, in [`core/erasure`](../../core/erasure), rewrites its segment with the content replaced by the erased mark. Each machine erases its own files, its journal and the copies it keeps, so a record of an erasure only counts for the machine that wrote it, and a deletion of a message from a journal the machine does not hold yet waits for that journal. The digest and the seals stay, so the chain stays whole; the salt goes with the text, so the digest that stays cannot confirm a guess of what the text was. What is pending is itself an index derived from the journal, and the erasure is recorded as an entry, so a rebuilt index asks for the same work again and erasing twice changes nothing. The erasure also runs when the system starts, before any screen is served, so a restored copy never serves a text that was deleted. The indexes overwrite what they delete, and the search table does the same.
 
 ## Copies
 

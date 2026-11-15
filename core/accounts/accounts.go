@@ -30,7 +30,6 @@ import (
 	"github.com/earthler/earthler/core/durable"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
-	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/permissions"
 	"github.com/earthler/earthler/core/roster"
 	"github.com/earthler/earthler/core/scribe"
@@ -47,7 +46,7 @@ var Area = index.Area{
 	Apply: apply,
 }
 
-func apply(tx *sql.Tx, entry journal.Entry) error {
+func apply(tx *sql.Tx, entry index.Entry) error {
 	if _, err := roster.Apply(tx, entry); err != nil {
 		return err
 	}
@@ -64,15 +63,15 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		// Sign up checks the name first. If two entries with the same name
 		// exist anyway, the first one keeps it.
 		if _, err = tx.Exec(`INSERT INTO accounts (number, name, folded, joined) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING`,
-			entry.Number, d.Name, fold(d.Name), e.Time); err == nil && d.FirstDevice {
-			_, err = tx.Exec(`INSERT INTO devices (number, account) VALUES (?, ?) ON CONFLICT DO NOTHING`, entry.Number, entry.Number)
+			entry.ID, d.Name, fold(d.Name), e.Time); err == nil && d.FirstDevice {
+			_, err = tx.Exec(`INSERT INTO devices (number, account) VALUES (?, ?) ON CONFLICT DO NOTHING`, entry.ID, entry.ID)
 		}
 	case event.DeviceCreated:
 		var d event.DeviceCreatedData
 		if e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT INTO devices (number, account) VALUES (?, ?) ON CONFLICT DO NOTHING`, entry.Number, d.Account)
+		_, err = tx.Exec(`INSERT INTO devices (number, account) VALUES (?, ?) ON CONFLICT DO NOTHING`, entry.ID, d.Account)
 	}
 	return err
 }
@@ -176,7 +175,7 @@ func (s *Service) SignUp(ctx context.Context, name string, secure bool) (*http.C
 	if err != nil {
 		return nil, err
 	}
-	return s.cookie(entries[0].Number, 0, secure), nil
+	return s.cookie(entries[0].ID, 0, secure), nil
 }
 
 const cookieName = "earthler"

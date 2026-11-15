@@ -90,8 +90,9 @@ func (s *Screen) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var account, channel, deleted uint64
-	err = s.index.DB().QueryRowContext(r.Context(), `SELECT account, channel, deleted FROM messages WHERE number = ?`, number).
-		Scan(&account, &channel, &deleted)
+	var place int64
+	err = s.index.DB().QueryRowContext(r.Context(), `SELECT account, channel, deleted, place FROM messages WHERE number = ?`, number).
+		Scan(&account, &channel, &deleted, &place)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		http.NotFound(w, r)
@@ -101,7 +102,7 @@ func (s *Screen) delete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, s.pages.T("error.internal"), http.StatusInternalServerError)
 		return
 	}
-	data := event.MessageDeletedData{Channel: channel, Message: number}
+	data := event.MessageDeletedData{Channel: channel, Message: number, Placed: place}
 	if account != sess.Account {
 		// Someone else's message goes only by the hand of a role that may
 		// remove content, and with a reason that stays in the log.

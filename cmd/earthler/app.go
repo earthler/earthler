@@ -63,6 +63,10 @@ type app struct {
 // nightHour is when the night's work runs, in the machine's local time.
 const nightHour = 3
 
+// self is the number of this machine. The machine that founds a community
+// is machine 0, and for now it is the only one.
+const self = 0
+
 // open starts everything from the data folder. The indexes are brought level
 // with the journal before any screen is served, which is also how the system
 // comes back after a power cut.
@@ -79,7 +83,9 @@ func open(cfg config) (*app, error) {
 	if a.journal, err = journal.Open(filepath.Join(cfg.dataDir, "journal"), journal.Options{}); err != nil {
 		return nil, err
 	}
-	areas := []index.Area{accounts.Area, chat.Area, search.Area, auditlog.Area, erasure.Area}
+	// This machine founded the community and is still alone in it, so it
+	// is machine 0 and holds no copy of another machine's journal yet.
+	areas := []index.Area{accounts.Area, chat.Area, search.Area, auditlog.Area, erasure.Area(self)}
 	byName := map[string]*index.Index{}
 	for _, area := range areas {
 		ix, err := index.Open(filepath.Join(cfg.dataDir, "indexes"), area)
@@ -90,7 +96,7 @@ func open(cfg config) (*app, error) {
 		byName[area.Name] = ix
 	}
 	a.byName = byName
-	if a.scribe, err = scribe.Start(a.journal, a.indexes...); err != nil {
+	if a.scribe, err = scribe.Open(scribe.Journals{Self: self, Own: a.journal}, a.indexes...); err != nil {
 		return nil, err
 	}
 	if a.name, err = a.community(cfg); err != nil {
@@ -220,7 +226,7 @@ func (a *app) community(cfg config) (string, error) {
 
 // erase runs the physical erasure of deleted content.
 func (a *app) erase(ctx context.Context, now time.Time) (int, error) {
-	n, err := erasure.Run(ctx, a.journal, a.byName[erasure.Area.Name], a.scribe, now)
+	n, err := erasure.Run(ctx, map[uint64]*journal.Journal{self: a.journal}, a.byName["erasure"], a.scribe, now)
 	if n > 0 {
 		log.Printf("erased the content of %d entries", n)
 	}

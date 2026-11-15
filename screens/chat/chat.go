@@ -14,7 +14,6 @@ import (
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
-	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/live"
 	"github.com/earthler/earthler/core/page"
 	"github.com/earthler/earthler/core/permissions"
@@ -28,8 +27,13 @@ var files embed.FS
 const MaxText = 4000
 
 // Area is the index this screen reads. A deleted message keeps its row,
-// with no text and the number of the entry that deleted it, so the screen
-// can say that something was there.
+// with no text and the id of the entry that deleted it, so the screen can
+// say that something was there.
+//
+// The conversation is in the order of place, which is the time the message
+// was written, and then of id: messages written on different machines take
+// their place by time, and inside one journal the entry number decides. time
+// is what the screen shows: the time of the message, or of its deletion.
 var Area = index.Area{
 	Name: "chat",
 	Schema: `
@@ -37,13 +41,13 @@ var Area = index.Area{
 		CREATE TABLE authors (account INTEGER PRIMARY KEY, name TEXT NOT NULL);
 		CREATE TABLE messages (
 			number INTEGER PRIMARY KEY, channel INTEGER NOT NULL, account INTEGER NOT NULL,
-			time INTEGER NOT NULL, text TEXT NOT NULL, deleted INTEGER NOT NULL DEFAULT 0);
-		CREATE INDEX messages_by_channel ON messages (channel, number);
+			place INTEGER NOT NULL, time INTEGER NOT NULL, text TEXT NOT NULL, deleted INTEGER NOT NULL DEFAULT 0);
+		CREATE INDEX messages_by_channel ON messages (channel, place, number);
 		CREATE INDEX messages_by_deletion ON messages (deleted);`,
 	Apply: apply,
 }
 
-func apply(tx *sql.Tx, entry journal.Entry) error {
+func apply(tx *sql.Tx, entry index.Entry) error {
 	e, err := event.Decode(entry.Content)
 	if err != nil {
 		return nil
@@ -54,40 +58,56 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		if e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT INTO channels (number, name) VALUES (?, ?)`, entry.Number, d.Name)
+		_, err = tx.Exec(`INSERT OR IGNORE INTO channels (number, name) VALUES (?, ?)`, entry.ID, d.Name)
 	case event.AccountCreated:
 		var d event.AccountCreatedData
 		if e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT INTO authors (account, name) VALUES (?, ?)`, entry.Number, d.Name)
+		_, err = tx.Exec(`INSERT OR IGNORE INTO authors (account, name) VALUES (?, ?)`, entry.ID, d.Name)
 	case event.MessageCreated:
 		var d event.MessageCreatedData
 		if e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT INTO messages (number, channel, account, time, text) VALUES (?, ?, ?, ?, ?)`,
-			entry.Number, d.Channel, e.Account, e.Time, d.Text)
+		// A deletion that arrived first, from another machine, has already
+		// left the empty row, and it stays.
+		_, err = tx.Exec(`INSERT OR IGNORE INTO messages (number, channel, account, place, time, text) VALUES (?, ?, ?, ?, ?, ?)`,
+			entry.ID, d.Channel, e.Account, e.Time, e.Time, d.Text)
 	case event.MessageDeleted:
 		var d event.MessageDeletedData
 		if e.Read(&d) != nil {
 			return nil
 		}
-		// The text goes now. Once the entry that created the message is
-		// erased from the journal and the index is rebuilt, there is no row
-		// to update, and the deletion creates the empty row itself. Both
-		// ways must leave the same row, so the time of a deleted message is
-		// the time of its deletion: the original time is gone with the text.
-		res, err := tx.Exec(`UPDATE messages SET text = '', deleted = ?, time = ? WHERE number = ? AND deleted = 0`, entry.Number, e.Time, d.Message)
-		if err != nil {
-			return err
-		}
-		if n, _ := res.RowsAffected(); n == 0 {
-			_, err = tx.Exec(`INSERT OR IGNORE INTO messages (number, channel, account, time, text, deleted) VALUES (?, ?, ?, ?, '', ?)`,
-				d.Message, d.Channel, e.Account, e.Time, entry.Number)
-		}
+		return deleteMessage(tx, entry, e, d)
+	}
+	return err
+}
+
+// deleteMessage takes the text away. Once the entry that created the message
+// is erased and the index is rebuilt, or when the deletion arrives before
+// the message, there is no row to update, and the deletion creates the empty
+// row itself. Every way must leave the same row: its place comes from the
+// deletion, and its time is the time of the deletion. Two deletions of the
+// same message, written on two machines, keep the earlier one.
+func deleteMessage(tx *sql.Tx, entry index.Entry, e event.Event, d event.MessageDeletedData) error {
+	res, err := tx.Exec(`UPDATE messages SET text = '', deleted = ?1, time = ?2
+		WHERE number = ?3 AND (deleted = 0 OR time > ?2 OR (time = ?2 AND deleted > ?1))`, entry.ID, e.Time, d.Message)
+	if err != nil {
 		return err
 	}
+	if n, _ := res.RowsAffected(); n > 0 {
+		return nil
+	}
+	place, author := d.Placed, d.Author
+	if place == 0 {
+		place = e.Time
+	}
+	if author == 0 {
+		author = e.Account
+	}
+	_, err = tx.Exec(`INSERT OR IGNORE INTO messages (number, channel, account, place, time, text, deleted) VALUES (?, ?, ?, ?, ?, '', ?)`,
+		d.Message, d.Channel, author, place, e.Time, entry.ID)
 	return err
 }
 
@@ -182,7 +202,7 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey
 	// The last messages, shown oldest first.
 	rows, err := s.index.DB().QueryContext(r.Context(), `SELECT `+messageColumns+` FROM messages m
 		LEFT JOIN authors a ON a.account = m.account
-		WHERE m.channel = ? ORDER BY m.number DESC LIMIT 200`, channel)
+		WHERE m.channel = ? ORDER BY m.place DESC, m.number DESC LIMIT 200`, channel)
 	if err != nil {
 		log.Printf("chat: %v", err)
 		http.Error(w, s.pages.T("error.internal"), http.StatusInternalServerError)
