@@ -38,10 +38,17 @@ func (s *Service) ChangeRole(ctx context.Context, actor Session, target uint64, 
 		return ErrBadRole
 	}
 	if s.counter != nil {
-		if err := s.counter.ChangeRole(ctx, actor, target, role); err != nil {
+		err := s.counter.ChangeRole(ctx, actor, target, role)
+		arrived := s.arrives(ctx, `SELECT count(*) FROM roster WHERE account = ? AND role = ?`, target, string(role))
+		switch {
+		case errors.Is(err, ErrUnsure):
+			// Done if the change arrives; if not, not now.
+			return arrived
+		case err != nil:
 			return err
 		}
-		return s.arrives(ctx, `SELECT count(*) FROM roster WHERE account = ? AND role = ?`, target, string(role))
+		// Done. The list shows it once it has reached this machine.
+		return nil
 	}
 
 	s.roles.Lock()

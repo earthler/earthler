@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/earthler/earthler/core/certificate"
-	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/machines"
 	"github.com/earthler/earthler/core/replica"
 )
@@ -81,31 +80,7 @@ func join(cfg config, o joinOptions) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("this is machine %d of the community; the others reach it at %s", w.Machine, o.reach)
-
-	chain, err := certificate.Load(filepath.Join(cfg.dataDir, "secrets", "certificate"))
-	if err != nil {
-		return err
-	}
-	client, err := replica.Pinned(chain.Root())
-	if err != nil {
-		return err
-	}
-	peers, err := machines.OpenPeers(machines.PeersPath(cfg.dataDir))
-	if err != nil {
-		return err
-	}
-	copy, err := journal.Open(filepath.Join(cfg.dataDir, "journals", "0"), journal.Options{})
-	if err != nil {
-		return err
-	}
-	defer copy.Close()
-	f := &machines.Follower{Peer: machines.Counter, Peers: peers, Token: w.Token, Client: client, Copy: copy}
-	n, err := f.CatchUp(ctx)
-	if err != nil {
-		return fmt.Errorf("joined, but the journal of the machine that counts could not be read yet: %w", err)
-	}
-	log.Printf("received %d entries of the journal of machine 0", n)
+	log.Printf("this is machine %d of the community, with the journal of machine 0 up to now; the others reach it at %s", w.Machine, o.reach)
 	return nil
 }
 

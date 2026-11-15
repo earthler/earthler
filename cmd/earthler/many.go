@@ -2,15 +2,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -29,6 +26,7 @@ type many struct {
 	mu        sync.Mutex
 	kept      map[uint64]*journal.Journal // the copies of the other machines' journals
 	following map[uint64]bool
+	stopped   bool       // nothing new starts once the machine is stopping
 	keeping   sync.Mutex // one copy is opened at a time, so none is opened twice
 
 	peers    *machines.Peers
@@ -111,6 +109,7 @@ func (a *app) startMachines(cfg config, mux *http.ServeMux, residents *accounts.
 		Self: a.self(), Label: label, Secrets: secrets, Index: a.byName[machines.Area.Name],
 		Scribe: a.scribe, Own: a.journal, Invites: invites, Peers: a.peers, Accounts: residents,
 		Joined: a.keep,
+		Held:   func(n uint64) *journal.Journal { return a.holding()[n] },
 	}
 	a.machines.Routes(mux)
 	if a.self() != machines.Counter {
@@ -157,8 +156,11 @@ func (a *app) keep(n uint64) error {
 	a.keeping.Lock()
 	defer a.keeping.Unlock()
 	a.mu.Lock()
-	j := a.kept[n]
+	j, stopped := a.kept[n], a.stopped
 	a.mu.Unlock()
+	if stopped {
+		return nil
+	}
 	if j == nil {
 		var err error
 		if j, err = journal.Open(filepath.Join(a.dataDir, "journals", strconv.FormatUint(n, 10)), journal.Options{}); err != nil {
@@ -182,7 +184,7 @@ func (a *app) follow(n uint64, copy *journal.Journal) {
 	id, err := machines.LoadIdentity(filepath.Join(a.dataDir, "secrets"))
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	if err != nil || id.Token == "" || a.following[n] || a.ctx == nil || a.ctx.Err() != nil {
+	if err != nil || id.Token == "" || a.following[n] || a.ctx == nil || a.stopped {
 		return
 	}
 	a.following[n] = true
@@ -207,64 +209,25 @@ func (a *app) notice(entries []index.Entry) {
 		if err != nil || ev.Type != event.MachineAdded || ev.Read(&d) != nil || d.Machine == a.self() {
 			continue
 		}
-		go func(n uint64) {
-			if err := a.keep(n); err != nil {
-				log.Printf("machines: keeping machine %d: %v", n, err)
-			}
-		}(d.Machine)
-	}
-}
-
-// gossip asks every machine it knows, now and then, which addresses it
-// knows, so that every machine learns every other and can follow it even
-// when the machine that counts is away.
-func (a *app) gossip() {
-	for {
-		select {
-		case <-a.ctx.Done():
-			return
-		case <-time.After(gossipEvery):
-		}
-		id, err := machines.LoadIdentity(filepath.Join(a.dataDir, "secrets"))
-		if err != nil || id.Token == "" {
-			continue
-		}
-		for _, address := range a.peers.All() {
-			for n, other := range a.askPeers(address, id.Token) {
-				if n == a.self() {
-					continue
+		a.mu.Lock()
+		if !a.stopped {
+			a.group.Add(1)
+			go func(n uint64) {
+				defer a.group.Done()
+				if err := a.keep(n); err != nil {
+					log.Printf("machines: keeping machine %d: %v", n, err)
 				}
-				if changed, err := a.peers.Set(n, other); err == nil && changed {
-					a.keep(n)
-				}
-			}
+			}(d.Machine)
 		}
+		a.mu.Unlock()
 	}
-}
-
-func (a *app) askPeers(address, token string) map[uint64]string {
-	ctx, cancel := context.WithTimeout(a.ctx, 5*time.Second)
-	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, "GET", strings.TrimSuffix(address, "/")+"/machines/peers", nil)
-	if err != nil {
-		return nil
-	}
-	req.Header.Set("Authorization", "Bearer "+token)
-	res, err := a.client.Do(req)
-	if err != nil {
-		return nil
-	}
-	defer res.Body.Close()
-	var got map[uint64]string
-	if res.StatusCode != http.StatusOK || json.NewDecoder(io.LimitReader(res.Body, 1<<20)).Decode(&got) != nil {
-		return nil
-	}
-	return got
 }
 
 // stopFollowing ends the followers and the gossip, and waits for them.
+// Nothing new starts afterwards, so the wait is for everything.
 func (a *app) stopFollowing() {
 	a.mu.Lock()
+	a.stopped = true
 	quit := a.quit
 	a.mu.Unlock()
 	if quit != nil {

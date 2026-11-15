@@ -35,7 +35,8 @@ var Area = index.Area{
 	Name: "accounts",
 	Schema: `
 		CREATE TABLE accounts (number INTEGER PRIMARY KEY, name TEXT NOT NULL, folded TEXT NOT NULL UNIQUE,
-			joined INTEGER NOT NULL DEFAULT 0);
+			joined INTEGER NOT NULL DEFAULT 0, request TEXT NOT NULL DEFAULT '');
+		CREATE INDEX accounts_by_request ON accounts (request);
 		` + roster.Schema + `
 		CREATE TABLE devices (number INTEGER PRIMARY KEY, account INTEGER NOT NULL, counter INTEGER NOT NULL DEFAULT 0);`,
 	Apply: apply,
@@ -57,8 +58,8 @@ func apply(tx *sql.Tx, entry index.Entry) error {
 		}
 		// Sign up checks the name first. If two entries with the same name
 		// exist anyway, the first one keeps it.
-		if _, err = tx.Exec(`INSERT INTO accounts (number, name, folded, joined) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING`,
-			entry.ID, d.Name, fold(d.Name), e.Time); err == nil && d.FirstDevice {
+		if _, err = tx.Exec(`INSERT INTO accounts (number, name, folded, joined, request) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING`,
+			entry.ID, d.Name, fold(d.Name), e.Time, d.Request); err == nil && d.FirstDevice {
 			_, err = tx.Exec(`INSERT INTO devices (number, account) VALUES (?, ?) ON CONFLICT DO NOTHING`, entry.ID, entry.ID)
 		}
 	case event.DeviceCreated:
@@ -145,18 +146,30 @@ func (s *Service) SignUp(ctx context.Context, name string, secure bool) (*http.C
 		return nil, err
 	}
 	if s.counter == nil {
-		device, err := s.Register(ctx, name)
+		device, err := s.Register(ctx, name, "")
 		if err != nil {
 			return nil, err
 		}
 		return s.cookie(device, 0, secure), nil
 	}
-	device, err := s.counter.SignUp(ctx, name)
+	request, err := mark()
 	if err != nil {
 		return nil, err
 	}
-	if err := s.arrives(ctx, `SELECT count(*) FROM devices WHERE number = ?`, device); err != nil {
+	device, err := s.counter.SignUp(ctx, name, request)
+	switch {
+	case errors.Is(err, ErrUnsure):
+		// The request went and the answer did not come back. If the account
+		// was made, it arrives with the mark this machine chose.
+		if device, err = s.found(ctx, `SELECT number FROM accounts WHERE request = ?`, request); err != nil {
+			return nil, err
+		}
+	case err != nil:
 		return nil, err
+	default:
+		// The account exists. The next page knows it once it has reached
+		// this machine, which is a moment; waiting longer changes nothing.
+		s.arrives(ctx, `SELECT count(*) FROM devices WHERE number = ?`, device)
 	}
 	return s.cookie(device, 0, secure), nil
 }
@@ -164,7 +177,7 @@ func (s *Service) SignUp(ctx context.Context, name string, secure bool) (*http.C
 // Register creates an account and its first device on the machine that
 // counts, and returns the device. The account and its first device are one
 // entry of the journal, so there is never one without the other.
-func (s *Service) Register(ctx context.Context, name string) (uint64, error) {
+func (s *Service) Register(ctx context.Context, name, request string) (uint64, error) {
 	name, err := tidyName(name)
 	if err != nil {
 		return 0, err
@@ -178,7 +191,10 @@ func (s *Service) Register(ctx context.Context, name string) (uint64, error) {
 	if taken > 0 {
 		return 0, ErrNameTaken
 	}
-	content, err := event.New(event.AccountCreated, 0, 0, time.Now(), event.AccountCreatedData{Name: name, FirstDevice: true})
+	if len(request) > 64 {
+		request = request[:64]
+	}
+	content, err := event.New(event.AccountCreated, 0, 0, time.Now(), event.AccountCreatedData{Name: name, FirstDevice: true, Request: request})
 	if err != nil {
 		return 0, err
 	}

@@ -98,6 +98,14 @@ func (s *Screen) live(w http.ResponseWriter, r *http.Request) {
 	after := live.After(r)
 	s.hub.Serve(w, r, func(send func(live.Message)) error {
 		now := live.Position(s.index.Positions())
+		// Only the journals this machine holds count: a page cannot have
+		// seen anything of the others, and a position naming thousands of
+		// machines must not make the query heavy.
+		for m := range after {
+			if _, held := now[m]; !held {
+				delete(after, m)
+			}
+		}
 		created, args := unseen("m.number", after)
 		deleted, more := unseen("m.deleted", after)
 		args = append(append(args, more...), catchUpLimit+1)

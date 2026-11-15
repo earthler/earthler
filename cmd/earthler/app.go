@@ -85,6 +85,9 @@ func open(cfg config) (*app, error) {
 	if err := a.openJournals(); err != nil {
 		return nil, err
 	}
+	if err := a.takeBack(); err != nil {
+		return nil, err
+	}
 	areas := []index.Area{accounts.Area, chat.Area, search.Area, auditlog.Area, erasure.Area(a.self()), machines.Area}
 	byName := map[string]*index.Index{}
 	for _, area := range areas {

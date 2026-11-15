@@ -12,10 +12,12 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/earthler/earthler/core/durable"
 	"github.com/earthler/earthler/core/event"
+	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/replica"
 )
 
@@ -71,10 +73,16 @@ func (s *Server) join(w http.ResponseWriter, r *http.Request) {
 }
 
 // add writes the new machine in the journal, and this machine too the first
-// time, keeps the new machine's address and gathers what it receives.
+// time, keeps the new machine's address and gathers what it receives. What
+// can fail is done before the journal is written, so a failure leaves no
+// machine whose token nobody holds, except an answer lost on the way.
 func (s *Server) add(ctx context.Context, label, reach string) (Welcome, error) {
 	s.joining.Lock()
 	defer s.joining.Unlock()
+	secrets, err := readSecrets(s.Secrets)
+	if err != nil {
+		return Welcome{}, err
+	}
 	all, err := List(ctx, s.Index)
 	if err != nil {
 		return Welcome{}, err
@@ -125,11 +133,7 @@ func (s *Server) add(ctx context.Context, label, reach string) (Welcome, error) 
 		return Welcome{}, err
 	}
 	if err := s.Joined(next); err != nil {
-		return Welcome{}, err
-	}
-	secrets, err := readSecrets(s.Secrets)
-	if err != nil {
-		return Welcome{}, err
+		log.Printf("machines: machine %d joined, but keeping its journal failed: %v", next, err)
 	}
 	peers := s.Peers.All()
 	delete(peers, next)
@@ -169,10 +173,12 @@ type JoinOptions struct {
 // Join brings a new machine into a community: it trusts the community root
 // only if its fingerprint is the one the person read, trades the invitation
 // code for a number, a token and the secrets, and writes them in the data
-// folder, which must not belong to a community yet.
+// folder, which must not belong to a community yet, and reads the journal of
+// the machine that counts up to that moment. The identity of the machine is
+// written last, so a join cut halfway can be tried again with a new code.
 func Join(ctx context.Context, o JoinOptions) (Welcome, error) {
 	secrets := filepath.Join(o.DataDir, "secrets")
-	if entries, err := os.ReadDir(secrets); err == nil && len(entries) > 0 {
+	if _, err := os.Stat(filepath.Join(secrets, IdentityFile)); err == nil {
 		return Welcome{}, fmt.Errorf("machines: %s already belongs to a community", o.DataDir)
 	}
 	if entries, err := os.ReadDir(filepath.Join(o.DataDir, "journal")); err == nil && len(entries) > 0 {
@@ -232,6 +238,15 @@ func Join(ctx context.Context, o JoinOptions) (Welcome, error) {
 				return Welcome{}, err
 			}
 		}
+	}
+	copy, err := journal.Open(filepath.Join(o.DataDir, "journals", strconv.FormatUint(Counter, 10)), journal.Options{})
+	if err != nil {
+		return Welcome{}, err
+	}
+	defer copy.Close()
+	f := &Follower{Peer: Counter, Peers: peers, Token: w.Token, Client: client, Copy: copy}
+	if _, err := f.CatchUp(ctx); err != nil {
+		return Welcome{}, fmt.Errorf("machines: the journal of the machine that counts could not be read; join again with a new code: %w", err)
 	}
 	// The identity goes last: a folder with it is a machine of the community.
 	return w, SaveIdentity(secrets, Identity{Number: w.Machine, Token: w.Token})

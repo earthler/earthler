@@ -3,6 +3,7 @@ package machines
 import (
 	"bufio"
 	"context"
+	"crypto/tls"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -62,7 +63,13 @@ func start(t *testing.T, self uint64) *fixture {
 	return f
 }
 
+// do sends a request over HTTPS, as the machines talk to each other.
 func (f *fixture) do(t *testing.T, method, target, token string, form url.Values) *httptest.ResponseRecorder {
+	t.Helper()
+	return f.send(t, method, target, token, form, true)
+}
+
+func (f *fixture) send(t *testing.T, method, target, token string, form url.Values, overTLS bool) *httptest.ResponseRecorder {
 	t.Helper()
 	var body *strings.Reader
 	if form != nil {
@@ -76,6 +83,9 @@ func (f *fixture) do(t *testing.T, method, target, token string, form url.Values
 	}
 	if token != "" {
 		req.Header.Set("Authorization", "Bearer "+token)
+	}
+	if overTLS {
+		req.TLS = &tls.ConnectionState{}
 	}
 	rec := httptest.NewRecorder()
 	f.mux.ServeHTTP(rec, req)
@@ -137,12 +147,24 @@ func TestTheJournalIsOnlyForTheOtherMachines(t *testing.T) {
 	if err != nil || e.Number != 2 {
 		t.Fatalf("entry %d, %v", e.Number, err)
 	}
-	// Too many wrong tokens from one address and it stops listening to it.
+	// Wrong tokens do not lock a machine out: a machine that has just
+	// joined is refused by one that has not heard of it yet.
 	for range 6 {
 		f.do(t, "GET", "/machines/journal?after=0", "errado", nil)
 	}
-	if rec := f.do(t, "GET", "/machines/journal?after=0&live=0", "outro", nil); rec.Code != http.StatusTooManyRequests {
+	if rec := f.do(t, "GET", "/machines/journal?after=0&live=0", "outro", nil); rec.Code != http.StatusOK {
 		t.Fatalf("after many wrong tokens: %d", rec.Code)
+	}
+	// Never in the clear, not even with the right token.
+	if rec := f.send(t, "GET", "/machines/journal?after=0&live=0", "outro", nil, false); rec.Code != http.StatusForbidden {
+		t.Fatalf("over plain HTTP: %d", rec.Code)
+	}
+	if rec := f.send(t, "POST", "/machines/join", "", url.Values{"url": {"https://192.168.1.9"}}, false); rec.Code != http.StatusForbidden {
+		t.Fatalf("a join over plain HTTP: %d", rec.Code)
+	}
+	// A machine asks only for its own journal back.
+	if rec := f.do(t, "GET", "/machines/copy?machine=0&after=0", "outro", nil); rec.Code != http.StatusForbidden {
+		t.Fatalf("machine 1 asked for the copy of machine 0: %d", rec.Code)
 	}
 }
 

@@ -9,10 +9,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 // PairOptions is what a person gives to pair a second machine.
@@ -103,7 +105,12 @@ func Pinned(root []byte) (*http.Client, error) {
 	}
 	pool := x509.NewCertPool()
 	pool.AddCert(cert)
+	// A machine that is away must not hold a connection forever: dialling
+	// and the handshake give up after ten seconds.
 	return &http.Client{Transport: &http.Transport{
-		TLSClientConfig: &tls.Config{RootCAs: pool, ServerName: cert.PermittedDNSDomains[0], MinVersion: tls.VersionTLS12},
+		DialContext:           (&net.Dialer{Timeout: 10 * time.Second, KeepAlive: 15 * time.Second}).DialContext,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
+		TLSClientConfig:       &tls.Config{RootCAs: pool, ServerName: cert.PermittedDNSDomains[0], MinVersion: tls.VersionTLS12},
 	}}, nil
 }

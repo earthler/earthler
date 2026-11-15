@@ -28,6 +28,11 @@ type Follower struct {
 	Scribe *scribe.Scribe   // nil to write in the copy alone, before the system runs
 	Logf   func(format string, args ...any)
 
+	// Back asks the other machine for the copy it keeps of this machine's
+	// own journal, Self, which is then what Copy is.
+	Back bool
+	Self uint64
+
 	away bool // said that the machine is away, and not yet that it is back
 }
 
@@ -79,17 +84,27 @@ func (f *Follower) Run(ctx context.Context) {
 	}
 }
 
+// Silence is how long a stream may say nothing, not even the empty line the
+// other machine sends every twenty seconds, before it is taken as dead.
+var Silence = 3 * streamBeat
+
 // once opens one stream and takes from it until it ends: when the other
 // machine stops, or, when live is false, once it has sent what it has. It
 // returns how many entries it took.
 func (f *Follower) once(ctx context.Context, live bool) (int, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	quiet := time.AfterFunc(Silence, cancel)
+	defer quiet.Stop()
 	address, ok := f.Peers.Get(f.Peer)
 	if !ok {
 		return 0, errors.New("its address is not known")
 	}
 	last, _ := f.Copy.Last()
 	path := "/machines/journal?after=" + strconv.FormatUint(last, 10)
-	if !live {
+	if f.Back {
+		path = "/machines/copy?machine=" + strconv.FormatUint(f.Self, 10) + "&after=" + strconv.FormatUint(last, 10)
+	} else if !live {
 		path += "&live=0"
 	}
 	req, err := http.NewRequestWithContext(ctx, "GET", strings.TrimSuffix(address, "/")+path, nil)
@@ -131,10 +146,14 @@ func (f *Follower) once(ctx context.Context, live bool) (int, error) {
 			took += len(batch)
 		}
 		batch = batch[:0]
+		if errors.Is(err, journal.ErrNotNext) {
+			err = fmt.Errorf("its journal is not the one this machine holds, which happens when it was restored from an older copy; following it stops until a person looks: %w", err)
+		}
 		return err
 	}
 	for {
 		line, err := readLine(rd, journal.MaxContent+512)
+		quiet.Reset(Silence)
 		if err != nil {
 			if ferr := flush(); ferr != nil {
 				return took, ferr

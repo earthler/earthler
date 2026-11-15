@@ -2,7 +2,9 @@ package accounts
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"time"
 
@@ -12,14 +14,43 @@ import (
 // Counter is the machine that counts, as a machine that does not count sees
 // it. What can have only one owner or one result, a name or a role, is
 // decided there and nowhere else.
+//
+// A sign up carries a random mark that the account keeps, so the machine
+// that asked can recognise it if the answer is lost.
 type Counter interface {
-	SignUp(ctx context.Context, name string) (device uint64, err error)
+	SignUp(ctx context.Context, name, request string) (device uint64, err error)
 	ChangeRole(ctx context.Context, actor Session, target uint64, role permissions.Role) error
 }
 
-// ErrNotNow is what a counted act gets when the machine that counts cannot
-// be reached. Nothing was done, and the act can be asked again later.
-var ErrNotNow = errors.New("accounts: this has to be decided by the machine that counts, which cannot be reached now")
+var (
+	// ErrNotNow is what a counted act gets when the machine that counts
+	// cannot be reached, or answered that it could not do it. The act can
+	// be asked again later.
+	ErrNotNow = errors.New("accounts: this has to be decided by the machine that counts, which cannot be reached now")
+
+	// ErrUnsure says the request reached the machine that counts and the
+	// answer did not come back, so the act may have been done.
+	ErrUnsure = errors.New("accounts: the machine that counts was asked and did not answer")
+)
+
+// mark is a random text for a request.
+func mark() (string, error) {
+	raw := make([]byte, 16)
+	if _, err := rand.Read(raw); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(raw), nil
+}
+
+// found waits for query, which returns one id, to find a row, and returns
+// ErrNotNow when none comes in time.
+func (s *Service) found(ctx context.Context, query string, args ...any) (uint64, error) {
+	if err := s.arrives(ctx, `SELECT count(*) FROM (`+query+`)`, args...); err != nil {
+		return 0, err
+	}
+	var id uint64
+	return id, s.index.DB().QueryRowContext(ctx, query, args...).Scan(&id)
+}
 
 // CountAt makes this service send what is counted to another machine. The
 // machine that counts never calls it.

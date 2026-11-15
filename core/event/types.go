@@ -64,6 +64,11 @@ type AccountCreatedData struct {
 	// device are born together or not at all: with two entries, a cut
 	// between them left a name taken by an account nobody could open.
 	FirstDevice bool `json:"first_device,omitempty"`
+
+	// Request is a random mark the machine that asked for the account chose,
+	// so it can recognise the account when the answer of the machine that
+	// counts was lost on the way.
+	Request string `json:"request,omitempty"`
 }
 
 type DeviceCreatedData struct {

@@ -6,9 +6,11 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/httptrace"
 	"net/url"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/earthler/earthler/core/accounts"
@@ -51,7 +53,7 @@ func (s *Server) countSignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "this machine does not count", http.StatusConflict)
 		return
 	}
-	device, err := s.Accounts.Register(r.Context(), r.FormValue("name"))
+	device, err := s.Accounts.Register(r.Context(), r.FormValue("name"), r.FormValue("request"))
 	if err != nil {
 		refuse(w, err)
 		return
@@ -81,8 +83,9 @@ func (s *Server) countRole(w http.ResponseWriter, r *http.Request) {
 }
 
 // Remote is the machine that counts, seen from a machine that does not. A
-// machine that cannot be reached, or that does not answer in time, is
-// accounts.ErrNotNow: nothing was done.
+// request that never reached it is accounts.ErrNotNow: nothing was done. A
+// request that reached it and got no answer is accounts.ErrUnsure: it may
+// have been done, and the machine that asked looks for it.
 type Remote struct {
 	Peers  *Peers
 	Token  string
@@ -105,13 +108,23 @@ func (c *Remote) post(ctx context.Context, path string, form url.Values) (string
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Authorization", "Bearer "+c.Token)
+	var sent atomic.Bool
+	req = req.WithContext(httptrace.WithClientTrace(req.Context(), &httptrace.ClientTrace{
+		WroteRequest: func(info httptrace.WroteRequestInfo) { sent.Store(info.Err == nil) },
+	}))
 	res, err := c.Client.Do(req)
 	if err != nil {
 		log.Printf("machines: the machine that counts: %v", err)
+		if sent.Load() {
+			return "", accounts.ErrUnsure
+		}
 		return "", accounts.ErrNotNow
 	}
 	defer res.Body.Close()
-	raw, _ := io.ReadAll(io.LimitReader(res.Body, 512))
+	raw, err := io.ReadAll(io.LimitReader(res.Body, 512))
+	if err != nil {
+		return "", accounts.ErrUnsure
+	}
 	body := strings.TrimSpace(string(raw))
 	switch {
 	case res.StatusCode == http.StatusOK || res.StatusCode == http.StatusNoContent:
@@ -125,14 +138,14 @@ func (c *Remote) post(ctx context.Context, path string, form url.Values) (string
 }
 
 // SignUp asks the machine that counts to take a name.
-func (c *Remote) SignUp(ctx context.Context, name string) (uint64, error) {
-	body, err := c.post(ctx, "/machines/count/sign-up", url.Values{"name": {name}})
+func (c *Remote) SignUp(ctx context.Context, name, request string) (uint64, error) {
+	body, err := c.post(ctx, "/machines/count/sign-up", url.Values{"name": {name}, "request": {request}})
 	if err != nil {
 		return 0, err
 	}
 	device, err := strconv.ParseUint(body, 10, 63)
 	if err != nil {
-		return 0, accounts.ErrNotNow
+		return 0, accounts.ErrUnsure
 	}
 	return device, nil
 }

@@ -34,6 +34,10 @@ type Server struct {
 	// a copy of its journal and following it.
 	Joined func(machine uint64) error
 
+	// Held returns the copy this machine keeps of another machine's journal,
+	// for a machine that lost the end of its own and asks for it back.
+	Held func(machine uint64) *journal.Journal
+
 	Now func() time.Time
 
 	joining sync.Mutex // one machine joins at a time, so numbers never repeat
@@ -47,7 +51,8 @@ type Server struct {
 func (s *Server) Routes(mux *http.ServeMux) {
 	s.streams = map[*stream]struct{}{}
 	s.Scribe.Listen(s.announce)
-	mux.HandleFunc("POST /machines/join", s.join)
+	mux.HandleFunc("POST /machines/join", secure(s.join))
+	mux.HandleFunc("GET /machines/copy", s.authorized(s.copy))
 	mux.HandleFunc("GET /machines/journal", s.authorized(s.journal))
 	mux.HandleFunc("GET /machines/peers", s.authorized(s.peers))
 	mux.HandleFunc("POST /machines/count/sign-up", s.authorized(s.countSignUp))
@@ -71,14 +76,25 @@ func who(r *http.Request) string {
 
 type machineKey struct{}
 
-// authorized lets a request through only with the token of another machine
-// of the community, and tells the handler which machine it is.
-func (s *Server) authorized(next http.HandlerFunc) http.HandlerFunc {
+// secure lets a request through only over HTTPS. Tokens and the secrets of
+// the community never travel in the clear, not even in development mode.
+func secure(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if s.Invites.Blocked(who(r), s.now()) {
-			http.Error(w, "too many tries", http.StatusTooManyRequests)
+		if r.TLS == nil {
+			http.Error(w, "machines talk to each other only over HTTPS", http.StatusForbidden)
 			return
 		}
+		next(w, r)
+	}
+}
+
+// authorized lets a request through only with the token of another machine
+// of the community, and tells the handler which machine it is. A token has
+// 256 random bits, so nobody guesses one, and wrong tokens are not counted
+// against the address: a machine that has just joined is refused by a
+// machine that has not heard of it yet, and must not be locked out for it.
+func (s *Server) authorized(next http.HandlerFunc) http.HandlerFunc {
+	return secure(func(w http.ResponseWriter, r *http.Request) {
 		token, _ := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
 		machine, found, err := byToken(r.Context(), s.Index, token)
 		if err != nil {
@@ -87,13 +103,12 @@ func (s *Server) authorized(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 		if !found || machine == s.Self || token == "" {
-			s.Invites.Failed(who(r), s.now())
 			w.Header().Set("WWW-Authenticate", "Bearer")
 			http.Error(w, "a token of a machine of this community is needed", http.StatusUnauthorized)
 			return
 		}
 		next(w, r.WithContext(context.WithValue(r.Context(), machineKey{}, machine)))
-	}
+	})
 }
 
 // peers tells another machine the addresses this one knows, so that every

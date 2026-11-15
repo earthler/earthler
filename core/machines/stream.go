@@ -11,9 +11,11 @@ import (
 	"github.com/earthler/earthler/core/journal"
 )
 
-// A machine serves only its own journal, and each machine follows each other
-// one directly. A copy is never handed on: that way an entry of a machine's
-// journal only ever comes from that machine.
+// A machine serves its own journal, and each machine follows each other one
+// directly. A copy is never handed on to follow: that way an entry of a
+// machine's journal only ever comes from that machine. The one exception is
+// a machine that lost the end of its own journal, restored from an older
+// copy: it asks for it back from the others before it writes anything.
 
 // streamQueue is how many batches a slow stream may fall behind before it is
 // dropped. The machine on the other side reconnects and catches up.
@@ -141,4 +143,37 @@ func (s *Server) journal(w http.ResponseWriter, r *http.Request) {
 		}
 		flusher.Flush()
 	}
+}
+
+// copy sends the copy this machine keeps of another machine's journal, after
+// the entry asked, and ends. It is for that machine itself, when it lost the
+// end of its own journal.
+func (s *Server) copy(w http.ResponseWriter, r *http.Request) {
+	of, err1 := strconv.ParseUint(r.URL.Query().Get("machine"), 10, 64)
+	after, err2 := strconv.ParseUint(r.URL.Query().Get("after"), 10, 64)
+	if err1 != nil || err2 != nil {
+		http.Error(w, "machine and after must be numbers", http.StatusBadRequest)
+		return
+	}
+	if asking, _ := r.Context().Value(machineKey{}).(uint64); asking != of {
+		http.Error(w, "a machine asks only for its own journal back", http.StatusForbidden)
+		return
+	}
+	var j *journal.Journal
+	if s.Held != nil {
+		j = s.Held(of)
+	}
+	if j == nil {
+		http.Error(w, "this machine keeps no copy of that journal", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Earthler-Machine", strconv.FormatUint(s.Self, 10))
+	out := bufio.NewWriterSize(w, 64<<10)
+	j.Read(after+1, func(e journal.Entry) error {
+		out.Write(journal.Line(e))
+		return out.WriteByte('\n')
+	})
+	out.Flush()
 }
