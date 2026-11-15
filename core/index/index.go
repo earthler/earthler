@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	_ "modernc.org/sqlite" // the SQLite driver, in pure Go
 
@@ -67,7 +68,9 @@ type Index struct {
 	area Area
 	path string
 	db   *sql.DB
-	at   map[uint64]Position // by machine
+
+	mu sync.Mutex          // only the scribe changes at, but screens read it
+	at map[uint64]Position // by machine
 }
 
 // Open opens the index of an area in dir. A missing file, or a file made
@@ -140,7 +143,7 @@ func (ix *Index) reset() error {
 	if _, err := tx.Exec(metaSchema + ix.area.Schema); err != nil {
 		return fmt.Errorf("index %s: schema: %w", ix.area.Name, err)
 	}
-	ix.at = map[uint64]Position{}
+	ix.setAt(map[uint64]Position{})
 	if err := ix.saveSchema(tx); err != nil {
 		return err
 	}
@@ -165,7 +168,7 @@ func (ix *Index) Apply(machine uint64, entries []journal.Entry) error {
 	}
 	defer tx.Rollback()
 
-	pos := ix.at[machine]
+	pos := ix.Position(machine)
 	for _, e := range Wrap(machine, entries) {
 		if e.Number != pos.Last+1 {
 			return fmt.Errorf("index %s: is at entry %d of machine %d and received entry %d", ix.area.Name, pos.Last, machine, e.Number)
@@ -186,12 +189,38 @@ func (ix *Index) Apply(machine uint64, entries []journal.Entry) error {
 	if err != nil {
 		return fmt.Errorf("index %s: %w", ix.area.Name, err)
 	}
+	ix.mu.Lock()
 	ix.at[machine] = pos
+	ix.mu.Unlock()
 	return nil
 }
 
 // Last returns the number of the last entry applied from machine's journal.
-func (ix *Index) Last(machine uint64) uint64 { return ix.at[machine].Last }
+func (ix *Index) Last(machine uint64) uint64 { return ix.Position(machine).Last }
+
+// Position returns where the index is in machine's journal.
+func (ix *Index) Position(machine uint64) Position {
+	ix.mu.Lock()
+	defer ix.mu.Unlock()
+	return ix.at[machine]
+}
+
+// Positions returns the last entry applied from each journal, by machine.
+func (ix *Index) Positions() map[uint64]uint64 {
+	ix.mu.Lock()
+	defer ix.mu.Unlock()
+	out := make(map[uint64]uint64, len(ix.at))
+	for m, p := range ix.at {
+		out[m] = p.Last
+	}
+	return out
+}
+
+func (ix *Index) setAt(at map[uint64]Position) {
+	ix.mu.Lock()
+	ix.at = at
+	ix.mu.Unlock()
+}
 
 // DB gives read access to the index. Screens query it; only Apply writes.
 func (ix *Index) DB() *sql.DB { return ix.db }

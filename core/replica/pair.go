@@ -40,14 +40,14 @@ func tidyFingerprint(text string) string {
 // from the main machine, and trades the pairing code for a token over a
 // connection that only that root can vouch for.
 func Pair(ctx context.Context, o PairOptions) (*Follower, error) {
-	root, err := fetchRoot(ctx, o.PlainURL)
+	root, err := FetchRoot(ctx, o.PlainURL)
 	if err != nil {
 		return nil, err
 	}
 	if Fingerprint(root) != tidyFingerprint(o.Fingerprint) {
 		return nil, errors.New("replica: the certificate at that address is not the one with the fingerprint you gave")
 	}
-	client, err := pinned(root)
+	client, err := Pinned(root)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,10 @@ func Pair(ctx context.Context, o PairOptions) (*Follower, error) {
 	return f, f.save()
 }
 
-func fetchRoot(ctx context.Context, plainURL string) ([]byte, error) {
+// FetchRoot reads the community root from a welcome page. The page comes
+// over plain HTTP, so the root it returns is trusted only after its
+// fingerprint is compared with the one a person read on the machine itself.
+func FetchRoot(ctx context.Context, plainURL string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", strings.TrimSuffix(plainURL, "/")+"/certificate.crt", nil)
 	if err != nil {
 		return nil, err
@@ -91,9 +94,9 @@ func fetchRoot(ctx context.Context, plainURL string) ([]byte, error) {
 	return root, nil
 }
 
-// pinned makes a client that trusts the community root and nothing else, and
+// Pinned makes a client that trusts the community root and nothing else, and
 // asks for the community's own name, which the root is limited to.
-func pinned(root []byte) (*http.Client, error) {
+func Pinned(root []byte) (*http.Client, error) {
 	cert, err := x509.ParseCertificate(root)
 	if err != nil || len(cert.PermittedDNSDomains) == 0 {
 		return nil, errors.New("replica: that is not a community root")

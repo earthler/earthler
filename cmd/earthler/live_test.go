@@ -27,8 +27,8 @@ func (v *visitor) listen(s *site, after string) (*bufio.Scanner, func()) {
 	return bufio.NewScanner(res.Body), func() { cancel(); res.Body.Close() }
 }
 
-// block reads one event from the stream, skipping the reconnection hint
-// and the heartbeats.
+// block reads one event from the stream, skipping the reconnection hint,
+// the heartbeats and the position sent at the end of a catch up.
 func block(t *testing.T, sc *bufio.Scanner) string {
 	t.Helper()
 	var lines []string
@@ -37,7 +37,7 @@ func block(t *testing.T, sc *bufio.Scanner) string {
 		if line == "" {
 			text := strings.Join(lines, "\n")
 			lines = nil
-			if strings.HasPrefix(text, "retry:") || strings.HasPrefix(text, ":") {
+			if strings.HasPrefix(text, "retry:") || strings.HasPrefix(text, ":") || strings.Contains(text, "event: position") {
 				continue
 			}
 			return text
@@ -68,7 +68,7 @@ func TestMessagesArriveLiveAndCanBeDeleted(t *testing.T) {
 	ana.say(s, garden)
 	got := block(t, stream)
 	wantIn(t, got, "event: posted", "the live event")
-	wantIn(t, got, "id: 5", "the entry number of the message")
+	wantIn(t, got, "id: 0.5", "the position after the message")
 	wantIn(t, got, garden, "the text in the live event")
 	wantIn(t, got, `data-account="3"`, "the author in the live event")
 
@@ -82,7 +82,7 @@ func TestMessagesArriveLiveAndCanBeDeleted(t *testing.T) {
 	_, body := ana.remove(s, "5")
 	wantOut(t, body, garden, "the channel after deleting")
 	wantIn(t, body, "Mensagem apagada.", "the channel after deleting")
-	if got := block(t, stream); got != "id: 6\nevent: deleted\ndata: 5" {
+	if got := block(t, stream); got != "id: 0.6\nevent: deleted\ndata: 5" {
 		t.Fatalf("the deletion event was %q", got)
 	}
 	_, body = bia.get(s, "/search?q=agua")
@@ -99,8 +99,8 @@ func TestMessagesArriveLiveAndCanBeDeleted(t *testing.T) {
 	wantOut(t, got, garden, "catching up on a deleted message")
 	wantIn(t, block(t, late), "enxada", "catching up on a new message")
 	stopLate()
-	known, stopKnown := bia.listen(s, "5")
-	if got := block(t, known); got != "id: 6\nevent: deleted\ndata: 5" {
+	known, stopKnown := bia.listen(s, "0.5")
+	if got := block(t, known); got != "event: deleted\ndata: 5" {
 		t.Fatalf("a page that had the message catches up with %q", got)
 	}
 	stopKnown()

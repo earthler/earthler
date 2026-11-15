@@ -73,7 +73,7 @@ func Open(dir string) (*Follower, error) {
 	if f.state.Held == nil {
 		f.state.Held = map[string]File{}
 	}
-	if f.client, err = pinned(f.state.Root); err != nil {
+	if f.client, err = Pinned(f.state.Root); err != nil {
 		return nil, err
 	}
 	return f, nil

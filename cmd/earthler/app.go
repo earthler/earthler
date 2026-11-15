@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -15,9 +13,9 @@ import (
 	"github.com/earthler/earthler/core/certificate"
 	"github.com/earthler/earthler/core/copies"
 	"github.com/earthler/earthler/core/erasure"
-	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/journal"
+	"github.com/earthler/earthler/core/machines"
 	"github.com/earthler/earthler/core/page"
 	"github.com/earthler/earthler/core/replica"
 	"github.com/earthler/earthler/core/scribe"
@@ -37,41 +35,42 @@ type config struct {
 	lang      string // language of the screens
 	httpsPort int    // where the secure site answers, for the links of the welcome page
 	copyDir   string // where the night's copy goes, or empty for no copies yet
+	label     string // a name for this machine, for the other machines
 }
 
 var validShort = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]{0,30}[a-z0-9])?$`)
 
-// app is the whole server: the journal, the indexes derived from it, the
-// scribe that writes, and the screens.
+// app is the whole server: the journals, the indexes derived from them, the
+// scribe that writes, the screens, and what it does with the other machines.
 type app struct {
-	journal *journal.Journal
-	indexes []*index.Index
-	scribe  *scribe.Scribe
-	chain   *certificate.Chain
-	name    string
-	byName  map[string]*index.Index
-	dataDir string
-	copyDir string
+	identity machines.Identity
+	journal  *journal.Journal // this machine's own
+	indexes  []*index.Index
+	scribe   *scribe.Scribe
+	chain    *certificate.Chain
+	name     string
+	byName   map[string]*index.Index
+	dataDir  string
+	copyDir  string
 
 	handler http.Handler // the system, served only over HTTPS
 	welcome http.Handler // the welcome page and the certificate, served over plain HTTP
 	stop    context.CancelFunc
 	nights  sync.WaitGroup // the night's work, which must end before the files close
 	chat    *chat.Screen
+
+	many // the other machines
 }
 
 // nightHour is when the night's work runs, in the machine's local time.
 const nightHour = 3
-
-// self is the number of this machine. The machine that founds a community
-// is machine 0, and for now it is the only one.
-const self = 0
 
 // open starts everything from the data folder. The indexes are brought level
 // with the journal before any screen is served, which is also how the system
 // comes back after a power cut.
 func open(cfg config) (*app, error) {
 	a := &app{dataDir: cfg.dataDir, copyDir: cfg.copyDir}
+	a.kept = map[uint64]*journal.Journal{}
 	ok := false
 	defer func() {
 		if !ok {
@@ -80,12 +79,13 @@ func open(cfg config) (*app, error) {
 	}()
 
 	var err error
-	if a.journal, err = journal.Open(filepath.Join(cfg.dataDir, "journal"), journal.Options{}); err != nil {
+	if a.identity, err = machines.LoadIdentity(filepath.Join(cfg.dataDir, "secrets")); err != nil {
 		return nil, err
 	}
-	// This machine founded the community and is still alone in it, so it
-	// is machine 0 and holds no copy of another machine's journal yet.
-	areas := []index.Area{accounts.Area, chat.Area, search.Area, auditlog.Area, erasure.Area(self)}
+	if err := a.openJournals(); err != nil {
+		return nil, err
+	}
+	areas := []index.Area{accounts.Area, chat.Area, search.Area, auditlog.Area, erasure.Area(a.self()), machines.Area}
 	byName := map[string]*index.Index{}
 	for _, area := range areas {
 		ix, err := index.Open(filepath.Join(cfg.dataDir, "indexes"), area)
@@ -96,7 +96,9 @@ func open(cfg config) (*app, error) {
 		byName[area.Name] = ix
 	}
 	a.byName = byName
-	if a.scribe, err = scribe.Open(scribe.Journals{Self: self, Own: a.journal}, a.indexes...); err != nil {
+	held := a.holding()
+	delete(held, a.self())
+	if a.scribe, err = scribe.Open(scribe.Journals{Self: a.self(), Own: a.journal, Kept: held}, a.indexes...); err != nil {
 		return nil, err
 	}
 	if a.name, err = a.community(cfg); err != nil {
@@ -172,87 +174,13 @@ func open(cfg config) (*app, error) {
 		Registry: pairings, Journal: a.journal, DataDir: cfg.dataDir, Key: copyKey,
 		Out: filepath.Join(cfg.dataDir, "replication", "out"), MinGap: 5 * time.Second,
 	}).Routes(mux)
+	if err := a.startMachines(cfg, mux, residents); err != nil {
+		return nil, err
+	}
 	a.handler = pages.Guard(mux)
 
 	ok = true
 	return a, nil
-}
-
-var errFound = errors.New("found")
-
-// community returns the name of the community. In an empty journal it first
-// writes the birth of the community, which is always entry 1, and the open
-// channel everyone starts with.
-func (a *app) community(cfg config) (string, error) {
-	if last, _ := a.journal.Last(); last == 0 {
-		texts, err := page.New(cfg.lang, cfg.community)
-		if err != nil {
-			return "", err
-		}
-		now := time.Now()
-		born, err := event.New(event.CommunityCreated, 0, 0, now, event.CommunityCreatedData{Name: cfg.community})
-		if err != nil {
-			return "", err
-		}
-		channel, err := event.New(event.ChannelCreated, 0, 0, now, event.ChannelCreatedData{Name: texts.T("chat.general")})
-		if err != nil {
-			return "", err
-		}
-		if _, err := a.scribe.Write(context.Background(), born, channel); err != nil {
-			return "", err
-		}
-	}
-	var name string
-	err := a.journal.Read(1, func(e journal.Entry) error {
-		ev, err := event.Decode(e.Content)
-		if err != nil {
-			return err
-		}
-		var d event.CommunityCreatedData
-		if ev.Type != event.CommunityCreated || ev.Read(&d) != nil {
-			return errors.New("entry 1 of the journal is not the birth of a community")
-		}
-		name = d.Name
-		return errFound
-	})
-	if !errors.Is(err, errFound) {
-		if err == nil {
-			err = errors.New("entry 1 of the journal was erased")
-		}
-		return "", err
-	}
-	return name, nil
-}
-
-// erase runs the physical erasure of deleted content.
-func (a *app) erase(ctx context.Context, now time.Time) (int, error) {
-	n, err := erasure.Run(ctx, map[uint64]*journal.Journal{self: a.journal}, a.byName["erasure"], a.scribe, now)
-	if n > 0 {
-		log.Printf("erased the content of %d entries", n)
-	}
-	return n, err
-}
-
-// night runs the night's work: first the erasure, then the copy, so a
-// copy never carries a text that was deleted before it.
-func (a *app) night(ctx context.Context) {
-	for {
-		wait := time.NewTimer(time.Until(erasure.NextNight(time.Now(), nightHour)))
-		select {
-		case <-ctx.Done():
-			wait.Stop()
-			return
-		case <-wait.C:
-		}
-		if _, err := a.erase(ctx, time.Now()); err != nil {
-			log.Printf("erasure: %v", err)
-		}
-		if a.copyDir != "" {
-			if err := makeCopy(a.dataDir, a.copyDir); err != nil {
-				log.Printf("copy: %v", err)
-			}
-		}
-	}
 }
 
 // Hush ends the connections that pages keep open, which never go quiet by
@@ -262,6 +190,9 @@ func (a *app) Hush() {
 	if a.chat != nil {
 		a.chat.Close()
 	}
+	if a.machines != nil {
+		a.machines.Close()
+	}
 }
 
 // Close stops the night's work, the scribe and the files. The night's work
@@ -269,6 +200,7 @@ func (a *app) Hush() {
 // copy would leave it half done.
 func (a *app) Close() {
 	a.Hush()
+	a.stopFollowing()
 	if a.stop != nil {
 		a.stop()
 	}
@@ -279,7 +211,7 @@ func (a *app) Close() {
 	for _, ix := range a.indexes {
 		ix.Close()
 	}
-	if a.journal != nil {
-		a.journal.Close()
+	for _, j := range a.holding() {
+		j.Close()
 	}
 }

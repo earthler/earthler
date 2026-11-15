@@ -41,12 +41,7 @@ func (s *Scribe) commit(batch []*request) error {
 		}
 	}
 	entries := index.Wrap(s.self, written)
-	s.mu.Lock()
-	listeners := s.listeners
-	s.mu.Unlock()
-	for _, l := range listeners {
-		l(entries)
-	}
+	s.tell(entries)
 	next := 0
 	for _, r := range batch {
 		r.reply <- reply{entries: entries[next : next+len(r.contents) : next+len(r.contents)]}

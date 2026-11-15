@@ -37,7 +37,7 @@ func (ix *Index) load() (bool, error) {
 		return false, nil
 	}
 	defer rows.Close()
-	ix.at = map[uint64]Position{}
+	at := map[uint64]Position{}
 	for rows.Next() {
 		var key, value string
 		if rows.Scan(&key, &value) != nil {
@@ -48,8 +48,9 @@ func (ix *Index) load() (bool, error) {
 		if err1 != nil || err2 != nil {
 			return false, nil
 		}
-		ix.at[machine] = pos
+		at[machine] = pos
 	}
+	ix.setAt(at)
 	return rows.Err() == nil, nil
 }
 
@@ -104,7 +105,13 @@ var errFound = errors.New("found")
 // a journal that is no longer there.
 func (ix *Index) Follow(journals map[uint64]*journal.Journal) error {
 	matches := true
-	for machine, pos := range ix.at {
+	ix.mu.Lock()
+	at := make(map[uint64]Position, len(ix.at))
+	for m, p := range ix.at {
+		at[m] = p
+	}
+	ix.mu.Unlock()
+	for machine, pos := range at {
 		j := journals[machine]
 		if j == nil {
 			matches = false
@@ -138,18 +145,20 @@ func (ix *Index) Follow(journals map[uint64]*journal.Journal) error {
 	}
 	sort.Slice(machines, func(a, b int) bool { return machines[a] < machines[b] })
 	for _, m := range machines {
-		if err := ix.follow(m, journals[m]); err != nil {
+		if err := ix.FollowOne(m, journals[m]); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// follow applies what the index has not seen yet of one journal.
-func (ix *Index) follow(machine uint64, j *journal.Journal) error {
+// FollowOne applies what the index has not seen yet of one journal, such as
+// the journal of a machine that has just joined. Unlike Follow, it never
+// rebuilds the index.
+func (ix *Index) FollowOne(machine uint64, j *journal.Journal) error {
 	const batch = 500
 	pending := make([]journal.Entry, 0, batch)
-	err := j.Read(ix.at[machine].Last+1, func(e journal.Entry) error {
+	err := j.Read(ix.Last(machine)+1, func(e journal.Entry) error {
 		pending = append(pending, e)
 		if len(pending) < batch {
 			return nil

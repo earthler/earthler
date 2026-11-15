@@ -19,6 +19,7 @@
   "residents.note": "Quem tem poder de administrar ou moderar aparece no Registro cada vez que o usa. Crianças só entram por um responsável, e isso ainda não existe.",
   "residents.error.role": "Esse papel não pode ser dado aqui.",
   "residents.error.last": "A comunidade precisa de pelo menos um administrador.",
+  "residents.error.notnow": "Agora não dá para trocar o papel. Isso depende da ligação com toda a comunidade, e uma parte dela está sem ligação agora. Nada mudou. Tente de novo daqui a pouco.",
   "error.forbidden": "Seu papel não permite isso.",
 
   "welcome.title": "Boas-vindas",
@@ -139,6 +140,7 @@
   "signup.error.long": "O nome pode ter até 40 letras.",
   "signup.error.invalid": "O nome tem letras que não podem ser usadas. Use letras, números e sinais comuns, com os acentos escritos direto.",
   "signup.error.taken": "Já existe alguém com esse nome. Escolha outro.",
+  "signup.error.notnow": "Agora não dá para criar a conta. Isso depende da ligação com toda a comunidade, e uma parte dela está sem ligação agora. Nada foi criado. Tente de novo daqui a pouco.",
 
   "chat.title": "Conversa",
   "chat.general": "Geral",

@@ -31,7 +31,7 @@ func main() {
 	flag.StringVar(&cfg.lang, "lang", "pt-BR", "language of the screens")
 	plain := flag.String("http", ":80", "address of the welcome page")
 	secure := flag.String("https", ":443", "address of the system")
-	dev := flag.String("dev", "", "serve the system over plain HTTP on this address, for development only")
+	dev := flag.String("dev", "", "serve the system over plain HTTP on this address, for development only; with -https given too, the secure site and the welcome page also answer, so other machines can follow this one")
 	flag.StringVar(&cfg.copyDir, "copies", "", "folder that receives an encrypted copy of the data every night")
 	copyTo := flag.String("copy", "", "write an encrypted copy of the data into this folder, then exit")
 	restoreFrom := flag.String("restore", "", "bring the data back from the copy in this folder into an empty data folder, then exit; needs -copy-key")
@@ -44,11 +44,18 @@ func main() {
 	givenCode := flag.String("pair-code", "", "the code that -pair printed on the main machine, for the first -follow")
 	fingerprint := flag.String("fingerprint", "", "the fingerprint that -pair printed on the main machine, for the first -follow")
 	plainURL := flag.String("plain-url", "", "address of the main machine's welcome page, if it is not the same host on port 80")
-	label := flag.String("label", "", "a name for this second machine, shown on the main one")
+	flag.StringVar(&cfg.label, "label", "", "a name for this machine, shown on the other machines")
+	label := &cfg.label
+	inviting := flag.Bool("invite", false, "print a code and a fingerprint for a new machine to join this community, then exit")
+	joinURL := flag.String("join", "", "join the community whose machine that counts is at this https address, with -pair-code and -fingerprint, then exit; start the machine afterwards without -join")
+	reach := flag.String("reach", "", "the https address at which the other machines reach this one, for -join; by default the -https address on this machine's first local address")
 	every := flag.Duration("follow-every", time.Minute, "how often the second machine pulls")
 	machines := flag.Bool("machines", false, "list the second machines that are paired, then exit")
 	unpairID := flag.String("unpair", "", "take the token of the second machine with this number away, then exit")
 	flag.Parse()
+	given := map[string]bool{}
+	flag.Visit(func(f *flag.Flag) { given[f.Name] = true })
+	secureToo := given["https"]
 
 	var err error
 	switch {
@@ -62,6 +69,18 @@ func main() {
 		err = checkCopy(*checkDir, *copyKey)
 	case *pairing:
 		err = pairCode(cfg.dataDir)
+	case *inviting:
+		err = invite(cfg.dataDir)
+	case *joinURL != "":
+		if *reach == "" {
+			*reach = reachOf(*secure)
+		}
+		if err = setPort(&cfg, *secure); err == nil {
+			err = join(cfg, joinOptions{url: *joinURL, plainURL: *plainURL, code: *givenCode, fingerprint: *fingerprint, reach: *reach})
+		}
+		if err == nil {
+			fmt.Println("Joined. Start this machine as usual, with the same -data and -https and without -join.")
+		}
 	case *machines:
 		err = listMachines(cfg.dataDir)
 	case *unpairID != "":
@@ -69,7 +88,7 @@ func main() {
 	case *followURL != "":
 		err = follow(*followDir, *followURL, *plainURL, *givenCode, *fingerprint, *label, *every)
 	default:
-		err = run(cfg, *plain, *secure, *dev)
+		err = run(cfg, *plain, *secure, *dev, secureToo)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "earthler:", err)
@@ -77,7 +96,8 @@ func main() {
 	}
 }
 
-func run(cfg config, plain, secure, dev string) error {
+// setPort keeps the port of -https, for the links of the welcome page.
+func setPort(cfg *config, secure string) error {
 	_, port, err := net.SplitHostPort(secure)
 	if err != nil {
 		return fmt.Errorf("-https %q: %w", secure, err)
@@ -85,16 +105,23 @@ func run(cfg config, plain, secure, dev string) error {
 	if cfg.httpsPort, err = strconv.Atoi(port); err != nil {
 		return fmt.Errorf("-https %q: %w", secure, err)
 	}
+	return nil
+}
+
+func run(cfg config, plain, secure, dev string, secureToo bool) error {
+	if err := setPort(&cfg, secure); err != nil {
+		return err
+	}
 	a, err := open(cfg)
 	if err != nil {
 		return err
 	}
 	defer a.Close()
 	last, _ := a.journal.Last()
-	log.Printf("%s: journal at entry %d", a.name, last)
+	log.Printf("%s: machine %d, its journal at entry %d", a.name, a.self(), last)
 
 	var servers []*http.Server
-	errs := make(chan error, 2)
+	errs := make(chan error, 3)
 	serve := func(ln net.Listener, h http.Handler) {
 		srv := &http.Server{Handler: h, ReadHeaderTimeout: 10 * time.Second}
 		servers = append(servers, srv)
@@ -108,7 +135,8 @@ func run(cfg config, plain, secure, dev string) error {
 		}
 		log.Printf("development mode, with no HTTPS: http://%s/", ln.Addr())
 		serve(ln, a.handler)
-	} else {
+	}
+	if dev == "" || secureToo {
 		ips, err := certificate.LocalAddresses()
 		if err != nil {
 			return err

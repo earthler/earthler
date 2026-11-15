@@ -27,13 +27,21 @@ var (
 // Only an administrator may, only roles that are given by hand can be given,
 // a child keeps the role of a child until guardians exist, and the last
 // administrator cannot be demoted. Giving the role someone already has
-// writes nothing.
+// writes nothing. A role is counted: on a machine that does not count, the
+// machine that counts decides, and the answer waits until the change has
+// reached this machine.
 func (s *Service) ChangeRole(ctx context.Context, actor Session, target uint64, role permissions.Role) error {
 	if !permissions.Can(actor.Role, permissions.ChangeRoles) {
 		return ErrNotAllowed
 	}
 	if !permissions.Assignable(role) {
 		return ErrBadRole
+	}
+	if s.counter != nil {
+		if err := s.counter.ChangeRole(ctx, actor, target, role); err != nil {
+			return err
+		}
+		return s.arrives(ctx, `SELECT count(*) FROM roster WHERE account = ? AND role = ?`, target, string(role))
 	}
 
 	s.roles.Lock()
@@ -66,6 +74,19 @@ func (s *Service) ChangeRole(ctx context.Context, actor Session, target uint64, 
 	}
 	_, err = s.scribe.Write(ctx, content)
 	return err
+}
+
+// ChangeRoleFor is ChangeRole on the machine that counts, asked by another
+// machine on behalf of the resident behind device.
+func (s *Service) ChangeRoleFor(ctx context.Context, device, target uint64, role permissions.Role) error {
+	actor, err := s.Device(ctx, device)
+	if errors.Is(err, ErrNoSession) {
+		return ErrNotAllowed
+	}
+	if err != nil {
+		return err
+	}
+	return s.ChangeRole(ctx, actor, target, role)
 }
 
 // Resident is one line of the list of residents.

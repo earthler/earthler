@@ -69,6 +69,8 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 		s.show(w, http.StatusBadRequest, "signup.error.invalid", "")
 	case errors.Is(err, accounts.ErrNameTaken):
 		s.show(w, http.StatusConflict, "signup.error.taken", name)
+	case errors.Is(err, accounts.ErrNotNow):
+		s.show(w, http.StatusServiceUnavailable, "signup.error.notnow", name)
 	case errors.Is(err, scribe.ErrStopped):
 		s.show(w, http.StatusServiceUnavailable, "error.stopped", name)
 	case err != nil:

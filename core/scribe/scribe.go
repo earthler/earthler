@@ -42,6 +42,7 @@ type Journals struct {
 type Scribe struct {
 	self    uint64
 	journal *journal.Journal
+	kept    map[uint64]*journal.Journal // only run touches it after Open
 	indexes []*index.Index
 
 	requests chan *request
@@ -65,10 +66,19 @@ type Scribe struct {
 // must return at once and never write through the scribe itself.
 type Listener func(entries []index.Entry)
 
+// request is one thing for run to do: contents to write in the machine's
+// own journal, entries another machine wrote, or a new journal to keep.
 type request struct {
 	contents [][]byte
-	reply    chan reply
+
+	machine  uint64
+	received []journal.Entry
+	keep     *journal.Journal
+
+	reply chan reply
 }
+
+func (r *request) write() bool { return r.contents != nil }
 
 type reply struct {
 	entries []index.Entry
@@ -98,9 +108,14 @@ func Open(js Journals, indexes ...*index.Index) (*Scribe, error) {
 			return nil, err
 		}
 	}
+	kept := map[uint64]*journal.Journal{}
+	for m, j := range js.Kept {
+		kept[m] = j
+	}
 	s := &Scribe{
 		self:     js.Self,
 		journal:  js.Own,
+		kept:     kept,
 		indexes:  indexes,
 		requests: make(chan *request),
 		quit:     make(chan struct{}),
@@ -160,7 +175,33 @@ func (s *Scribe) Write(ctx context.Context, contents ...[]byte) ([]index.Entry, 
 			return nil, err
 		}
 	}
-	req := &request{contents: contents, reply: make(chan reply, 1)}
+	return s.ask(ctx, &request{contents: contents})
+}
+
+// Receive adds entries that machine wrote to the copy of its journal this
+// machine keeps, and applies them to the indexes. Entries that do not follow
+// the copy are refused with journal.ErrNotNext, and the scribe goes on.
+func (s *Scribe) Receive(ctx context.Context, machine uint64, entries []journal.Entry) error {
+	if len(entries) == 0 {
+		return nil
+	}
+	_, err := s.ask(ctx, &request{machine: machine, received: entries})
+	return err
+}
+
+// Keep starts keeping the copy of another machine's journal, such as the
+// journal of a machine that has just joined. What the copy already holds is
+// applied to the indexes.
+func (s *Scribe) Keep(ctx context.Context, machine uint64, j *journal.Journal) error {
+	if j == nil {
+		return fmt.Errorf("scribe: no journal to keep for machine %d", machine)
+	}
+	_, err := s.ask(ctx, &request{machine: machine, keep: j})
+	return err
+}
+
+func (s *Scribe) ask(ctx context.Context, req *request) ([]index.Entry, error) {
+	req.reply = make(chan reply, 1)
 	select {
 	case s.requests <- req:
 	case <-s.stopped:
@@ -189,22 +230,7 @@ func (s *Scribe) run() {
 		case <-s.quit:
 			return
 		case first := <-s.requests:
-			// Take what is already waiting. While the disk confirms one
-			// batch, the next requests pile up and form the next batch, so
-			// there is no need to wait on purpose.
-			batch := []*request{first}
-			count := len(first.contents)
-		collect:
-			for count < maxBatch {
-				select {
-				case r := <-s.requests:
-					batch = append(batch, r)
-					count += len(r.contents)
-				default:
-					break collect
-				}
-			}
-			if err := s.commit(batch); err != nil {
+			if err := s.handle(first); err != nil {
 				s.mu.Lock()
 				s.cause = err
 				s.mu.Unlock()
@@ -212,4 +238,41 @@ func (s *Scribe) run() {
 			}
 		}
 	}
+}
+
+// handle does one request, and when it is a write, the writes already
+// waiting with it. While the disk confirms one batch, the next requests pile
+// up and form the next batch, so there is no need to wait on purpose. An
+// error means the scribe has to stop.
+func (s *Scribe) handle(first *request) error {
+	if !first.write() {
+		return s.other(first)
+	}
+	batch := []*request{first}
+	count := len(first.contents)
+	var after *request
+collect:
+	for count < maxBatch {
+		select {
+		case r := <-s.requests:
+			if !r.write() {
+				after = r
+				break collect
+			}
+			batch = append(batch, r)
+			count += len(r.contents)
+		default:
+			break collect
+		}
+	}
+	if err := s.commit(batch); err != nil {
+		if after != nil {
+			after.reply <- reply{err: fmt.Errorf("%w: %v", ErrStopped, err)}
+		}
+		return err
+	}
+	if after != nil {
+		return s.other(after)
+	}
+	return nil
 }

@@ -9,18 +9,13 @@ package accounts
 
 import (
 	"context"
-	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha256"
 	"database/sql"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -127,11 +122,12 @@ type Session struct {
 
 // Service signs residents up and recognises their browsers.
 type Service struct {
-	index  *index.Index
-	scribe *scribe.Scribe
-	key    []byte
-	signup sync.Mutex // one sign up at a time, so a name is checked and taken together
-	roles  sync.Mutex // one change of role at a time, so the last administrator is counted right
+	index   *index.Index
+	scribe  *scribe.Scribe
+	key     []byte
+	counter Counter    // the machine that counts, when it is another one
+	signup  sync.Mutex // one sign up at a time, so a name is checked and taken together
+	roles   sync.Mutex // one change of role at a time, so the last administrator is counted right
 }
 
 // New returns the service. key signs the session cookies.
@@ -140,132 +136,72 @@ func New(ix *index.Index, s *scribe.Scribe, key []byte) *Service {
 }
 
 // SignUp creates an account and a device for it, and returns the cookie that
-// keeps this browser signed in. The account and its first device are one
-// entry of the journal, so there is never one without the other.
+// keeps this browser signed in. A name is counted: on a machine that does
+// not count, the machine that counts takes it, and the answer waits until
+// the account has reached this machine, so the next page knows it.
 func (s *Service) SignUp(ctx context.Context, name string, secure bool) (*http.Cookie, error) {
-	if !utf8.ValidString(name) {
-		return nil, ErrNameInvalid
-	}
-	name = strings.Join(strings.Fields(name), " ")
-	switch {
-	case name == "":
-		return nil, ErrNameEmpty
-	case len([]rune(name)) > MaxName:
-		return nil, ErrNameLong
-	}
-	if err := checkName(name); err != nil {
+	name, err := tidyName(name)
+	if err != nil {
 		return nil, err
 	}
+	if s.counter == nil {
+		device, err := s.Register(ctx, name)
+		if err != nil {
+			return nil, err
+		}
+		return s.cookie(device, 0, secure), nil
+	}
+	device, err := s.counter.SignUp(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.arrives(ctx, `SELECT count(*) FROM devices WHERE number = ?`, device); err != nil {
+		return nil, err
+	}
+	return s.cookie(device, 0, secure), nil
+}
 
+// Register creates an account and its first device on the machine that
+// counts, and returns the device. The account and its first device are one
+// entry of the journal, so there is never one without the other.
+func (s *Service) Register(ctx context.Context, name string) (uint64, error) {
+	name, err := tidyName(name)
+	if err != nil {
+		return 0, err
+	}
 	s.signup.Lock()
 	defer s.signup.Unlock()
 	var taken int
 	if err := s.index.DB().QueryRowContext(ctx, `SELECT count(*) FROM accounts WHERE folded = ?`, fold(name)).Scan(&taken); err != nil {
-		return nil, err
+		return 0, err
 	}
 	if taken > 0 {
-		return nil, ErrNameTaken
+		return 0, ErrNameTaken
 	}
-
 	content, err := event.New(event.AccountCreated, 0, 0, time.Now(), event.AccountCreatedData{Name: name, FirstDevice: true})
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	entries, err := s.scribe.Write(ctx, content)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-	return s.cookie(entries[0].ID, 0, secure), nil
+	return entries[0].ID, nil
 }
 
-const cookieName = "earthler"
-
-// cookie builds the session cookie: the device, its counter, and a signature
-// of the two made with the server's key. There is no table of sessions, so
-// rebuilding the indexes signs nobody out.
-func (s *Service) cookie(device, counter uint64, secure bool) *http.Cookie {
-	value := fmt.Sprintf("%d.%d", device, counter)
-	return &http.Cookie{
-		Name:     cookieName,
-		Value:    value + "." + s.sign(value),
-		Path:     "/",
-		MaxAge:   365 * 24 * 60 * 60,
-		HttpOnly: true,
-		Secure:   secure,
-		SameSite: http.SameSiteStrictMode,
+// tidyName collapses the spaces of a name and checks it.
+func tidyName(name string) (string, error) {
+	if !utf8.ValidString(name) {
+		return "", ErrNameInvalid
 	}
-}
-
-func (s *Service) sign(value string) string {
-	mac := hmac.New(sha256.New, s.key)
-	mac.Write([]byte(value))
-	return hex.EncodeToString(mac.Sum(nil))
-}
-
-// Session returns who sent the request, if the cookie is one this server
-// signed and the device still exists with the same counter.
-func (s *Service) Session(r *http.Request) (Session, bool) {
-	sess, err := s.Lookup(r)
-	return sess, err == nil
-}
-
-// Lookup is Session with the reason: ErrNoSession when the request is from
-// nobody, and the database's own error when the lookup itself failed.
-func (s *Service) Lookup(r *http.Request) (Session, error) {
-	c, err := r.Cookie(cookieName)
-	if err != nil {
-		return Session{}, ErrNoSession
-	}
-	parts := strings.Split(c.Value, ".")
-	if len(parts) != 3 || !hmac.Equal([]byte(s.sign(parts[0]+"."+parts[1])), []byte(parts[2])) {
-		return Session{}, ErrNoSession
-	}
-	device, err1 := strconv.ParseUint(parts[0], 10, 63)
-	counter, err2 := strconv.ParseUint(parts[1], 10, 63)
-	if err1 != nil || err2 != nil {
-		return Session{}, ErrNoSession
-	}
-	sess := Session{Device: device}
-	err = s.index.DB().QueryRowContext(r.Context(), `
-		SELECT a.number, a.name, r.role FROM devices d
-		JOIN accounts a ON a.number = d.account
-		JOIN roster r ON r.account = a.number
-		WHERE d.number = ? AND d.counter = ?`, device, counter).Scan(&sess.Account, &sess.Name, &sess.Role)
+	name = strings.Join(strings.Fields(name), " ")
 	switch {
-	case errors.Is(err, sql.ErrNoRows):
-		return Session{}, ErrNoSession
-	case err != nil:
-		return Session{}, err
+	case name == "":
+		return "", ErrNameEmpty
+	case len([]rune(name)) > MaxName:
+		return "", ErrNameLong
 	}
-	return sess, nil
-}
-
-type contextKey struct{}
-
-// Require lets a request through only when it comes from a signed in
-// browser. Everyone else is sent to the sign up screen.
-func (s *Service) Require(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sess, err := s.Lookup(r)
-		switch {
-		case errors.Is(err, ErrNoSession):
-			http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
-			return
-		case err != nil:
-			// The system failed. Sending a resident to the sign up screen
-			// would look like being signed out.
-			log.Printf("accounts: %v", err)
-			http.Error(w, "service unavailable", http.StatusServiceUnavailable)
-			return
-		}
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), contextKey{}, sess)))
-	})
-}
-
-// From returns the session that Require stored in the request.
-func From(ctx context.Context) Session {
-	sess, _ := ctx.Value(contextKey{}).(Session)
-	return sess
+	return name, checkName(name)
 }
 
 // fold makes names comparable: "Ana Lima" and "ana  lima" are the same name.

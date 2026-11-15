@@ -144,20 +144,33 @@ func (r *Registry) tooMany(who string, now time.Time, add bool) bool {
 	return len(recent) >= maxFailures
 }
 
-// Redeem trades a pairing code for a token. The code is spent: a second try
-// with it fails. who says where the try came from, for the limit on guesses.
-func (r *Registry) Redeem(code, label, who string, now time.Time) (string, error) {
+// Spend checks a pairing code and spends it: a second try with it fails.
+// who says where the try came from, for the limit on guesses.
+func (r *Registry) Spend(code, who string, now time.Time) error {
 	if r.tooMany(who, now, false) {
-		return "", ErrTooMany
+		return ErrTooMany
 	}
 	raw, err := os.ReadFile(filepath.Join(r.dir, pairingFile))
 	var p pending
 	if err != nil || json.Unmarshal(raw, &p) != nil || now.After(p.Expires) ||
 		subtle.ConstantTimeCompare([]byte(p.Hash), []byte(digest(tidy(code)))) != 1 {
 		r.tooMany(who, now, true)
-		return "", ErrBadCode
+		return ErrBadCode
 	}
-	if err := os.Remove(filepath.Join(r.dir, pairingFile)); err != nil {
+	return os.Remove(filepath.Join(r.dir, pairingFile))
+}
+
+// Failed counts a wrong answer from who, such as a token nobody has, and
+// says whether who has failed too often lately.
+func (r *Registry) Failed(who string, now time.Time) bool { return r.tooMany(who, now, true) }
+
+// Blocked says whether who has failed too often lately.
+func (r *Registry) Blocked(who string, now time.Time) bool { return r.tooMany(who, now, false) }
+
+// Redeem trades a pairing code for a token. The code is spent: a second try
+// with it fails. who says where the try came from, for the limit on guesses.
+func (r *Registry) Redeem(code, label, who string, now time.Time) (string, error) {
+	if err := r.Spend(code, who, now); err != nil {
 		return "", err
 	}
 	secret, err := randomText(32)

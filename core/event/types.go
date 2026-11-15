@@ -39,6 +39,13 @@ const (
 	// EntryErased records that the contents of some entries were physically
 	// replaced by the erased mark in the journal.
 	EntryErased = "entry.erased"
+
+	// MachineAdded puts a machine in the community: its number, a name for
+	// people to recognise it, and the digest of the token it shows the other
+	// machines when it asks for their journals. Adding a machine is counted,
+	// so only the machine that counts writes it. The founding machine adds
+	// itself the first time it invites another.
+	MachineAdded = "machine.added"
 )
 
 type CommunityCreatedData struct {
@@ -94,6 +101,12 @@ type RoleChangedData struct {
 // own files, so the record only speaks for the machine that wrote it.
 type EntryErasedData struct {
 	Entries []uint64 `json:"entries"`
+}
+
+type MachineAddedData struct {
+	Machine uint64 `json:"machine"`
+	Label   string `json:"label"`
+	Token   string `json:"token"` // the SHA-256 of the token, in hex
 }
 
 // Read decodes the data of the event into v, which is a pointer to the data

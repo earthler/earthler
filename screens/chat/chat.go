@@ -153,6 +153,7 @@ type message struct {
 	Text    string
 	Mine    bool
 	Deleted uint64 // the entry that deleted it, or zero
+	Place   int64  // where it goes in the conversation, with Number
 
 	// Removable says that the reader may remove this message, though it is
 	// not theirs, with a reason.
@@ -161,6 +162,7 @@ type message struct {
 
 type body struct {
 	Channel  string
+	Position string // how far the page has seen, see live.Position
 	Me       uint64 // the account of the person reading
 	Messages []message
 	Error    string // a text to show, or empty
@@ -173,12 +175,12 @@ type body struct {
 
 // messageColumns is what every query of messages reads, in the order that
 // scanMessage expects.
-const messageColumns = `m.number, m.account, coalesce(a.name, ''), m.time, m.text, m.deleted`
+const messageColumns = `m.number, m.account, coalesce(a.name, ''), m.time, m.text, m.deleted, m.place`
 
 func (s *Screen) scanMessage(rows interface{ Scan(...any) error }, me uint64, canRemove bool) (message, error) {
 	var m message
 	var ms int64
-	err := rows.Scan(&m.Number, &m.Account, &m.Author, &ms, &m.Text, &m.Deleted)
+	err := rows.Scan(&m.Number, &m.Account, &m.Author, &ms, &m.Text, &m.Deleted, &m.Place)
 	m.Time = time.UnixMilli(ms).Format(s.pages.T("time.short"))
 	m.Mine = m.Account == me
 	m.Removable = canRemove && !m.Mine
@@ -200,6 +202,9 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey
 		return
 	}
 	b.Channel = name
+	// Read before the messages, so the page can only have seen more than it
+	// says, never less: what it is sent twice, it shows once.
+	b.Position = live.Position(s.index.Positions()).String()
 
 	// The last messages, shown oldest first.
 	rows, err := s.index.DB().QueryContext(r.Context(), `SELECT `+messageColumns+` FROM messages m
