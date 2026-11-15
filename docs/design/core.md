@@ -139,3 +139,4 @@ Pages are built on the server and work without JavaScript, except for the welcom
 - Guardians and children, approval of new residents, and every live update still goes to everyone: the table decides who writes and removes, and will decide who receives what once there are conversations that are not open.
 - The copies screen, with the pairing of second machines. The second machine itself is built, see [the second machine](replica.md).
 - Editing a message, and the record of searches that found nothing.
+- What comes next, which is proposed and not built: [many machines, one community](many-machines.md) and [four apps on one address](apps.md).
