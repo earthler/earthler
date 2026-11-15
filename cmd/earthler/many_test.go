@@ -66,7 +66,9 @@ func twoMachines(t *testing.T) (zero, one []journal.Entry) {
 		// Ana removes Bia's message here, while on machine 1 Bia had
 		// already deleted it herself: the earlier deletion stays.
 		{event.MessageDeleted, 3, 3, 1032, event.MessageDeletedData{Channel: 2, Message: 6, Author: 4, Reason: "repetida", Placed: 1010}},
-		{event.EntryErased, 0, 0, 1100, event.EntryErasedData{Entries: []uint64{5}}},
+		// Machine 0 erased both messages in its journal, before machine
+		// 1's deletion of message 6 reached it, in some of the orders.
+		{event.EntryErased, 0, 0, 1100, event.EntryErasedData{Entries: []uint64{5, 6}}},
 	})
 	one = writeJournal(t, filepath.Join(root, "1"), []line{
 		{event.MessageCreated, 4, 4, 1005, event.MessageCreatedData{Channel: 2, Text: "reunião amanhã"}},
@@ -191,17 +193,50 @@ func TestTwoJournalsMakeTheSameIndexesInAnyOrder(t *testing.T) {
 		// deletion came first.
 		"acts [9 1032 3 removal 4 repetida]",
 		"acts [8 1040 3 role 4 moderator]",
-		// Machine 0 erased message 5 in its journal, and still has to erase
-		// the others in its copies: machine 1's record of erasing 6 speaks
-		// only for machine 1.
-		"pending [6 9]",
+		// Machine 0 erased messages 5 and 6 in its journal, and still has
+		// to erase machine 1's message in its copy: machine 1's own record
+		// speaks only for machine 1.
 		"pending [1000000000001 1000000000004]",
+		"erased [5]",
+		"erased [6]",
 	} {
 		if !strings.Contains(want, must+"\n") {
 			t.Errorf("the tables do not have %q:\n%s", must, want)
 		}
 	}
-	if strings.Contains(want, "pending [5 ") {
-		t.Errorf("message 5 is still pending, though machine 0 erased it:\n%s", want)
+	for _, gone := range []string{"pending [5 ", "pending [6 "} {
+		if strings.Contains(want, gone) {
+			t.Errorf("%q: a message machine 0 erased is still pending:\n%s", gone, want)
+		}
+	}
+}
+
+// A deletion written before deletions carried the time of the message puts
+// the message in the same place whether its text is still in the journal or
+// was erased and the index rebuilt.
+func TestAnOldDeletionLeavesTheSameRowAfterErasure(t *testing.T) {
+	entries := writeJournal(t, t.TempDir(), []line{
+		{event.CommunityCreated, 0, 0, 900, event.CommunityCreatedData{Name: "Vila"}},
+		{event.ChannelCreated, 0, 0, 900, event.ChannelCreatedData{Name: "Geral"}},
+		{event.AccountCreated, 0, 0, 950, event.AccountCreatedData{Name: "Ana", FirstDevice: true}},
+		{event.MessageCreated, 3, 3, 1000, event.MessageCreatedData{Channel: 2, Text: "apaga"}},
+		{event.MessageCreated, 3, 3, 1010, event.MessageCreatedData{Channel: 2, Text: "fica"}},
+		{event.MessageDeleted, 3, 3, 2000, event.MessageDeletedData{Channel: 2, Message: 4}},
+	})
+	erased := append([]journal.Entry(nil), entries...)
+	erased[3].Content, erased[3].Erased = nil, true
+	dump := func(es []journal.Entry) string {
+		ix, err := index.Open(t.TempDir(), chat.Area)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer ix.Close()
+		if err := ix.Apply(0, es); err != nil {
+			t.Fatal(err)
+		}
+		return tables(t, ix)
+	}
+	if before, after := dump(entries), dump(erased); before != after {
+		t.Fatalf("before the erasure:\n%s\nafter:\n%s", before, after)
 	}
 }

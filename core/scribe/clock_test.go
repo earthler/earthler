@@ -65,6 +65,25 @@ func TestTheClockNeverGoesBack(t *testing.T) {
 	}
 }
 
+func TestABatchNeverGoesBack(t *testing.T) {
+	j := openAt(t, filepath.Join(t.TempDir(), "journal"))
+	s, err := Start(j)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	// Two screens stamped their contents in the other order, and the two
+	// went into one batch.
+	later, earlier := time.UnixMilli(200_000), time.UnixMilli(150_000)
+	entries, err := s.Write(context.Background(), said(t, later, "a"), said(t, earlier, "b"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a, b := event.TimeOf(entries[0].Content), event.TimeOf(entries[1].Content); b < a {
+		t.Fatalf("the second entry has time %d, before the first, %d", b, a)
+	}
+}
+
 func TestTimeComesAfterWhatOtherMachinesWrote(t *testing.T) {
 	root := t.TempDir()
 	mine := openAt(t, filepath.Join(root, "journal"))

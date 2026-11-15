@@ -88,23 +88,25 @@ func apply(tx *sql.Tx, entry index.Entry) error {
 // is erased and the index is rebuilt, or when the deletion arrives before
 // the message, there is no row to update, and the deletion creates the empty
 // row itself. Every way must leave the same row: its place comes from the
-// deletion, and its time is the time of the deletion. Two deletions of the
-// same message, written on two machines, keep the earlier one.
+// deletion, which carries the time of the message (an older deletion that
+// does not carry it puts the row at the time of the deletion, both ways),
+// and its time is the time of the deletion. Two deletions of the same
+// message, written on two machines, keep the earlier one.
 func deleteMessage(tx *sql.Tx, entry index.Entry, e event.Event, d event.MessageDeletedData) error {
-	res, err := tx.Exec(`UPDATE messages SET text = '', deleted = ?1, time = ?2
-		WHERE number = ?3 AND (deleted = 0 OR time > ?2 OR (time = ?2 AND deleted > ?1))`, entry.ID, e.Time, d.Message)
-	if err != nil {
-		return err
-	}
-	if n, _ := res.RowsAffected(); n > 0 {
-		return nil
-	}
 	place, author := d.Placed, d.Author
 	if place == 0 {
 		place = e.Time
 	}
 	if author == 0 {
 		author = e.Account
+	}
+	res, err := tx.Exec(`UPDATE messages SET text = '', deleted = ?1, time = ?2, place = ?4
+		WHERE number = ?3 AND (deleted = 0 OR time > ?2 OR (time = ?2 AND deleted > ?1))`, entry.ID, e.Time, d.Message, place)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n > 0 {
+		return nil
 	}
 	_, err = tx.Exec(`INSERT OR IGNORE INTO messages (number, channel, account, place, time, text, deleted) VALUES (?, ?, ?, ?, ?, '', ?)`,
 		d.Message, d.Channel, author, place, e.Time, entry.ID)

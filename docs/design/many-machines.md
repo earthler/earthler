@@ -139,7 +139,7 @@ It is a rework of the core that exists, plus one new piece, the network. Consens
 | An operator, the person with access to a machine | Cannot read what is personal | Reads the community layer and can see who talks to whom. That holds for the operator of each machine. A house that should only keep a copy runs a second machine |
 | Two people, one on each side of a split, each taking the other's machine off the list | The essential of both sides joins | In what is counted they become two communities, and people decide which one holds |
 | The browser deletes the device's data | The encrypted package on the machines | The person types the passphrase again |
-| A wrong clock on a machine | The rule on time and the warning to an administrator | Messages written during a split can appear out of order. Nothing is lost |
+| A wrong clock on a machine | The rule on time and the warning to an administrator | Messages written during a split can appear out of order. Nothing is lost. A clock far ahead carries the times of every machine with it, because none writes earlier than what it has seen, until the warning exists |
 | Deleted text on a machine or device that was away for a long time | A machine deletes before it serves any screen | The text stays there until that machine or device returns |
 | More machines on | Nothing | More energy. How many stay on is the community's decision |
 

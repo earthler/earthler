@@ -24,14 +24,17 @@ import (
 // Area returns the index of what machine self still has to erase. It is
 // derived from the journals like every index: a deletion adds the entry, and
 // this machine's record of an erasure removes it, so a rebuilt index asks for
-// the same work again, and erasing an entry twice changes nothing.
+// the same work again, and erasing an entry twice changes nothing. erased
+// remembers what this machine already erased, because another machine's
+// deletion of the same message can arrive after the erasure.
 func Area(self uint64) index.Area {
 	return index.Area{
 		Name: "erasure",
 		// The machine is in the schema so the index is rebuilt if it were
 		// ever opened by another one.
 		Schema: fmt.Sprintf(`-- machine %d
-			CREATE TABLE pending (entry INTEGER PRIMARY KEY, asked INTEGER NOT NULL);`, self),
+			CREATE TABLE pending (entry INTEGER PRIMARY KEY, asked INTEGER NOT NULL);
+			CREATE TABLE erased (entry INTEGER PRIMARY KEY);`, self),
 		Apply: func(tx *sql.Tx, entry index.Entry) error { return apply(tx, entry, self) },
 	}
 }
@@ -48,8 +51,10 @@ func apply(tx *sql.Tx, entry index.Entry, self uint64) error {
 			return nil
 		}
 		// Two machines can delete the same message. Whichever deletion
-		// arrives first, the one that asked is the one with the lower id.
-		_, err = tx.Exec(`INSERT INTO pending (entry, asked) VALUES (?, ?)
+		// arrives first, the one that asked is the one with the lower id,
+		// and nothing is asked again once this machine erased it.
+		_, err = tx.Exec(`INSERT INTO pending (entry, asked) SELECT ?1, ?2
+			WHERE NOT EXISTS (SELECT 1 FROM erased WHERE entry = ?1)
 			ON CONFLICT (entry) DO UPDATE SET asked = min(asked, excluded.asked)`, d.Message, entry.ID)
 	case event.EntryErased:
 		var d event.EntryErasedData
@@ -58,6 +63,9 @@ func apply(tx *sql.Tx, entry index.Entry, self uint64) error {
 		}
 		for _, id := range d.Entries {
 			if _, err = tx.Exec(`DELETE FROM pending WHERE entry = ?`, id); err != nil {
+				return err
+			}
+			if _, err = tx.Exec(`INSERT OR IGNORE INTO erased (entry) VALUES (?)`, id); err != nil {
 				return err
 			}
 		}
@@ -107,11 +115,22 @@ func runBatch(ctx context.Context, journals map[uint64]*journal.Journal, ix *ind
 	if _, err = s.Write(ctx, content); err != nil {
 		return 0, err
 	}
+	// The record just written takes the entries out of pending, unless the
+	// index belongs to another machine than the scribe, which would erase
+	// the same entries forever.
+	var still int
+	if err := ix.DB().QueryRowContext(ctx, `SELECT count(*) FROM pending WHERE entry = ?`, ids[0]).Scan(&still); err != nil {
+		return 0, err
+	}
+	if still > 0 {
+		return 0, fmt.Errorf("erasure: the index is not machine %d's, so its record of the erasure does not count", s.Self())
+	}
 	return len(ids), nil
 }
 
 // pending returns up to a batch of ids waiting to be erased in the journals
-// the machine holds.
+// the machine holds, among the entries that have arrived: a copy that is
+// behind cannot erase what it does not have yet.
 func pending(ctx context.Context, ix *index.Index, journals map[uint64]*journal.Journal) ([]uint64, error) {
 	rows, err := ix.DB().QueryContext(ctx, `SELECT entry FROM pending ORDER BY entry`)
 	if err != nil {
@@ -124,8 +143,11 @@ func pending(ctx context.Context, ix *index.Index, journals map[uint64]*journal.
 		if err := rows.Scan(&id); err != nil {
 			return nil, err
 		}
-		if m, _ := event.Split(id); journals[m] != nil {
-			ids = append(ids, id)
+		m, n := event.Split(id)
+		if j := journals[m]; j != nil {
+			if last, _ := j.Last(); n <= last {
+				ids = append(ids, id)
+			}
 		}
 	}
 	return ids, rows.Err()

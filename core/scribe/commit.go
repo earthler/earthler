@@ -7,35 +7,34 @@ import (
 	"github.com/earthler/earthler/core/index"
 )
 
-// floor is the earliest time a new entry may carry: not before the latest
-// entry of this machine, and after every entry it has seen from the others.
-// Inside one journal the entry number orders entries with the same time.
-func (s *Scribe) floor() int64 { return max(s.own, s.seen+1) }
+// The earliest time a new entry may carry is not before the latest entry of
+// this machine, and after every entry it has seen from the others. Inside
+// one journal the entry number orders entries with the same time.
 
 // commit writes one batch. An error means the scribe has to stop: either the
 // journal refused the write, or the entries are in the journal but an index
 // did not take them, and only a restart brings the indexes level again.
 func (s *Scribe) commit(batch []*request) error {
+	// The floor rises with each content: two requests in one batch were
+	// stamped by their screens in any order, and the second must not carry
+	// a time earlier than the first.
 	var contents [][]byte
-	var stamped []int64
-	var err error
+	own := s.own
 	for _, r := range batch {
-		for i, c := range r.contents {
-			var t int64
-			if r.contents[i], t, err = event.Stamp(c, s.floor()); err != nil {
+		for _, c := range r.contents {
+			c, t, err := event.Stamp(c, max(own, s.seen+1))
+			if err != nil {
 				return s.refuse(batch, err)
 			}
-			stamped = append(stamped, t)
+			own = max(own, t)
+			contents = append(contents, c)
 		}
-		contents = append(contents, r.contents...)
 	}
 	written, err := s.journal.Append(contents...)
 	if err != nil {
 		return s.refuse(batch, err)
 	}
-	for _, t := range stamped {
-		s.own = max(s.own, t)
-	}
+	s.own = own
 	for _, ix := range s.indexes {
 		if err := ix.Apply(s.self, written); err != nil {
 			return s.refuse(batch, err)

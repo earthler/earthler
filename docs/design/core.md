@@ -23,7 +23,7 @@ If the journal refuses a write, or an index fails after the journal accepted the
 An entry carries one event: its type, the server clock, the account and the device that acted, a random salt and the data of that type.
 
 - **Type.** A noun and a verb in the past, such as `message.created`. Types are written in journals forever, so a type that was once used is never removed and never given another meaning. The catalog is [`core/event/types.go`](../../core/event/types.go).
-- **Time.** For showing to people, and the order of events that are in the journals of different machines. Inside one journal the order is the order of the entries, so a wrong clock cannot scramble it. The scribe never writes a time earlier than the latest entry of its own journal, and always writes one later than every entry it has seen from another machine, so an answer comes after its question even when a clock is wrong.
+- **Time.** For showing to people, and the order of events that are in the journals of different machines. Inside one journal the order is the order of the entries, so a wrong clock cannot scramble it. The scribe never writes a time earlier than the latest entry of its own journal, and always writes one later than every entry it has seen from another machine, so an answer comes after its question even when a clock is wrong. Entries written before this rule existed, while a clock went backwards, show in the order of their times.
 - **Account and device.** The ids of who acted. Zero means the system.
 - **Salt.** Random bytes that go away with the content when an entry is erased. Without it, the digest that stays in the journal could be used to confirm a guess of what the erased text said.
 
