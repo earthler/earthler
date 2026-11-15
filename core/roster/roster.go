@@ -13,7 +13,7 @@ import (
 	"database/sql"
 
 	"github.com/earthler/earthler/core/event"
-	"github.com/earthler/earthler/core/journal"
+	"github.com/earthler/earthler/core/index"
 	"github.com/earthler/earthler/core/permissions"
 )
 
@@ -22,7 +22,7 @@ const Schema = `CREATE TABLE roster (account INTEGER PRIMARY KEY, role TEXT NOT 
 
 // Apply updates the roster for one entry. It reports whether the entry was a
 // change of role that took effect, for an index that records the act.
-func Apply(tx *sql.Tx, entry journal.Entry) (changed bool, err error) {
+func Apply(tx *sql.Tx, entry index.Entry) (changed bool, err error) {
 	e, err := event.Decode(entry.Content)
 	if err != nil {
 		return false, nil
@@ -37,7 +37,7 @@ func Apply(tx *sql.Tx, entry journal.Entry) (changed bool, err error) {
 		if members == 0 {
 			role = permissions.Administrator
 		}
-		_, err = tx.Exec(`INSERT OR IGNORE INTO roster (account, role) VALUES (?, ?)`, entry.Number, string(role))
+		_, err = tx.Exec(`INSERT OR IGNORE INTO roster (account, role) VALUES (?, ?)`, entry.ID, string(role))
 		return false, err
 	case event.RoleChanged:
 		var d event.RoleChangedData

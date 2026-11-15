@@ -16,7 +16,6 @@ import (
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
-	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/page"
 	"github.com/earthler/earthler/core/permissions"
 	"github.com/earthler/earthler/core/roster"
@@ -43,7 +42,7 @@ const (
 	kindRemoval = "removal"
 )
 
-func apply(tx *sql.Tx, entry journal.Entry) error {
+func apply(tx *sql.Tx, entry index.Entry) error {
 	changed, err := roster.Apply(tx, entry)
 	if err != nil {
 		return err
@@ -58,7 +57,7 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		if e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT OR IGNORE INTO names (account, name) VALUES (?, ?)`, entry.Number, d.Name)
+		_, err = tx.Exec(`INSERT OR IGNORE INTO names (account, name) VALUES (?, ?)`, entry.ID, d.Name)
 	case event.RoleChanged:
 		// Only a change that took effect is an act: the roster knows who was
 		// an administrator at the time, so a forged entry never shows here.
@@ -66,8 +65,8 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		if !changed || e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT INTO acts (number, time, actor, kind, target, detail) VALUES (?, ?, ?, ?, ?, ?)`,
-			entry.Number, e.Time, e.Account, kindRole, d.Account, d.Role)
+		_, err = tx.Exec(`INSERT OR IGNORE INTO acts (number, time, actor, kind, target, detail) VALUES (?, ?, ?, ?, ?, ?)`,
+			entry.ID, e.Time, e.Account, kindRole, d.Account, d.Role)
 	case event.MessageDeleted:
 		var d event.MessageDeletedData
 		// Authors delete without a reason. Only the removal of someone
@@ -75,8 +74,8 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		if e.Read(&d) != nil || d.Reason == "" {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT INTO acts (number, time, actor, kind, target, detail) VALUES (?, ?, ?, ?, ?, ?)`,
-			entry.Number, e.Time, e.Account, kindRemoval, d.Author, d.Reason)
+		_, err = tx.Exec(`INSERT OR IGNORE INTO acts (number, time, actor, kind, target, detail) VALUES (?, ?, ?, ?, ?, ?)`,
+			entry.ID, e.Time, e.Account, kindRemoval, d.Author, d.Reason)
 	}
 	return err
 }
@@ -119,7 +118,7 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request) {
 		SELECT a.time, coalesce(who.name, ''), coalesce(whom.name, ''), a.kind, a.detail FROM acts a
 		LEFT JOIN names who ON who.account = a.actor
 		LEFT JOIN names whom ON whom.account = a.target
-		ORDER BY a.number DESC LIMIT ?`, MaxActs)
+		ORDER BY a.time DESC, a.number DESC LIMIT ?`, MaxActs)
 	if err != nil {
 		log.Printf("auditlog: %v", err)
 		http.Error(w, s.pages.T("error.internal"), http.StatusInternalServerError)

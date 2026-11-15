@@ -11,20 +11,32 @@
   const canRemove = list.dataset.canRemove === '1';
   const removeForm = document.getElementById('remove-form');
 
-  // The last entry this page knows of: a message, or the deletion of one.
-  function last() {
-    let n = 0;
-    list.querySelectorAll('li').forEach(function (li) {
-      n = Math.max(n, Number(li.dataset.number) || 0, Number(li.dataset.deleted) || 0);
-    });
-    return n;
-  }
-
   function atEnd() {
     return window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 120;
   }
 
-  const source = new EventSource('/chat/live?after=' + last());
+  // A message written on another machine can arrive after messages written
+  // later, so each one goes in its place: by time, then by id.
+  function before(a, b) {
+    const pa = Number(a.dataset.place), pb = Number(b.dataset.place);
+    return pa < pb || (pa === pb && Number(a.dataset.number) < Number(b.dataset.number));
+  }
+
+  function insert(li) {
+    const items = list.querySelectorAll('li');
+    for (let i = items.length - 1; i >= 0; i--) {
+      if (!before(li, items[i])) {
+        items[i].after(li);
+        return;
+      }
+    }
+    list.prepend(li);
+  }
+
+  // How far the page has seen, in the journal of each machine. The browser
+  // sends back the position of the last message it received when it
+  // reconnects.
+  const source = new EventSource('/chat/live?after=' + encodeURIComponent(list.dataset.position || ''));
 
   source.addEventListener('posted', function (ev) {
     const holder = document.createElement('template');
@@ -42,15 +54,15 @@
       }
     }
     const wasAtEnd = atEnd();
-    list.appendChild(li);
+    insert(li);
     if (empty) empty.hidden = true;
-    if (wasAtEnd) li.scrollIntoView({ block: 'end' });
+    if (wasAtEnd && li === list.lastElementChild) li.scrollIntoView({ block: 'end' });
   });
 
   source.addEventListener('deleted', function (ev) {
     const li = list.querySelector('li[data-number="' + ev.data + '"]');
     if (!li || li.dataset.deleted) return;
-    li.dataset.deleted = ev.lastEventId;
+    li.dataset.deleted = '1';
     const p = li.querySelector('p');
     if (p) { p.textContent = list.dataset.deleted; p.className = 'muted'; }
     li.querySelectorAll('form').forEach(function (f) { f.remove(); });

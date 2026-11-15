@@ -41,19 +41,23 @@ func (r Report) String() string {
 	return fmt.Sprintf("%d of %d files, %.1f MB", r.Written, r.Files, float64(r.Bytes)/1e6)
 }
 
-// sources lists what goes in a copy: the segments of the journal and the
-// secrets. The indexes are left out, because they are rebuilt.
+// sources lists what goes in a copy: the segments of the journal, the
+// copies of the other machines' journals, their addresses and the secrets.
+// The indexes are left out, because they are rebuilt.
 func sources(dataDir string) ([]string, error) {
-	segments, err := filepath.Glob(filepath.Join(dataDir, "journal", "*.journal"))
-	if err != nil {
-		return nil, err
-	}
 	var paths []string
-	for _, s := range segments {
-		paths = append(paths, filepath.ToSlash(filepath.Join("journal", filepath.Base(s))))
+	for _, pattern := range []string{"journal/*.journal", "journals/*/*.journal", "machines/peers.json"} {
+		found, err := filepath.Glob(filepath.Join(dataDir, filepath.FromSlash(pattern)))
+		if err != nil {
+			return nil, err
+		}
+		for _, f := range found {
+			rel, _ := filepath.Rel(dataDir, f)
+			paths = append(paths, filepath.ToSlash(rel))
+		}
 	}
 	secrets := filepath.Join(dataDir, "secrets")
-	err = filepath.WalkDir(secrets, func(path string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(secrets, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}

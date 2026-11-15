@@ -17,7 +17,7 @@ import (
 var notes = index.Area{
 	Name:   "notes",
 	Schema: `CREATE TABLE notes (number INTEGER PRIMARY KEY, text TEXT NOT NULL);`,
-	Apply: func(tx *sql.Tx, e journal.Entry) error {
+	Apply: func(tx *sql.Tx, e index.Entry) error {
 		var data struct {
 			Text string `json:"text"`
 		}
@@ -220,9 +220,9 @@ func TestClosedScribeRefusesWrites(t *testing.T) {
 
 func TestListenersHearEachBatchBeforeTheAnswer(t *testing.T) {
 	f := start(t, t.TempDir())
-	heard := make(chan []journal.Entry, 8)
+	heard := make(chan []index.Entry, 8)
 	answered := false
-	f.scribe.Listen(func(entries []journal.Entry) {
+	f.scribe.Listen(func(entries []index.Entry) {
 		if answered {
 			t.Error("the listener ran after the writer got its answer")
 		}

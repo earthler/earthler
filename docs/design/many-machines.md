@@ -1,6 +1,6 @@
 # Many machines, one community
 
-**Proposed. None of it is built.** Today a community runs on one machine, with one [journal](journal.md) and one scribe, and a [second machine](replica.md) can keep an encrypted copy that it cannot read. This note is the design that comes after that. It changes as the maintainer decides, and it only becomes code on the maintainer's word.
+**Proposed, and being built since 2026-11-15, on the maintainer's word.** Today a community runs on one machine, with one [journal](journal.md) and one scribe, and a [second machine](replica.md) can keep an encrypted copy that it cannot read. This note is the design that comes after that, and it changes as the maintainer decides. What is built so far is listed in [what is built](#what-is-built).
 
 The measure of the design is what a resident sees: it is right only if nobody ever notices which machine they are on. That part has a note of its own, [four apps on one address](apps.md).
 
@@ -53,9 +53,18 @@ Today there is one journal and one scribe numbers its entries (**built**). In th
 
 Because each machine only writes in its own journal, two machines never compete for the same entry. When one leaves, the others go on. When it comes back, it hands over what it wrote, receives what it missed, and every machine holds the same journals again. That is what makes them images.
 
-The entry number only orders entries inside one journal, so the identity of each thing becomes the machine and the entry. Across journals the order is the time, with one rule: no entry gets a time earlier than an entry the machine has already seen. An answer then always comes after its question, even with a wrong clock, and every machine builds a conversation in the same order. With no internet a machine only has its own clock, set by hand, so when two machines meet they compare clocks and warn an administrator if the difference is large. **Proposed.**
+The entry number only orders entries inside one journal, so the identity of each thing becomes the machine and the entry. Across journals the order is the time, with one rule: no entry gets a time earlier than an entry the machine has already seen. An answer then always comes after its question, even with a wrong clock, and every machine builds a conversation in the same order. With no internet a machine only has its own clock, set by hand, so when two machines meet they compare clocks and warn an administrator if the difference is large. The ids and the rule on time are **built**; the comparison of clocks is **proposed**.
 
 With one machine, all of this is the system of today. A community starts with one machine and adds more.
+
+### What is built
+
+- **Built:** the id of each thing is the machine and the entry, in one number. The machine that founded the community is machine 0, so its ids are its entry numbers and nothing written before changes. See [the core](core.md#ids).
+- **Built:** the rule on time. The scribe never writes a time earlier than its own last entry, and always one later than what it has seen from the other machines. The conversation is in the order of time, and inside one journal in the order of the entries.
+- **Built:** each index applies several journals, with a position in each, and an entry that arrives late takes its place. A test applies the journals of two machines in many orders, with messages written at the same time on both and the same message deleted on both, and every table comes out the same.
+- **Built:** each machine erases deleted text in its own journal and in the copies it keeps.
+- **Built:** a machine joins with a code and the fingerprint of the community root, gets its number and the community's secrets, and becomes an image. Each machine serves its own journal and follows each other machine directly, live. What is counted, a new account and a change of role, goes to machine 0, and on another machine the screen says not now when machine 0 cannot be reached. An open page picks up live from a position in each journal. How this works is in [how the machines live together](machines.md).
+- **Not built:** the listed machines and what waits for all of them; today the machine that counts is machine 0 alone. Signed entries, so a copy could be handed on. The comparison of clocks, a screen for the machines, the device's part and the network.
 
 ## Essential and not essential
 
@@ -111,11 +120,11 @@ The light parts, conversation, wiki, map, voting and search by word, go inside e
 
 | Piece | Today | In this design | What changes |
 | --- | --- | --- | --- |
-| The identity of each thing | The entry number of the one journal (**built**) | The machine and the entry | Accounts, devices, messages and sessions |
-| The order of a conversation | The entry number (**built**) | The time, with its one rule | Indexes and screens |
-| Picking up live | The number of the last entry (**built**) | A position in each journal | Live updates |
-| Indexes | Apply one journal, in sequence (**built**) | Apply several, in the common order, and an entry that arrives late takes its place | Every index |
-| Exchange between machines | A second machine pulls an encrypted copy without reading it (**built**) | Machines that are images exchange the readable journals, live. The second machine stays as an option | Reuses the pairing, the code, the fingerprint and the seal check of the second machine |
+| The identity of each thing | The machine and the entry (**built**) | The same | Done for accounts, devices, channels, messages and sessions |
+| The order of a conversation | The time, with its one rule (**built**) | The same | Done for the conversation, the log and the search |
+| Picking up live | A position in each journal (**built**) | The same | Done for the conversation |
+| Indexes | Apply several, each in its own order, and an entry that arrives late takes its place (**built**) | The same | Done for every index |
+| Exchange between machines | Machines that are images follow each other's journals, live, each straight from the machine that wrote it (**built**). The second machine stays as an option | The same, with signed entries so a copy can be handed on | Reuses the pairing code, the fingerprint and the seal check of the second machine |
 | The device | Keeps nothing (**built**) | Keeps what is personal and an outbox | New code in the browser |
 | The network | Outside the software | Each machine is a point of the network | A new piece, the least proven |
 | Screens | One site | Four apps, see [four apps on one address](apps.md) | The screens split into four, on four paths |
@@ -130,7 +139,7 @@ It is a rework of the core that exists, plus one new piece, the network. Consens
 | An operator, the person with access to a machine | Cannot read what is personal | Reads the community layer and can see who talks to whom. That holds for the operator of each machine. A house that should only keep a copy runs a second machine |
 | Two people, one on each side of a split, each taking the other's machine off the list | The essential of both sides joins | In what is counted they become two communities, and people decide which one holds |
 | The browser deletes the device's data | The encrypted package on the machines | The person types the passphrase again |
-| A wrong clock on a machine | The rule on time and the warning to an administrator | Messages written during a split can appear out of order. Nothing is lost |
+| A wrong clock on a machine | The rule on time and the warning to an administrator | Messages written during a split can appear out of order. Nothing is lost. A clock far ahead carries the times of every machine with it, because none writes earlier than what it has seen, until the warning exists |
 | Deleted text on a machine or device that was away for a long time | A machine deletes before it serves any screen | The text stays there until that machine or device returns |
 | More machines on | Nothing | More energy. How many stay on is the community's decision |
 

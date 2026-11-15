@@ -53,7 +53,7 @@ func TestAMessageCannotWriteToTheLiveStream(t *testing.T) {
 			t.Fatalf("an unknown field %q reached the page:\n%q", name, got)
 		}
 	}
-	if len(ids) != 1 || ids[0] != "5" || len(events) != 1 || events[0] != "posted" {
+	if len(ids) != 1 || ids[0] != "0.5" || len(events) != 1 || events[0] != "posted" {
 		t.Fatalf("the page read the ids %v and the events %v, want the entry 5 and one new message:\n%q", ids, events, got)
 	}
 }

@@ -40,7 +40,7 @@ seal = SHA-256("<number>\t<seal of the previous entry>\t<digest>")
 
 Because the seal covers the digest and not the content, a content can be erased without breaking the chain. An erased entry keeps its number, its seals and its digest, and its content becomes a single `-`.
 
-The number of an entry is also its identity. A message, an account or a proposal is known by the number of the entry that created it.
+The number of an entry, together with the number of the machine whose journal it is, is the identity of what it created: a message, an account or a proposal is known by the id of the entry that created it. On the machine that founded the community, the id is the entry number. Ids are explained in [the core](core.md#ids).
 
 The format can be checked with ordinary tools. This prints the seal of the first entry of a journal:
 

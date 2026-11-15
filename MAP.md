@@ -30,6 +30,7 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/erasure`](core/erasure) | The night's work that takes deleted content out of the journal for good |
 | [`core/durable`](core/durable) | Writing a small file so that it is whole or not there after a power cut |
 | [`core/replica`](core/replica) | The second machine: pairing, the token, and pulling the encrypted copy over HTTPS |
+| [`core/machines`](core/machines) | The other machines of the community: joining, following each other's journals, and sending what is counted to the machine that counts |
 | [`core/copies`](core/copies) | Encrypted copies of the journal and the secrets, and the way back from one |
 | [`core/search`](core/search) | How text becomes search terms, in Portuguese |
 | [`core/page`](core/page) | The layout and the base style that every screen is drawn in |
@@ -53,7 +54,9 @@ The server keeps everything under one data folder:
 | --- | --- | --- |
 | `journal/` | The segments of the journal | It comes back from a copy. Nothing else can rebuild it |
 | `indexes/` | One SQLite file per area | Deleted and rebuilt from the journal |
-| `secrets/` | The key that signs the session cookies, the certificate chain and the copy key | Everyone signs in again, and every device installs a new certificate. The copy key comes back from the paper it was written on |
+| `secrets/` | The key that signs the session cookies, the certificate chain and the copy key, and on a machine that has joined or invited another, its number and token in `machine.json` | Everyone signs in again, and every device installs a new certificate. The copy key comes back from the paper it was written on |
+| `journals/` | The copies of the other machines' journals, one folder per machine number | It comes back from the machine that wrote it |
+| `machines/` | The addresses of the other machines, and the invitation code while it is valid | The addresses are asked of the other machines again |
 
 ## How to add something
 
@@ -112,5 +115,15 @@ go run ./cmd/earthler -follow https://ADDRESS-OF-THE-MAIN-MACHINE -pair-code THE
 ```
 
 `-machines` lists the second machines that are paired, and `-unpair NUMBER` takes one away. To take over, turn the first machine off and restore the second machine's folder with the copy key, as above.
+
+To bring in another machine that serves the residents too, ask machine 0 for an invitation while it runs, join with it from an empty data folder, and start the new machine as usual. [How the machines live together](docs/design/machines.md) has the commands for two machines on one computer.
+
+```bash
+go run ./cmd/earthler -invite
+```
+
+```bash
+go run ./cmd/earthler -join https://ADDRESS-OF-MACHINE-0 -pair-code THE-CODE -fingerprint THE-FINGERPRINT -label "a name for it"
+```
 
 It is in early development and must not be used to run a real community.

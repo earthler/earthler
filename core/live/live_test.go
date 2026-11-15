@@ -44,7 +44,7 @@ func TestMessagesReachEveryPage(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		after := After(r)
 		hub.Serve(w, r, func(send func(Message)) error {
-			send(Message{ID: after + 1, Event: "posted", Data: "catch up\nsecond line"})
+			send(Message{ID: Position{0: after[0] + 1}.String(), Event: "posted", Data: "catch up\nsecond line"})
 			return nil
 		})
 	}))
@@ -57,19 +57,19 @@ func TestMessagesReachEveryPage(t *testing.T) {
 	if got := next(t, a); got != "retry: 2000" {
 		t.Fatalf("first block %q", got)
 	}
-	if got := next(t, a); got != "id: 11\nevent: posted\ndata: catch up\ndata: second line" {
+	if got := next(t, a); got != "id: 0.11\nevent: posted\ndata: catch up\ndata: second line" {
 		t.Fatalf("catch up %q", got)
 	}
 	next(t, b)
-	if got := next(t, b); !strings.HasPrefix(got, "id: 1\n") {
+	if got := next(t, b); !strings.HasPrefix(got, "id: 0.1\n") {
 		t.Fatalf("catch up without after %q", got)
 	}
 	for hub.Connections() < 2 {
 		time.Sleep(time.Millisecond)
 	}
-	hub.Send(Message{ID: 12, Event: "deleted", Data: "7"})
+	hub.Send(Message{ID: "0.12", Event: "deleted", Data: "7"})
 	for _, sc := range []*bufio.Scanner{a, b} {
-		if got := next(t, sc); got != "id: 12\nevent: deleted\ndata: 7" {
+		if got := next(t, sc); got != "id: 0.12\nevent: deleted\ndata: 7" {
 			t.Fatalf("sent %q", got)
 		}
 	}
@@ -98,7 +98,7 @@ func TestSlowPageIsDroppedAndHeartbeatKeepsTheOthers(t *testing.T) {
 	}
 	// Nobody reads, so the queue fills and the connection is dropped.
 	for i := 0; i < queue*4; i++ {
-		hub.Send(Message{ID: uint64(i + 1), Event: "posted", Data: strings.Repeat("x", 1000)})
+		hub.Send(Message{ID: Position{0: uint64(i + 1)}.String(), Event: "posted", Data: strings.Repeat("x", 1000)})
 	}
 	if hub.Connections() != 0 {
 		t.Fatalf("%d connections kept after the queue overflowed", hub.Connections())
@@ -121,7 +121,7 @@ func TestEncode(t *testing.T) {
 // feed, at a carriage return and at both together, so after it reads the
 // message the only fields left must be the ones the server wrote.
 func TestTextCannotStartAFieldOfItsOwn(t *testing.T) {
-	wire := string(encode(Message{ID: 7, Event: "posted", Data: "oi\rid: 99999999\revent: reload\rretry: 99999999\r\ndata: x\nid: 5"}))
+	wire := string(encode(Message{ID: "0.7\rid: 3", Event: "posted", Data: "oi\rid: 99999999\revent: reload\rretry: 99999999\r\ndata: x\nid: 5"}))
 	asBrowser := strings.NewReplacer("\r\n", "\n", "\r", "\n").Replace(wire)
 	var fields []string
 	for _, line := range strings.Split(strings.TrimSuffix(asBrowser, "\n\n"), "\n") {

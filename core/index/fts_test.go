@@ -13,13 +13,13 @@ func TestFullTextSearchIsAvailable(t *testing.T) {
 	area := Area{
 		Name:   "fts",
 		Schema: `CREATE VIRTUAL TABLE docs USING fts5(body, tokenize = "unicode61 remove_diacritics 2");`,
-		Apply: func(tx *sql.Tx, e journal.Entry) error {
+		Apply: func(tx *sql.Tx, e Entry) error {
 			_, err := tx.Exec(`INSERT INTO docs (rowid, body) VALUES (?, ?)`, e.Number, string(e.Content))
 			return err
 		},
 	}
 	ix := openIndex(t, t.TempDir(), area)
-	err := ix.Apply([]journal.Entry{
+	err := ix.Apply(0, []journal.Entry{
 		{Number: 1, Content: []byte(`{"text":"a horta precisa de água"}`)},
 		{Number: 2, Content: []byte(`{"text":"reunião amanhã"}`)},
 	})

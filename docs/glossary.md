@@ -21,7 +21,8 @@ The words the code uses. A word listed here means one thing everywhere: in packa
 | Word | Meaning |
 | --- | --- |
 | Journal | The append-only record of everything that happened. The single source of truth |
-| Entry | One line of the journal. Its number is the identity of what it created |
+| Entry | One line of a journal. With the number of its machine, its number makes the id of what it created |
+| Id | How a thing is known on every machine: machine × 1,000,000,000,000 + entry number. On the machine that founded the community, it is the entry number. See [the core](design/core.md#ids) |
 | Segment | One file of the journal |
 | Digest | The SHA-256 of the content of an entry |
 | Seal | What ties an entry to the previous one, so a change in the past shows |
@@ -33,6 +34,8 @@ The words the code uses. A word listed here means one thing everywhere: in packa
 | Copy | An encrypted copy of the journal and the secrets, kept somewhere else. Only the copy key opens it |
 | Second machine | The same program in a mode that opens no screens and keeps an up to date encrypted copy. It never holds the copy key. See [the second machine](design/replica.md) |
 | Pairing code | A code that works once, for ten minutes, and trades for the token a second machine pulls with |
+| Invitation code | A pairing code that brings in a machine that is an image of the others: it trades for a machine number, a token and the community's secrets. See [how the machines live together](design/machines.md) |
+| Machine that counts | The machine that alone decides what can have only one owner or one result, such as a name or a role. Today it is machine 0, the one that founded the community |
 | Copy key | The key that encrypts the copies, made when the community is born and written down on paper |
 | Deletion | An entry that takes a message out of its channel. The text leaves the indexes at once |
 | Erasure | The night's work that replaces deleted content in the journal with the erased mark |

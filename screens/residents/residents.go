@@ -117,6 +117,8 @@ func (s *Screen) changeRole(w http.ResponseWriter, r *http.Request) {
 		s.show(w, r, http.StatusBadRequest, "residents.error.role")
 	case errors.Is(err, accounts.ErrLastAdministrator):
 		s.show(w, r, http.StatusConflict, "residents.error.last")
+	case errors.Is(err, accounts.ErrNotNow):
+		s.show(w, r, http.StatusServiceUnavailable, "residents.error.notnow")
 	case errors.Is(err, scribe.ErrStopped):
 		s.show(w, r, http.StatusServiceUnavailable, "error.stopped")
 	default:

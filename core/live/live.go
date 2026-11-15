@@ -1,12 +1,11 @@
 // Package live delivers what just happened to the pages that are open, over
 // Server-Sent Events. A page keeps one connection, and the browser opens it
-// again by itself after a dropped Wi-Fi, saying the number of the last entry
-// it saw, so nothing is missed and nothing is shown twice.
+// again by itself after a dropped Wi-Fi, saying how far it had seen (see
+// Position), so nothing is missed and nothing is shown twice.
 package live
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -14,7 +13,7 @@ import (
 
 // Message is one event sent to the pages.
 type Message struct {
-	ID    uint64 // the entry number the browser sends back when it reconnects; zero for none
+	ID    string // what the browser sends back when it reconnects, a Position; empty for none
 	Event string // the name the page listens for
 	Data  string // the payload; it may span lines
 }
@@ -95,18 +94,6 @@ func (h *Hub) unsubscribe(s *subscriber) {
 	h.mu.Unlock()
 }
 
-// After reads the number of the last entry the browser saw: the one it sends
-// on its own when it reconnects, or the one the page put in the address when
-// it opened the connection.
-func After(r *http.Request) uint64 {
-	text := r.Header.Get("Last-Event-ID")
-	if text == "" {
-		text = r.URL.Query().Get("after")
-	}
-	n, _ := strconv.ParseUint(text, 10, 64)
-	return n
-}
-
 // Serve streams messages to one page until the page leaves or falls too far
 // behind. catchUp runs once, when the connection already receives new
 // messages, so nothing written in between can be missed: it sends, through
@@ -164,14 +151,22 @@ func (h *Hub) Serve(w http.ResponseWriter, r *http.Request, catchUp func(send fu
 
 var lineEnds = strings.NewReplacer("\r\n", "\n", "\r", "\n")
 
+// noLineEnd drops line ends, and the null a browser refuses in an id.
+func noLineEnd(r rune) rune {
+	if r == '\n' || r == '\r' || r == 0 {
+		return -1
+	}
+	return r
+}
+
 // encode writes a message in the wire format: one field per line and an
 // empty line at the end. Data that spans lines becomes one data line per
 // line, and the browser joins them again.
 func encode(m Message) []byte {
 	var b strings.Builder
-	if m.ID > 0 {
+	if id := strings.Map(noLineEnd, m.ID); id != "" {
 		b.WriteString("id: ")
-		b.WriteString(strconv.FormatUint(m.ID, 10))
+		b.WriteString(id)
 		b.WriteByte('\n')
 	}
 	if m.Event != "" {

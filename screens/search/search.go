@@ -14,7 +14,6 @@ import (
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/event"
 	"github.com/earthler/earthler/core/index"
-	"github.com/earthler/earthler/core/journal"
 	"github.com/earthler/earthler/core/page"
 	terms "github.com/earthler/earthler/core/search"
 )
@@ -23,7 +22,9 @@ import (
 var files embed.FS
 
 // Area is the search index. The terms table holds each text already reduced
-// to its search terms, and docs holds what is shown in the results. Nothing
+// to its search terms, and docs holds what is shown in the results. gone
+// remembers what was deleted, because a deletion written on one machine can
+// arrive before the message it deletes, which was written on another. Nothing
 // personal ever enters this index.
 var Area = index.Area{
 	Name: "search",
@@ -33,11 +34,12 @@ var Area = index.Area{
 		CREATE TABLE docs (
 			number INTEGER PRIMARY KEY, kind TEXT NOT NULL, account INTEGER NOT NULL,
 			time INTEGER NOT NULL, text TEXT NOT NULL);
-		CREATE TABLE authors (account INTEGER PRIMARY KEY, name TEXT NOT NULL);`,
+		CREATE TABLE authors (account INTEGER PRIMARY KEY, name TEXT NOT NULL);
+		CREATE TABLE gone (number INTEGER PRIMARY KEY);`,
 	Apply: apply,
 }
 
-func apply(tx *sql.Tx, entry journal.Entry) error {
+func apply(tx *sql.Tx, entry index.Entry) error {
 	e, err := event.Decode(entry.Content)
 	if err != nil {
 		return nil
@@ -48,21 +50,28 @@ func apply(tx *sql.Tx, entry journal.Entry) error {
 		if e.Read(&d) != nil {
 			return nil
 		}
-		_, err = tx.Exec(`INSERT INTO authors (account, name) VALUES (?, ?)`, entry.Number, d.Name)
+		_, err = tx.Exec(`INSERT OR IGNORE INTO authors (account, name) VALUES (?, ?)`, entry.ID, d.Name)
 	case event.MessageCreated:
 		var d event.MessageCreatedData
 		if e.Read(&d) != nil {
 			return nil
 		}
-		if _, err = tx.Exec(`INSERT INTO docs (number, kind, account, time, text) VALUES (?, 'chat', ?, ?, ?)`,
-			entry.Number, e.Account, e.Time, d.Text); err != nil {
+		var gone int
+		if err = tx.QueryRow(`SELECT count(*) FROM gone WHERE number = ?`, entry.ID).Scan(&gone); err != nil || gone > 0 {
 			return err
 		}
-		_, err = tx.Exec(`INSERT INTO terms (rowid, body) VALUES (?, ?)`, entry.Number, strings.Join(terms.Terms(d.Text), " "))
+		if _, err = tx.Exec(`INSERT INTO docs (number, kind, account, time, text) VALUES (?, 'chat', ?, ?, ?)`,
+			entry.ID, e.Account, e.Time, d.Text); err != nil {
+			return err
+		}
+		_, err = tx.Exec(`INSERT INTO terms (rowid, body) VALUES (?, ?)`, entry.ID, strings.Join(terms.Terms(d.Text), " "))
 	case event.MessageDeleted:
 		var d event.MessageDeletedData
 		if e.Read(&d) != nil {
 			return nil
+		}
+		if _, err = tx.Exec(`INSERT OR IGNORE INTO gone (number) VALUES (?)`, d.Message); err != nil {
+			return err
 		}
 		if _, err = tx.Exec(`DELETE FROM docs WHERE number = ?`, d.Message); err != nil {
 			return err

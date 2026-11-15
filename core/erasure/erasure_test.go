@@ -20,7 +20,7 @@ import (
 var texts = index.Area{
 	Name:   "texts",
 	Schema: `CREATE TABLE texts (number INTEGER PRIMARY KEY, text TEXT NOT NULL);`,
-	Apply: func(tx *sql.Tx, entry journal.Entry) error {
+	Apply: func(tx *sql.Tx, entry index.Entry) error {
 		e, err := event.Decode(entry.Content)
 		if err != nil || e.Type != event.MessageCreated {
 			return nil
@@ -42,7 +42,7 @@ func TestDeletedEntriesAreErasedOnceAndStayErased(t *testing.T) {
 	}
 	defer j.Close()
 	open := func() (*index.Index, *index.Index, *scribe.Scribe) {
-		pending, err := index.Open(filepath.Join(root, "indexes"), Area)
+		pending, err := index.Open(filepath.Join(root, "indexes"), Area(0))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -74,10 +74,10 @@ func TestDeletedEntriesAreErasedOnceAndStayErased(t *testing.T) {
 	second := write(event.MessageCreated, event.MessageCreatedData{Channel: 1, Text: "some"})
 	write(event.MessageDeleted, event.MessageDeletedData{Channel: 1, Message: second})
 
-	if n, err := Run(ctx, j, pending, s, now); err != nil || n != 1 {
+	if n, err := Run(ctx, only(j), pending, s, now); err != nil || n != 1 {
 		t.Fatalf("run: %d, %v", n, err)
 	}
-	if n, err := Run(ctx, j, pending, s, now); err != nil || n != 0 {
+	if n, err := Run(ctx, only(j), pending, s, now); err != nil || n != 0 {
 		t.Fatalf("second run: %d, %v", n, err)
 	}
 	var count int
@@ -153,7 +153,7 @@ func TestEverythingPendingIsErasedInOneRun(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer j.Close()
-	pending, err := index.Open(filepath.Join(root, "indexes"), Area)
+	pending, err := index.Open(filepath.Join(root, "indexes"), Area(0))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestEverythingPendingIsErasedInOneRun(t *testing.T) {
 		}
 	}
 
-	if n, err := Run(ctx, j, pending, s, now); err != nil || n != messages {
+	if n, err := Run(ctx, only(j), pending, s, now); err != nil || n != messages {
 		t.Fatalf("one run erased %d of %d, %v", n, messages, err)
 	}
 	var left int
@@ -198,4 +198,8 @@ func TestEverythingPendingIsErasedInOneRun(t *testing.T) {
 	if err := j.Verify(); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func only(j *journal.Journal) map[uint64]*journal.Journal {
+	return map[uint64]*journal.Journal{0: j}
 }
