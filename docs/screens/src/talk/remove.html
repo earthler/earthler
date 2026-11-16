@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: remover uma mensagem, com motivo</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar às conversas"><i data-icon="back"></i></a>
+    <div class="tx">
+      <h1>Horta coletiva</h1>
+      <p class="sub">Canal aberto, toda a comunidade lê</p>
+    </div>
+    <a class="icon-btn" href="#" aria-label="Sobre o canal"><i data-icon="more"></i></a>
+  </header>
+
+  <div class="thread" aria-hidden="true">
+    <span class="day">Hoje</span>
+    <div class="bubble">
+      <span class="who">Rita</span>
+      Bom dia! A horta está aberta desde as 7h.
+      <span class="h">7h40</span>
+    </div>
+    <div class="bubble me">
+      Chego às 9h com as mudas.
+      <span class="h">7h52</span>
+    </div>
+    <div class="bubble">
+      <span class="who">Joel</span>
+      Alguém tem semente de abóbora para trocar?
+      <span class="h">8h02</span>
+    </div>
+    <div class="bubble">
+      <span class="who">Caio</span>
+      Joel é um mentiroso, ninguém confie nele.
+      <span class="h">8h10</span>
+    </div>
+  </div>
+
+  <div class="compose" aria-hidden="true">
+    <span class="round soft"><i data-icon="plus"></i></span>
+    <span class="input"><span class="ph">Mensagem</span></span>
+    <span class="round"><i data-icon="mic"></i></span>
+  </div>
+
+  <div class="veil"></div>
+  <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" action="#">
+    <h2 id="sheet-title">Remover a mensagem de Caio</h2>
+    <p style="padding:10px 14px;border-radius:16px;background:var(--surface-2);font-size:15px;line-height:1.35">Joel é um mentiroso, ninguém confie nele.</p>
+    <div class="field">
+      <label for="reason">Motivo</label>
+      <div class="input area" id="reason" role="textbox" aria-multiline="true">Ataque pessoal a outro morador, contra a carta da comunidade.</div>
+      <p class="hint">Até 200 letras. O motivo fica no Registro, que qualquer morador pode ler, junto com o seu nome.</p>
+    </div>
+    <button class="btn danger block" type="submit">Remover a mensagem</button>
+    <button class="btn ghost block" type="button" style="min-height:44px">Cancelar</button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

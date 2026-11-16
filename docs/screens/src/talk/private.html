@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: conversa cifrada entre duas pessoas</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar às conversas"><i data-icon="back"></i></a>
+    <div class="tx">
+      <h1>Marta</h1>
+      <p class="sub"><i data-icon="lock" class="s"></i>Só vocês podem ler</p>
+    </div>
+    <a class="icon-btn on" href="#" aria-label="Ligar para Marta"><i data-icon="phone"></i></a>
+    <a class="icon-btn on" href="#" aria-label="Chamada de vídeo com Marta"><i data-icon="video"></i></a>
+  </header>
+
+  <div style="padding:12px 14px 0">
+    <div class="notice card" role="status" style="flex-direction:row;align-items:flex-start">
+      <i data-icon="offline"></i>
+      <span><strong>Sem ligação com a comunidade.</strong> Você lê o que já está aqui. O que escrever sai sozinho quando a ligação voltar.</span>
+    </div>
+  </div>
+
+  <div class="thread" aria-label="Mensagens">
+    <span class="day">Hoje</span>
+
+    <div class="bubble">
+      A bomba do poço voltou a falhar hoje de manhã.
+      <span class="h">8h12</span>
+    </div>
+
+    <div class="bubble me">
+      <span style="display:block;margin-bottom:6px;padding:6px 10px;border-radius:12px;background:var(--surface);font-size:14px;color:var(--muted)"><strong style="color:var(--text)">Marta</strong><br>A bomba do poço voltou a falhar hoje de manhã.</span>
+      Vou marcar no mapa e levar para o conselho.
+      <span class="h">8h15, editada</span>
+    </div>
+
+    <div class="bubble">
+      Achei a peça no galpão. Levo à tarde.
+      <span class="h">8h20 <span class="mark-late">Chegou depois</span></span>
+    </div>
+
+    <div class="bubble me">
+      Pode deixar que eu aviso o conselho.
+      <span class="h"><span class="mark-wait" style="background:var(--sun);color:var(--on-sun)"><i data-icon="clock" class="s" style="width:14px;height:14px"></i>Ainda não enviada</span></span>
+    </div>
+  </div>
+
+  <form class="compose" action="#">
+    <a class="round soft" href="#" role="button" aria-label="Anexar foto ou arquivo"><i data-icon="plus"></i></a>
+    <label class="input" aria-label="Mensagem"><span class="ph">Mensagem</span></label>
+    <button class="round" type="button" aria-label="Gravar mensagem de voz" style="border:0;padding:0"><i data-icon="mic"></i></button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

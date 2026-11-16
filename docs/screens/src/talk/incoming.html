@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: chamada chegando</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk" role="alertdialog" aria-labelledby="caller" style="background:var(--talk-cover);color:var(--talk-ink);--gap:var(--talk-cover);--leaf2:var(--talk-ink)">
+  <div aria-hidden="true" style="position:absolute;right:-44px;top:34px;width:200px;height:200px"><span data-glyph="talk"></span></div>
+
+  <div style="position:relative;padding:22px 20px 0;font-size:15px;font-weight:700">Talk</div>
+
+  <div style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:0 24px;text-align:center">
+    <span class="avatar" style="width:112px;height:112px;border-radius:56px;font-size:44px;background:var(--talk-ink);color:var(--talk-cover)">M</span>
+    <h1 id="caller" style="margin-top:14px;font-size:34px;font-weight:800">Marta</h1>
+    <p style="font-size:18px;color:var(--talk-sub)">Chamada de vídeo</p>
+    <p style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--talk-sub)"><i data-icon="lock" class="s"></i>Cifrada entre os aparelhos</p>
+  </div>
+
+  <div style="position:relative;display:flex;justify-content:space-around;align-items:flex-start;padding:0 20px 18px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:15px;font-weight:600">
+      <button class="round" type="button" aria-label="Recusar a chamada" style="width:72px;height:72px;border-radius:36px;border:0;padding:0;background:var(--talk-ink);color:var(--on-sun)"><i data-icon="close"></i></button>
+      Recusar
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:15px;font-weight:600">
+      <button class="round" type="button" aria-label="Atender só com som" style="width:72px;height:72px;border-radius:36px;border:0;padding:0;background:var(--veil);color:var(--talk-ink)"><i data-icon="phone"></i></button>
+      Só com som
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:15px;font-weight:600">
+      <button class="round" type="button" aria-label="Atender com vídeo" style="width:72px;height:72px;border-radius:36px;border:0;padding:0;background:var(--sun);color:var(--on-sun)"><i data-icon="video"></i></button>
+      Atender
+    </div>
+  </div>
+
+  <a href="#" style="position:relative;align-self:center;min-height:44px;display:flex;align-items:center;margin-bottom:26px;font-size:15px;color:var(--talk-sub);text-decoration:underline">Responder com uma mensagem</a>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

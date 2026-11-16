@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: a frase, uma vez, no ícone do iPhone</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="cover">
+    <span data-glyph="talk"></span>
+    <div class="head">
+      <span class="name">Talk</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>Conversas</h1>
+      <p>3 canais abertos</p>
+    </div>
+  </header>
+
+  <div class="content">
+    <section class="list">
+      <h2 class="label">Canais abertos da comunidade</h2>
+      <a class="row" href="#"><span class="avatar sq">HC</span><span class="tx"><span class="a">Horta coletiva</span><span class="b">Ana: As mudas de couve chegaram</span></span><span class="meta">9h40</span></a>
+      <a class="row" href="#"><span class="avatar sq">G</span><span class="tx"><span class="a">Geral</span><span class="b">Rita: Alguém empresta uma escada?</span></span><span class="meta">seg</span></a>
+    </section>
+
+    <form class="card" action="#" style="gap:12px">
+      <h2 class="label" style="display:flex;align-items:center;gap:6px"><i data-icon="lock" class="s"></i>Só entre vocês, cifradas</h2>
+      <p style="font-size:18px;font-weight:700;line-height:1.3">Neste ícone, as suas conversas ainda estão fechadas</p>
+      <p class="small" style="font-size:15px">Digite a sua frase uma vez. Depois o Talk abre direto.</p>
+      <div class="field">
+        <label for="phrase">Frase secreta, as 7 palavras</label>
+        <div class="input" id="phrase" role="textbox"><span class="ph">abacate janela tijolo…</span></div>
+        <p class="hint">Sua frase não sai deste aparelho.</p>
+      </div>
+      <button class="btn block" type="submit">Abrir as minhas conversas</button>
+    </form>
+  </div>
+
+  <nav class="bar" aria-label="Talk">
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="talk"></i></span>Conversas</a>
+    <a href="#"><span class="pad"><i data-icon="phone"></i></span>Chamadas</a>
+    <a href="#"><span class="pad"><i data-icon="bell"></i></span>Avisos</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
