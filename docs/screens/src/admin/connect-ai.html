@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Zelador: conectar uma IA</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar às IAs conectadas"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Conectar uma IA</h1><p class="sub">Cada acesso tem um perfil só</p></div>
+  </header>
+
+  <form class="content" onsubmit="return false">
+    <div class="field">
+      <label for="n">Nome, para aparecer no Registro</label>
+      <div class="input" id="n">Ajudante do Joel</div>
+    </div>
+
+    <fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+      <legend class="label" style="padding:0 0 6px">O que ela vai fazer</legend>
+      <label class="card" style="flex-direction:row;gap:12px;padding:14px;box-shadow:inset 0 0 0 2px var(--primary)"><span style="width:22px;height:22px;margin-top:1px;border-radius:11px;background:var(--primary);box-shadow:inset 0 0 0 5px var(--surface),inset 0 0 0 7px var(--primary);flex:none"></span><span class="tx"><span class="a">Sustentação</span><span class="b wrap">Vê a máquina, o registro técnico e o código. Propõe correções. Não lê nada da comunidade.</span></span></label>
+      <label class="card" style="flex-direction:row;gap:12px;padding:14px"><span style="width:22px;height:22px;margin-top:1px;border-radius:11px;box-shadow:inset 0 0 0 2px var(--border);flex:none"></span><span class="tx"><span class="a">Conhecimento</span><span class="b wrap">Lê o acervo, o wiki e o que falta. Propõe rascunhos no wiki. Não toca a máquina.</span></span></label>
+    </fieldset>
+
+    <fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+      <legend class="label" style="padding:0 0 6px">Onde ela roda</legend>
+      <label class="card" style="flex-direction:row;gap:12px;padding:14px;box-shadow:inset 0 0 0 2px var(--primary)"><span style="width:22px;height:22px;margin-top:1px;border-radius:11px;background:var(--primary);box-shadow:inset 0 0 0 5px var(--surface),inset 0 0 0 7px var(--primary);flex:none"></span><span class="tx"><span class="a">Num computador da comunidade</span><span class="b wrap">O que ela lê fica aqui dentro.</span></span></label>
+      <label class="card" style="flex-direction:row;gap:12px;padding:14px;color:var(--muted)"><span style="width:22px;height:22px;margin-top:1px;border-radius:11px;box-shadow:inset 0 0 0 2px var(--track);flex:none"></span><span class="tx"><span class="a">Na nuvem</span><span class="b wrap">Fechado: a porta IA da nuvem não libera registros técnicos.</span></span></label>
+    </fieldset>
+
+    <div style="display:flex;gap:8px">
+      <div class="field" style="flex:1"><label for="w">Por onde entra</label><div class="input" id="w" style="justify-content:space-between;font-size:16px">Rede local<i data-icon="down" class="s"></i></div></div>
+      <div class="field" style="flex:1"><label for="v">Vale por</label><div class="input" id="v" style="justify-content:space-between;font-size:16px">30 dias<i data-icon="down" class="s"></i></div></div>
+    </div>
+
+    <button class="btn block">Pedir aprovação</button>
+    <p class="hint" style="text-align:center">A carta pede duas pessoas. Cada uma confirma no próprio aparelho.</p>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

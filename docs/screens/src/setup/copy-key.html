@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Configuração: a chave de cópia, para escrever no papel</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header style="display:flex;align-items:center;gap:12px;padding:18px 20px 0">
+    <img data-mark alt="" style="width:34px;height:28px;object-fit:contain">
+    <span class="progress" style="flex:1" role="progressbar" aria-label="Configuração" aria-valuemin="1" aria-valuemax="15" aria-valuenow="10"><span style="width:67%"></span></span>
+    <span class="small" style="font-weight:600;white-space:nowrap">10 de 15</span>
+  </header>
+
+  <div class="content" style="padding:18px 20px 20px;gap:14px">
+    <p class="label">Cópias</p>
+    <h1 class="big-title">Escreva a chave de cópia num papel</h1>
+
+    <section class="list">
+      <div class="row">
+        <span class="avatar sq"><i data-icon="download" class="s"></i></span>
+        <span class="tx"><span class="a">Disco externo</span><span class="b wrap">Cópia cifrada, toda noite</span></span>
+        <button class="btn soft small" type="button">Trocar</button>
+      </div>
+    </section>
+
+    <section class="card ring" aria-labelledby="key">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <h2 class="label" id="key">Chave de cópia</h2>
+        <span class="chip sun">Só aparece agora</span>
+      </div>
+      <p style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 10px;font-size:22px;font-weight:700;letter-spacing:.06em;font-variant-numeric:tabular-nums">
+        <span>KQ7M</span><span>3XRA</span><span>P2VD</span>
+        <span>HN6C</span><span>WT4E</span><span>JB5L</span>
+        <span>ZR2Q</span><span>MF7K</span><span>UX3S</span>
+        <span>DA6G</span><span>YC4N</span><span>PH5T</span>
+        <span>RW2A</span>
+      </p>
+      <p class="small">Sem esta chave nenhuma cópia abre, nem nesta máquina nem em outra. Guarde o papel longe da máquina.</p>
+    </section>
+
+    <p class="hint">A chave não tem zero nem um. Se você escrever 0 no lugar de O, ou 1 no lugar de I, ela abre igual.</p>
+
+    <div style="margin-top:auto;display:flex;gap:10px">
+      <button class="btn soft" type="button" style="flex:0 0 38%">Voltar</button>
+      <button class="btn" type="button" style="flex:1">Já escrevi</button>
+    </div>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

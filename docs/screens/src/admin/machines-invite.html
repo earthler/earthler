@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Administração: convidar uma máquina</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar à administração"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Máquinas</h1><p class="sub">3 máquinas, 2 na lista</p></div>
+  </header>
+  <div class="content" aria-hidden="true">
+    <section class="list">
+      <div class="row"><span class="avatar sq"><i data-icon="server" class="s"></i></span><span class="tx"><span class="a">Escola</span><span class="b">Vista agora</span></span></div>
+      <div class="row"><span class="avatar sq"><i data-icon="server" class="s"></i></span><span class="tx"><span class="a">Galpão</span><span class="b">Vista agora</span></span></div>
+    </section>
+  </div>
+
+  <div class="veil"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="t">
+    <div style="display:flex;align-items:center;gap:8px">
+      <h2 id="t" style="flex:1">Convidar uma máquina</h2>
+      <button class="icon-btn" aria-label="Fechar" style="border:0;background:none"><i data-icon="close"></i></button>
+    </div>
+    <p class="lead" style="font-size:15px">Leve o código e a impressão digital ao computador novo. O código serve uma vez só.</p>
+
+    <div class="field">
+      <label for="name">Nome da máquina, para o Registro</label>
+      <div class="input" id="name">Casa da Rita</div>
+    </div>
+
+    <div class="card soft" style="gap:4px">
+      <span class="label" style="color:inherit">Código</span>
+      <span style="font:700 26px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.06em">K7QM 2ZPW 9XLT</span>
+      <span class="small" style="color:inherit"><i data-icon="clock" class="s" style="vertical-align:-3px"></i> Vale até 14h32, daqui a 10 minutos</span>
+    </div>
+
+    <div class="field">
+      <span class="label">Impressão digital da comunidade</span>
+      <span style="font:600 17px/1.45 ui-monospace,Menlo,monospace;letter-spacing:.04em">5C2E 91A7 0B44 F31D<br>88C0 2A6E D917 4B05</span>
+      <span class="hint">O computador novo só confia na comunidade se ela for igual.</span>
+    </div>
+
+    <button class="btn block soft">Gerar outro código</button>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
