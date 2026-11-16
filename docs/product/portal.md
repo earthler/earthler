@@ -169,7 +169,6 @@ The person taps "Adicionar" on the portal, chooses an app, and lands on that app
 
 ## Not decided
 
-- The end of the community's address. The maintainer wrote `minhacomunidade.earthler`, and the screens are drawn the same way, with `vilaaurora.earthler`; today the community certificate only covers names that end in `.internal`. See [principles](principles.md#not-decided).
 - Whether the names under the tiles stay Talk, Learn, Decide, Ask and Maps.
 - Whether the filters of the search carry the names of the apps or the names of what they hold, as drawn.
 - Which answers of the Mentor the search finds: only the ones the person asked, which Ask keeps on their device, or answers shared with the community.

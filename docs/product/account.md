@@ -542,4 +542,3 @@ The person lost the passphrase. On a new device, they ask for help with their ni
 - How the file taken when leaving is opened outside Earthler.
 - Whether the sealed package of the vault travels in the journal or beside it.
 - How the sign in screen names the password of a child, and whether a child changes their own name, photo and devices or the guardian does.
-- The end of the community's address, which the certificate pages name: see [principles](principles.md#not-decided).

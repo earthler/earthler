@@ -204,7 +204,7 @@ func (c *Chain) Issue(now time.Time, ips []net.IP) (*tls.Certificate, error) {
 	return &tls.Certificate{Certificate: [][]byte{der, c.issuer.Raw}, PrivateKey: key, Leaf: leaf}, nil
 }
 
-// Domain is the name the chain was created for, such as vila.internal.
+// Domain is the name the chain was created for, such as vila.earthler.
 func (c *Chain) Domain() string { return c.domain }
 
 // Root is the certificate that devices install, in the DER form they expect.

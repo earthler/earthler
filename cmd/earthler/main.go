@@ -27,7 +27,7 @@ func main() {
 	var cfg config
 	flag.StringVar(&cfg.dataDir, "data", "earthler-data", "folder for the journal, the indexes and the secrets")
 	flag.StringVar(&cfg.community, "community", "Comunidade", "name of the community, used only when it is born")
-	flag.StringVar(&cfg.short, "name", "comunidade", "short name for the address <name>.internal, fixed when the community is born")
+	flag.StringVar(&cfg.short, "name", "comunidade", "short name for the address <name>.earthler, fixed when the community is born")
 	flag.StringVar(&cfg.lang, "lang", "pt-BR", "language of the screens")
 	plain := flag.String("http", ":80", "address of the welcome page")
 	secure := flag.String("https", ":443", "address of the system")

@@ -7,6 +7,7 @@ Every screen of Earthler follows these rules. They come from the maintainer's de
 The maintainer put it as an essential rule, always: consistency of what people see. In practice:
 
 - **One address.** A community has one address, the same on every machine, printed on a poster with a QR code. A resident never chooses a machine and never sees a machine's name or number. Machines are a matter for the administrator's screens. **Proposed**; the machines behind it are in [many machines](../design/many-machines.md).
+- **The address ends in `.earthler`.** A community's address is its short name followed by `.earthler`, such as `vilaaurora.earthler`, and it never changes after the community is born, because every device has it written in the certificate it installed. The maintainer decided this on 2026-11-16. A new community's certificate is made for that name (**Built**); a community born before keeps the `.internal` it was born with. See [why `.earthler`](#why-earthler).
 - **The portal is the center.** The address opens the portal: the search of the whole community, the apps, and what is happening now. Earthler is the whole, and the apps are parts of it. The portal never becomes an icon. See [portal](portal.md).
 - **Five apps.** Talk, Learn, Decide, Ask and Maps each live on a path of their own, `/talk/`, `/learn/`, `/decide/`, `/ask/` and `/maps/`, each with its icon, its cover, its bar and its button to add it to the phone, with no app store. Maps joined the first four on 2026-11-15. See [apps on one address](../design/apps.md) and [Maps](maps.md).
 - **The same face.** The header, the bar at the bottom, the buttons, the cards, the type, the four notices and the button to add are the same in every app. What changes from one app to another is its cover and the shape of its home, made for what it does. See [visual identity](visual.md).
@@ -57,7 +58,12 @@ The screens speak the community's language, Brazilian Portuguese first, in plain
 
 Every screen exists in light and in dark mode, and follows the device's choice. Dark mode is the same palette turned around, described in [visual identity](visual.md). **Proposed**: the dark palette waits for the maintainer's visual approval.
 
+## Why `.earthler`
+
+Three endings were weighed. `.earth` already exists on the internet: it has been a public ending since 2015, so anyone could buy `vilaaurora.earth` and get a public certificate for it, and a phone outside the community's network, or one that asks the internet directly for names, would open a stranger's page, with a padlock, at the address the poster taught. `.internal` is reserved for private networks and will never exist on the internet, which is what the certificate used at first. `.earthler` does not exist on the internet today either, so outside the community's network the address simply does not open, and it reads as the community's own.
+
+Two facts come with it. `.earthler` is not reserved the way `.internal` is: nothing stops someone from asking for it as a public ending one day. And a browser may take a typed address with an ending it does not know for a search, so the poster and its QR code should carry the whole address, with `https://` (**Proposed**).
+
 ## Not decided
 
 - Whether the names under the icons stay Talk, Learn, Decide and Ask in a community that speaks Portuguese, or are translated.
-- The end of the community's address. The maintainer wrote "minhacomunidade.earthler". Today the community certificate is limited to names that end in `.internal`, a name reserved for private networks that will never exist on the internet; a name ending in `.earthler` works inside the community's network without that guarantee.

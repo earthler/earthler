@@ -88,7 +88,7 @@ Browsers only allow camera, microphone and offline use on HTTPS pages, and a pub
 - A root certificate that devices install once, valid for thirty years.
 - An issuer, signed by the root, that signs the server's certificates.
 
-Both are limited to the community's own name, such as `vila.internal`, and to private network addresses, and the issuer cannot create another issuer. The root key signs the issuer and is thrown away at once: it is never written to disk. Whoever steals the machine gets the issuer key, which can only sign for that community's name and for local addresses.
+Both are limited to the community's own name, such as `vila.earthler`, and to private network addresses, and the issuer cannot create another issuer. The root key signs the issuer and is thrown away at once: it is never written to disk. Whoever steals the machine gets the issuer key, which can only sign for that community's name and for local addresses.
 
 The server answers on two ports. Port 80 serves only the welcome pages and the certificate, and no resident data ever passes through it. Port 443 serves the system. The welcome pages show the first characters of the root's fingerprint, to compare with a printed poster, because a page that arrives without HTTPS could have been changed on the way.
 
