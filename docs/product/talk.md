@@ -6,7 +6,7 @@ Talking never waits. Writing, deleting one's own message, a moderator's removal,
 
 ## What is built today
 
-**Built**, at `/chat`, as a plain page of one site, before the four apps exist:
+**Built**, at `/chat`, as a plain page of one site, before the apps exist:
 
 - One open channel, "Geral", created together with the community. Every resident reads it.
 - Writing a message of up to 4,000 letters, as the event `message.created`. A child's account reads and does not write.
@@ -446,6 +446,8 @@ On an iPhone, each icon on the Home Screen is a separate app with storage of its
 
 **What the person sees.** The inner header "Novo aviso", with "Vai para todos da Vila Aurora". The field "O que todos precisam saber". "Categoria", with one choice among "Emergência", "Água", "Energia", "Saúde" and "Geral". A card "Tocar a sirene", "Só em emergência", with a switch. The line "Quem estiver com a Vila Aurora aberta vê o aviso em tela cheia. Seu nome vai junto." The button "Continuar".
 
+Since Maps, the form also asks where the alert is, "Onde é", with a piece of the map, its pin and its area, or "Sem lugar". An alert with a place shows on [Maps](maps.md#where-a-new-alert-is-in-talk) while it is in force, and each phone works out by itself how far away it is. **Proposed.**
+
 "Continuar" never sends. It opens a second step, a sheet titled "Confira antes de disparar": the alert as people will see it, with its category, and three lines that say what happens: "Aparece em tela cheia para quem está com a Vila Aurora aberta.", "A sirene toca assim que você disparar." and "Seu nome vai junto e fica no Registro. Depois de enviado, o aviso não volta." Then "Disparar o aviso agora", with the danger border because it cannot be undone, and "Voltar e mudar".
 
 **What they can do.** Write, choose the category, turn the siren on or off, check, and send, or go back and change.
@@ -460,13 +462,13 @@ On an iPhone, each icon on the Home Screen is a separate app with storage of its
 
 **Who may.** The charter of the community decides, at the setup, whether residents and moderators may send; administrators always may; a child never does. Sending an alert is an act with a power, so it goes to the Registro. **Proposed.**
 
-**Writes and reads.** Writes `alert.created`, with the text, the category, whether the siren was asked and the author. The siren module writes `siren.sounded` each time it sounds. **Proposed.**
+**Writes and reads.** Writes `alert.created`, with the text, the category, whether the siren was asked, the author, and the place and area when there is one. The siren module writes `siren.sounded` each time it sounds. **Proposed.**
 
 **Many machines.** It never waits: an alert goes out from any machine. With the community split in two, each side warns its own side, and the alert reaches the other when the machines meet. The siren sounds within reach of the machine that got the alert. **Proposed.**
 
 ### An emergency alert received
 
-**Path:** `/talk/alerts/<id>`, shown full screen over any page of the four apps and the portal. **Proposed.**
+**Path:** `/talk/alerts/<id>`, shown full screen over any page of every app and the portal. **Proposed.**
 
 | Light | Dark |
 | --- | --- |
@@ -596,7 +598,7 @@ Event types are a noun and a verb in the past, and a type once used is never rem
 | `protectedchat.created`, `protectedmessage.created` | A child's protected conversation and its messages, outside the personal encryption | **Proposed** |
 | `protectedchat.opened` | An administrator opened a protected conversation; the guardian sees it | **Proposed** |
 | `call.logged` | A call with a child: who, when and how long | **Proposed** |
-| `alert.created` | A general alert: text, category, siren, author | **Proposed** |
+| `alert.created` | A general alert: text, category, siren, author, and its place and area when there is one | **Proposed** |
 | `siren.sounded` | The siren sounded | **Proposed** |
 
 Talk also reads what other areas write: the accounts and their names, the roles, the public keys of each resident, and the guardian of each child with the adults authorized. A call and the invitation to it are never written, and neither is a meeting.

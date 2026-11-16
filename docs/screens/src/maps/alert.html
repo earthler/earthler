@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Maps: um aviso de emergência no mapa</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="maps">
+  <div class="map flat" data-map="40 190 390 460" data-alert data-me style="position:absolute;left:0;right:0;top:0;height:520px" role="img" aria-label="O lugar do fogo na mata, a área do aviso e onde você está">
+    <svg viewBox="40 190 390 460" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">
+      <path d="M196 470 C230 430 250 400 300 360" style="fill:none;stroke:var(--text);stroke-width:2;stroke-dasharray:2 5;stroke-linecap:round;opacity:.55"/>
+    </svg>
+    <span class="pin sun big" style="left:266px;top:96px;box-shadow:0 0 0 3px var(--surface),0 2px 8px var(--shadow)"><span><i data-icon="bell"></i></span></span>
+  </div>
+
+  <div class="float" style="left:12px;top:12px">
+    <a class="map-btn" href="#" aria-label="Voltar ao mapa"><i data-icon="back"></i></a>
+  </div>
+
+  <section class="sheet" aria-labelledby="al" style="gap:10px;padding-top:22px;box-shadow:0 -2px 12px var(--shadow)">
+    <span class="chip sun"><i data-icon="bell" class="s"></i>Aviso de emergência</span>
+    <h2 id="al" style="font-size:22px;font-weight:800;line-height:1.2">Fogo na mata perto da estrada do rio</h2>
+    <p style="font-size:16px;line-height:1.4">Saiam pela trilha da escola e esperem no campo de futebol. A brigada já está lá.</p>
+    <p class="small">Joel, da brigada, há 4 minutos</p>
+    <div class="row" style="border-top:1px solid var(--line);border-bottom:0;min-height:56px">
+      <span class="avatar sq"><i data-icon="locate" class="s"></i></span>
+      <span class="tx"><span class="a">Você está a 600 metros</span><span class="b wrap">Conta feita no seu aparelho. A sua posição não sai dele.</span></span>
+    </div>
+    <a class="btn block" href="#"><span class="tile xs talk" style="box-shadow:none"><span data-glyph="talk"></span></span>Abrir no Talk</a>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

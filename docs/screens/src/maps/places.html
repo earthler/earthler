@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Maps: lugares</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="maps">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 12px 0">
+    <span class="app-chip" style="box-shadow:none"><span data-glyph="maps"></span>Lugares</span>
+    <a class="community" href="#" style="padding:0 6px"><img data-mark alt="">Vila Aurora</a>
+  </div>
+
+  <div class="content" style="gap:12px">
+    <div class="search flat" role="search"><i data-icon="search"></i>Buscar um lugar</div>
+    <div style="display:flex;gap:8px;overflow:hidden" role="group" aria-label="Mostrar">
+      <span class="pill on" style="min-height:40px;flex:none">Tudo</span>
+      <span class="pill" style="min-height:40px;flex:none">Equipamentos</span>
+      <span class="pill" style="min-height:40px;flex:none">Plantios</span>
+      <span class="pill" style="min-height:40px;flex:none">Casas</span>
+    </div>
+
+    <section class="list">
+      <h2 class="label">Equipamentos, 11</h2>
+      <a class="row" href="#"><span class="avatar sq"><i data-icon="tool" class="s"></i></span><span class="tx"><span class="a">Bomba solar da caixa de cima</span><span class="b">Perto da escola</span></span><span class="chip sun">1 relato</span></a>
+      <a class="row" href="#"><span class="avatar sq"><i data-icon="tool" class="s"></i></span><span class="tx"><span class="a">Placa solar da escola</span><span class="b">No telhado da escola</span></span></a>
+      <h2 class="label">Plantios, 6</h2>
+      <a class="row" href="#"><span class="avatar sq"><i data-icon="sprout" class="s"></i></span><span class="tx"><span class="a">Horta coletiva</span><span class="b">Grupo da horta, 0,9 hectare</span></span></a>
+      <a class="row" href="#"><span class="avatar sq"><i data-icon="sprout" class="s"></i></span><span class="tx"><span class="a">Pomar da Rita</span><span class="b">Banana, laranja e abacate</span></span></a>
+      <h2 class="label">Casas, 14</h2>
+      <a class="row" href="#"><span class="avatar sq" style="background:var(--surface-2);color:var(--text)"><i data-icon="home" class="s"></i></span><span class="tx"><span class="a">Casa da Neide</span><span class="b">Marcada por Neide</span></span></a>
+      <a class="row" href="#"><span class="avatar sq" style="background:var(--surface-2);color:var(--text)"><i data-icon="home" class="s"></i></span><span class="tx"><span class="a">Casa do Joel</span><span class="b">Marcada por Joel</span></span></a>
+    </section>
+  </div>
+
+  <nav class="bar" aria-label="Maps">
+    <a href="#"><span class="pad"><i data-icon="pin"></i></span>Mapa</a>
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="list"></i></span>Lugares</a>
+    <a href="#"><span class="pad"><i data-icon="area"></i></span>Terras</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

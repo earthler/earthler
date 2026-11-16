@@ -1,6 +1,6 @@
 # What Earthler shows people
 
-This folder is the product: every screen a resident, a moderator or an administrator sees, what each one does and how it behaves, including with no link to the community and with many machines. It is what the code is built against. The maintainer approved the direction on 2026-11-15: a portal at the community's address, four apps with a face of their own, the same rules everywhere, and a dark mode.
+This folder is the product: every screen a resident, a moderator or an administrator sees, what each one does and how it behaves, including with no link to the community and with many machines. It is what the code is built against. The maintainer approved the direction on 2026-11-15: a portal at the community's address, apps with a face of their own, the same rules everywhere, and a dark mode. Later that day he asked for Maps, the community's map, and approved it as the fifth app.
 
 The architecture that carries it is in [`docs/design`](../design). Where this folder says how a screen behaves and a design note says how the core works, both hold; where they disagree, the disagreement is a bug to fix in one of them.
 
@@ -8,14 +8,15 @@ The architecture that carries it is in [`docs/design`](../design). Where this fo
 
 | Document | What it covers |
 | --- | --- |
-| [Principles](principles.md) | The rules every screen follows: one address, the portal, four apps, the same face, the four notices, nothing lost, what waits says so, accessibility, language |
+| [Principles](principles.md) | The rules every screen follows: one address, the portal, five apps, the same face, the four notices, nothing lost, what waits says so, accessibility, language |
 | [Visual identity](visual.md) | The Terra palette in light and dark, the type, the pieces of every screen, and the cover of each app |
 | [Portal and search](portal.md) | What the community's address opens, and the search of the whole community |
 | [Account](account.md) | Arriving, the certificate, creating an account, the passphrase, signing in on another device, recovering access, the profile, devices, the personal vault and leaving |
 | [Talk](talk.md) | Conversations, calls and alerts |
 | [Learn](learn.md) | Subjects, lessons, the wiki, the collection and films |
-| [Decide](decide.md) | Proposals, votes, delegations and the map |
+| [Decide](decide.md) | Proposals, votes, delegations, and reports on the map |
 | [Ask](ask.md) | Questions to the Mentor, answers and what the collection is missing |
+| [Maps](maps.md) | The community's map: alerts, reports and notes at their place, houses, plantings, equipment, water, paths and the boundaries of the land |
 | [Administration](admin.md) | Residents and roles, moderation, the charter, the log, guardians, the collection, the machines, the caretaker, copies, doors to the internet and connected AIs |
 | [Setup](setup.md) | Installing a community and its first screens, before anyone signs up |
 | [Notices and behavior](behavior.md) | The four notices, the outbox, a device with no link, many machines and what waits for them |

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Maps: marcar a minha casa</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="maps">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Fechar"><i data-icon="close"></i></a>
+    <div class="tx"><h1>Marcar minha casa</h1><p class="sub">Só você marca, muda ou tira a sua</p></div>
+  </header>
+
+  <div class="content" style="gap:14px">
+    <div class="map" data-map="93 436 358 200" style="height:200px" role="img" aria-label="Pedaço do mapa com o ponto da casa sobre um telhado">
+      <span class="pin home big" style="left:159px;top:62px;box-shadow:inset 0 0 0 3px var(--text),0 0 0 3px var(--surface),0 2px 8px var(--shadow)"><span><i data-icon="home"></i></span></span>
+    </div>
+    <p class="small">Toque no telhado da sua casa, ou arraste o mapa até ele.</p>
+
+    <div class="field">
+      <label for="name">Nome que aparece no mapa</label>
+      <div class="input" id="name">Casa da Neide</div>
+      <p class="hint">Pode ser o seu nome, o da família ou um que todos conheçam.</p>
+    </div>
+
+    <section class="card soft" style="gap:8px">
+      <p style="font-size:16px;font-weight:700">Quem vê</p>
+      <p style="font-size:15px;line-height:1.4">Todos os moradores da Vila Aurora. Quem é de fora nunca vê o mapa.</p>
+      <p style="font-size:15px;line-height:1.4">Quem não marca a própria casa não aparece no mapa.</p>
+    </section>
+
+    <button class="btn block" style="margin-top:auto">Marcar minha casa</button>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

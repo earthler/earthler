@@ -2,6 +2,8 @@
 
 **Proposed, except for one proof on a real iPhone. None of it is built.** Today the system is one site, reached through the browser. This note is what the resident sees once Talk, Learn, Decide and Ask become apps. It holds with one machine as much as with many; how many machines stay the same behind it is in [many machines, one community](many-machines.md). The marks are the same as there: **built**, **proposed**, **to prove**, **inference**.
 
+On 2026-11-15 the maintainer approved a fifth app, Maps, the community's map, at `/maps` under the same rules as the four. What it shows and how it behaves is in [Maps](../product/maps.md); the proof on the iPhone below was made with the first four.
+
 ## The four apps
 
 The [README](../../README.md) lists four things residents will do: Talk, Learn, Decide and Ask. On 2026-11-13 the maintainer decided that each of them is an app on the phone, with its own name, its own icon and its own button to add it to the home screen. There is no app store: an icon on the home screen is a shortcut to the app in the browser, and it opens full screen, with no browser bar.

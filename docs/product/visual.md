@@ -6,7 +6,7 @@ The face of Earthler is the Terra direction: technology in the service of life, 
 
 The mark is a sun and three leaves; the lettering is the name. Both were created by the maintainer and are never redrawn. When they appear together, the letters are 0.885 of the height of the mark and the gap between them is 0.2 of that height. They live in [`brand/`](../../brand), outside the code license: see [TRADEMARKS](../../TRADEMARKS.md).
 
-The glyphs of the four apps are made of the pieces of the mark: the sun, the leaves with thin tips and the wide gaps between the shapes. The question mark of Ask has the round, thick stroke of the lettering. A new icon or button is born from the mark, never from a generic symbol. The maintainer approved the glyphs on 2026-11-15, on a white background with the leaf and sun colors.
+The glyphs of the apps are made of the pieces of the mark: the sun, the leaves with thin tips and the wide gaps between the shapes. The question mark of Ask has the round, thick stroke of the lettering. A new icon or button is born from the mark, never from a generic symbol. The maintainer approved the glyphs on 2026-11-15, on a white background with the leaf and sun colors, and the glyph of Maps the same day, with the drawings of Maps: the sun over two leaves that meet in a point.
 
 ## Palette
 
@@ -64,7 +64,7 @@ Cards have a radius of 20 px. Buttons are 54 px tall with a radius of 27 px; sma
 
 ## The cover of each app
 
-Each app has a face of its own, so a person knows where they are at a glance, while everything else stays the same in the four.
+Each app has a face of its own, so a person knows where they are at a glance, while everything else stays the same in all of them.
 
 | App | Cover in light | Cover in dark | Its home starts with |
 | --- | --- | --- | --- |
@@ -72,9 +72,12 @@ Each app has a face of its own, so a person knows where they are at a glance, wh
 | Learn | Surface `#FFFFFF`, dark text | Surface `#221E18` | The question "O que você quer saber?" and the search |
 | Decide | Soft `#E3EBDF`, dark text | Soft `#1E3328` | The deadlines and the person's vote |
 | Ask | Text `#2A241C`, light text | `#0B0A08` | The question to the Mentor |
+| Maps | No cover: the map itself, from edge to edge, with the controls floating over it | The same, with the dark map | The map, and an emergency alert when one is in force |
+
+The map of Maps uses the palette for the land, the roads and the pins, and one tone of its own for water, so water is never read as a leaf: `#BCD7D3` in light and `#24423F` in dark. It was approved with the drawings of Maps on 2026-11-15. See [Maps](maps.md).
 
 The glyph on the cover keeps its gaps in the cover's own color, as the mark keeps them in the background.
 
 ## The portal
 
-The portal has no cover. It has the community's mark and name in the middle, the search under them, and the four apps as tiles, like the icons they become on the phone. See [portal](portal.md).
+The portal has no cover. It has the community's mark and name in the middle, the search under them, and the five apps as tiles, like the icons they become on the phone. See [portal](portal.md).
