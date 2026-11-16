@@ -29,7 +29,7 @@ func verify(c *Chain, leaf *x509.Certificate, name string) error {
 
 func open(t *testing.T, dir string) (*Chain, bool) {
 	t.Helper()
-	c, created, err := Open(dir, "vila.internal", "Vila Teste", testTime)
+	c, created, err := Open(dir, "vila.earthler", "Vila Teste", testTime)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func TestServerCertificateIsAccepted(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"vila.internal", "192.168.1.50", "10.1.2.3"} {
+	for _, name := range []string{"vila.earthler", "192.168.1.50", "10.1.2.3"} {
 		if err := verify(c, cert.Leaf, name); err != nil {
 			t.Errorf("%s: %v", name, err)
 		}
@@ -90,7 +90,7 @@ func TestDevicesWouldRefuseAForgery(t *testing.T) {
 		leaf, _ := x509.ParseCertificate(der)
 		return leaf
 	}
-	for _, name := range []string{"www.example.org", "notvila.internal", "vila.internal.example.org"} {
+	for _, name := range []string{"www.example.org", "notvila.earthler", "vila.earthler.example.org"} {
 		var invalid x509.CertificateInvalidError
 		if err := verify(c, forge(name, nil), name); !errors.As(err, &invalid) || invalid.Reason != x509.CANotAuthorizedForThisName {
 			t.Errorf("%s: want a name constraint error, got %v", name, err)
@@ -120,7 +120,7 @@ func TestOnlyTheIssuerKeyIsKept(t *testing.T) {
 	if created {
 		t.Fatal("an existing chain was created again, which would lock every device out")
 	}
-	if again.Fingerprint() != c.Fingerprint() || again.Domain() != "vila.internal" {
+	if again.Fingerprint() != c.Fingerprint() || again.Domain() != "vila.earthler" {
 		t.Fatal("the loaded chain is not the saved one")
 	}
 	if !again.issuerKey.PublicKey.Equal(c.issuer.PublicKey) || again.issuerKey.PublicKey.Equal(c.root.PublicKey) {
@@ -154,7 +154,7 @@ func TestAnIncompleteFolderIsNotReplaced(t *testing.T) {
 		if err := os.Remove(filepath.Join(dir, lost)); err != nil {
 			t.Fatal(err)
 		}
-		if _, _, err := Open(dir, "vila.internal", "Vila", time.Now()); err == nil || !strings.Contains(err.Error(), "incomplete") {
+		if _, _, err := Open(dir, "vila.earthler", "Vila", time.Now()); err == nil || !strings.Contains(err.Error(), "incomplete") {
 			t.Fatalf("with %s lost, Open answered %v", lost, err)
 		}
 		if got := filesIn(dir); len(got) != 2 {
@@ -186,7 +186,7 @@ func TestABirthThatWasCutShortLeavesNoTrace(t *testing.T) {
 	if _, err := os.Stat(dir + ".new"); err == nil {
 		t.Fatal("the folder of the cut birth is still there")
 	}
-	if c.Domain() != "vila.internal" {
+	if c.Domain() != "vila.earthler" {
 		t.Fatalf("domain %q", c.Domain())
 	}
 }

@@ -31,7 +31,7 @@ import (
 type config struct {
 	dataDir   string // where the journal, the indexes and the secrets live
 	community string // name given to a community that is being born
-	short     string // short name for the address <short>.internal, fixed at birth
+	short     string // short name for the address <short>.earthler, fixed at birth
 	lang      string // language of the screens
 	httpsPort int    // where the secure site answers, for the links of the welcome page
 	copyDir   string // where the night's copy goes, or empty for no copies yet
@@ -138,10 +138,13 @@ func open(cfg config) (*app, error) {
 
 	// The chain is created once. Its name can never change afterwards,
 	// because every device has it written in the certificate it installed.
+	// A community born when addresses ended in .internal keeps that name:
+	// an existing chain is read from the disk and the name given here is
+	// only used for a new one.
 	if !validShort.MatchString(cfg.short) {
 		return nil, fmt.Errorf("the short name %q must use lowercase letters, digits and hyphens", cfg.short)
 	}
-	a.chain, _, err = certificate.Open(filepath.Join(cfg.dataDir, "secrets", "certificate"), cfg.short+".internal", a.name, time.Now())
+	a.chain, _, err = certificate.Open(filepath.Join(cfg.dataDir, "secrets", "certificate"), cfg.short+".earthler", a.name, time.Now())
 	if err != nil {
 		return nil, err
 	}

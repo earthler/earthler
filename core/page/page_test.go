@@ -18,16 +18,16 @@ func TestSameOriginComparesSchemeAndHost(t *testing.T) {
 		origin string
 		want   bool
 	}{
-		{"the secure site itself", true, "vila.internal", "https://vila.internal", true},
-		{"plain http on the same host, in front of the secure site", true, "vila.internal", "http://vila.internal", false},
+		{"the secure site itself", true, "vila.earthler", "https://vila.earthler", true},
+		{"plain http on the same host, in front of the secure site", true, "vila.earthler", "http://vila.earthler", false},
 		{"https where the server speaks plain http", false, "127.0.0.1:8090", "https://127.0.0.1:8090", false},
 		{"development without https", false, "127.0.0.1:8090", "http://127.0.0.1:8090", true},
-		{"another host", true, "vila.internal", "https://example.org", false},
-		{"another port", true, "vila.internal", "https://vila.internal:8443", false},
-		{"no origin", true, "vila.internal", "", false},
-		{"the null origin", true, "vila.internal", "null", false},
-		{"a file page", true, "vila.internal", "file://", false},
-		{"not an address", true, "vila.internal", "%zz", false},
+		{"another host", true, "vila.earthler", "https://example.org", false},
+		{"another port", true, "vila.earthler", "https://vila.earthler:8443", false},
+		{"no origin", true, "vila.earthler", "", false},
+		{"the null origin", true, "vila.earthler", "null", false},
+		{"a file page", true, "vila.earthler", "file://", false},
+		{"not an address", true, "vila.earthler", "%zz", false},
 	}
 	for _, c := range cases {
 		r := httptest.NewRequest("POST", "/chat", nil)

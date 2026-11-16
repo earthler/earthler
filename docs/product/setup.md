@@ -84,7 +84,7 @@ On each screen the Mentor answers questions about the step, when the machine can
 
 **Many machines.** The name and the short name are the community's, the same on every machine.
 
-The end of the address is **Not decided**. The certificate is limited today to names ending in `.internal`, a name reserved for private networks, and that is what this screen shows; the maintainer also wrote a name ending in `.earthler`, which the [portal](portal.md) drawing uses. See [principles](principles.md#not-decided).
+The address ends in `.earthler`, which this screen shows after the short name, and the certificate is limited to that one name (**Built**, from the command line). See [principles](principles.md#why-earthler).
 
 ## 6. The certificate is born
 
@@ -298,7 +298,7 @@ Every step has "Voltar". Two things cannot be undone by going back: the short na
 
 - The paths of the setup: `/setup/...` is a proposal.
 - How many wrong codes are allowed, and for how long a device is then refused.
-- The end of the community's address, `.internal` or `.earthler`, and, with many machines, whether the address is a number or a name.
+- With many machines, whether the address is a number or a name.
 - Where the place and the biome are written.
 - The name of the charter's event, and whether the fingerprint and the charter go in the community's first entry.
 - Whether the copy key is shown as groups of letters and digits, as the code makes it, or as words; whether the setup asks to type part of it back; whether the setup can end with no copy.

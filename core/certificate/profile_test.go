@@ -9,14 +9,14 @@ import (
 )
 
 func TestProfileCarriesTheRoot(t *testing.T) {
-	c, _, err := Open(t.TempDir(), "vila.internal", "Vila & Horta", time.Now())
+	c, _, err := Open(t.TempDir(), "vila.earthler", "Vila & Horta", time.Now())
 	if err != nil {
 		t.Fatal(err)
 	}
 	profile := string(c.Profile(ProfileText{
 		Name:         "Vila & Horta",
 		Organization: "Earthler",
-		Description:  "Só vale para vila.internal <rede local>",
+		Description:  "Só vale para vila.earthler <rede local>",
 	}))
 
 	// It must be well-formed XML, with the texts escaped.
@@ -33,10 +33,10 @@ func TestProfileCarriesTheRoot(t *testing.T) {
 	for _, want := range []string{
 		"<data>" + base64.StdEncoding.EncodeToString(c.Root()) + "</data>",
 		"<string>Vila &amp; Horta</string>",
-		"<string>Só vale para vila.internal &lt;rede local&gt;</string>",
+		"<string>Só vale para vila.earthler &lt;rede local&gt;</string>",
 		"<string>Vila &amp; Horta (Earthler)</string>", // the name the phone lists the root under
-		"<string>org.earthler.vila.internal</string>",
-		"<string>org.earthler.vila.internal.root</string>",
+		"<string>org.earthler.vila.earthler</string>",
+		"<string>org.earthler.vila.earthler.root</string>",
 		"<string>com.apple.security.root</string>",
 		"<string>Configuration</string>",
 	} {

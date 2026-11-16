@@ -47,7 +47,7 @@ func newMainWith(t *testing.T, entries int, wrap func(http.Handler) http.Handler
 	}
 	t.Cleanup(func() { m.journal.Close() })
 	secrets := filepath.Join(m.dataDir, "secrets")
-	if m.chain, _, err = certificate.Open(filepath.Join(secrets, "certificate"), "vila.internal", "Vila", time.Now()); err != nil {
+	if m.chain, _, err = certificate.Open(filepath.Join(secrets, "certificate"), "vila.earthler", "Vila", time.Now()); err != nil {
 		t.Fatal(err)
 	}
 	if m.key, err = copies.LoadKey(secrets); err != nil {

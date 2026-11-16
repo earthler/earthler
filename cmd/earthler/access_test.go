@@ -11,9 +11,12 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/earthler/earthler/core/certificate"
 )
 
 // TestDeviceWithTheCertificateGetsIn is the proof of the access stage as far
@@ -47,7 +50,7 @@ func TestDeviceWithTheCertificateGetsIn(t *testing.T) {
 	jar, _ := cookiejar.New(nil)
 	trusting := &http.Client{
 		Jar:           jar,
-		Transport:     &http.Transport{TLSClientConfig: &tls.Config{RootCAs: roots, ServerName: "vila.internal"}},
+		Transport:     &http.Transport{TLSClientConfig: &tls.Config{RootCAs: roots, ServerName: "vila.earthler"}},
 		CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 	}
 
@@ -76,7 +79,7 @@ func TestDeviceWithTheCertificateGetsIn(t *testing.T) {
 		}
 	}
 
-	stranger := &http.Client{Transport: &http.Transport{TLSClientConfig: &tls.Config{ServerName: "vila.internal"}}}
+	stranger := &http.Client{Transport: &http.Transport{TLSClientConfig: &tls.Config{ServerName: "vila.earthler"}}}
 	if res, err := stranger.Get(secure.URL + "/probe.gif"); err == nil {
 		res.Body.Close()
 		t.Fatal("a device without the root connected with no complaint")
@@ -108,7 +111,7 @@ func TestDeviceWithTheCertificateGetsIn(t *testing.T) {
 		want        []string
 	}{
 		{"/", android, []string{"Boas-vindas", "Parece um Android.", `href="/certificate/android"`, `href="https://127.0.0.1/"`}},
-		{"/certificate/android", android, []string{"vila.internal", print[0:2] + " " + print[2:4], "Instalar assim mesmo", `href="/certificate.crt"`, `data-step="4"`}},
+		{"/certificate/android", android, []string{"vila.earthler", print[0:2] + " " + print[2:4], "Instalar assim mesmo", `href="/certificate.crt"`, `data-step="4"`}},
 		{"/certificate/iphone", safari, []string{"Certificados Confiáveis", "Vila Teste (Earthler)", `href="/certificate.mobileconfig"`, "8 minutos"}},
 		{"/certificate/iphone", chrome, []string{"Abra esta página no Safari", "http://127.0.0.1"}},
 		{"/certificate/windows", windows, []string{"Autoridades de Certificação Raiz Confiáveis", `href="/certificate.crt"`, `href="/certificate/mac"`}},
@@ -163,11 +166,29 @@ func TestDeviceWithTheCertificateGetsIn(t *testing.T) {
 }
 
 func TestBadShortNameIsRefused(t *testing.T) {
-	for _, short := range []string{"", "Vila", "vila nova", "-vila", "vila.internal"} {
+	for _, short := range []string{"", "Vila", "vila nova", "-vila", "vila.earthler"} {
 		a, err := open(config{dataDir: t.TempDir(), community: "Vila", short: short, lang: "pt-BR", httpsPort: 443})
 		if err == nil {
 			a.Close()
 			t.Errorf("short name %q was accepted", short)
 		}
+	}
+}
+
+// TestACommunityKeepsTheAddressItWasBornWith starts a machine whose
+// certificate was made when addresses still ended in .internal. The address
+// is written in the certificate every device installed, so it must stay.
+func TestACommunityKeepsTheAddressItWasBornWith(t *testing.T) {
+	dir := t.TempDir()
+	if _, _, err := certificate.Open(filepath.Join(dir, "secrets", "certificate"), "vila.internal", "Vila", time.Now()); err != nil {
+		t.Fatal(err)
+	}
+	a, err := open(config{dataDir: dir, community: "Vila", short: "vila", lang: "pt-BR", httpsPort: 443})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer a.Close()
+	if got := a.chain.Domain(); got != "vila.internal" {
+		t.Fatalf("the community born as vila.internal now answers as %s", got)
 	}
 }
