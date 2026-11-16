@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Decide: novo relato no mapa</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="decide">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Fechar sem publicar"><i data-icon="close"></i></a>
+    <div class="tx"><h1>Novo relato</h1><span class="sub">O rascunho fica guardado neste aparelho</span></div>
+  </header>
+
+  <form class="content" style="gap:14px" onsubmit="return false">
+    <div class="field">
+      <div class="map" style="height:170px" role="img" aria-label="Lugar do relato no mapa, no pasto de baixo">
+        <svg viewBox="0 0 358 170" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M0 120 C70 100 120 140 190 120 S300 90 358 110 V170 H0 Z" style="fill:var(--track)"/>
+          <path d="M0 60 C60 44 130 84 200 60 S310 30 358 46" style="fill:none;stroke:var(--line);stroke-width:2"/>
+          <path d="M70 0 C90 50 80 90 120 120 S170 150 160 170" style="fill:none;stroke:var(--surface);stroke-width:8;stroke-linecap:round"/>
+        </svg>
+        <span class="pin sun" style="left:163px;top:58px;width:32px;height:32px"><span style="position:relative;width:18px;height:18px;transform:rotate(45deg);color:var(--on-sun)"><i data-icon="siren" class="s"></i></span></span>
+      </div>
+      <span class="hint">Arraste o mapa para pôr o ponto no lugar. Casas e pessoas não aparecem no mapa.</span>
+    </div>
+
+    <div class="field">
+      <span class="label">Tipo</span>
+      <div class="segmented" role="radiogroup" aria-label="Tipo">
+        <span class="on" role="radio" aria-checked="true" tabindex="0">Problema</span>
+        <span role="radio" aria-checked="false" tabindex="-1">Recurso</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="o">O que você viu</label>
+      <textarea class="input area" id="o" rows="3" style="resize:none;line-height:1.4">Cerca caída no pasto de baixo, perto da porteira. Dois mourões no chão.</textarea>
+    </div>
+
+    <button class="btn soft block" type="button"><i data-icon="camera"></i>Acrescentar foto</button>
+
+    <button class="btn block" style="margin-top:auto" type="submit">Publicar relato</button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

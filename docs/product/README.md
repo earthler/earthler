@@ -14,8 +14,10 @@ The architecture that carries it is in [`docs/design`](../design). Where this fo
 | [Account](account.md) | Arriving, the certificate, creating an account, the passphrase, signing in on another device, recovering access, the profile, devices, the personal vault and leaving |
 | [Talk](talk.md) | Conversations, calls and alerts |
 | [Learn](learn.md) | Subjects, lessons, the wiki, the collection and films |
+| [Decide](decide.md) | Proposals, votes, delegations and the map |
+| [Ask](ask.md) | Questions to the Mentor, answers and what the collection is missing |
 
-The other areas come in changes of their own, one area at a time, so that each is reviewed on its own: Decide and Ask; administration and setup; and the notices and behavior shared by every screen. Each adds its line to this table. Until then, a link from these documents to one of them leads nowhere.
+The other areas come in changes of their own, one area at a time, so that each is reviewed on its own: administration and setup; and the notices and behavior shared by every screen. Each adds its line to this table. Until then, a link from these documents to one of them leads nowhere.
 
 Every screen is drawn in [`docs/screens`](../screens), in light and in dark mode, from one HTML file each. The pictures in these documents come from there.
 

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Decide: um ponto do mapa</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="decide">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar ao mapa"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Relato</h1><span class="sub">Pasto de baixo</span></div>
+    <span class="chip sun" style="align-self:center">Em aberto</span>
+  </header>
+
+  <div class="content">
+    <div class="picture soft" style="height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--on-soft)" role="img" aria-label="Foto de Joel: a cerca caída">
+      <i data-icon="image"></i>
+      <span class="small" style="color:var(--on-soft)">Foto de Joel</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="label">Problema, hoje às 7h40, por Joel</span>
+      <h2 class="big-title">Cerca caída no pasto de baixo</h2>
+      <p style="font-size:16px;line-height:1.45">Perto da porteira, dois mourões caíram com a chuva. O gado já chegou perto do milho.</p>
+    </div>
+
+    <section class="list">
+      <h2 class="label">Proposta ligada</h2>
+      <a class="row" href="#"><span class="avatar sq"><i data-icon="vote" class="s"></i></span><span class="tx"><span class="a">Mutirão para refazer a cerca no sábado</span><span class="b">Votação aberta, faltam 7 dias</span></span><i data-icon="next"></i></a>
+    </section>
+
+    <button class="btn block" style="margin-top:auto"><i data-icon="check"></i>Marcar como resolvido</button>
+  </div>
+
+  <nav class="bar" aria-label="Decide">
+    <a href="#"><span class="pad"><i data-icon="vote"></i></span>Decisões</a>
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="pin"></i></span>Mapa</a>
+    <a href="#"><span class="pad"><i data-icon="people"></i></span>Votos</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

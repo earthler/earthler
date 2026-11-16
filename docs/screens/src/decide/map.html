@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Decide: mapa da comunidade</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="decide">
+  <header class="cover">
+    <span data-glyph="decide"></span>
+    <div class="head">
+      <span class="name">Decide</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>Mapa</h1>
+      <p>3 relatos novos esta semana</p>
+    </div>
+  </header>
+
+  <div class="content">
+    <div role="group" aria-label="Mostrar no mapa" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="pill on" aria-pressed="true" style="border:0;font-family:inherit;gap:8px"><span style="width:12px;height:12px;border-radius:6px;background:var(--sun);box-shadow:0 0 0 2px var(--on-primary)"></span>Problemas</button>
+      <button class="pill on" aria-pressed="true" style="border:0;font-family:inherit;gap:8px"><span style="width:12px;height:12px;border-radius:6px;background:var(--leaf);box-shadow:0 0 0 2px var(--on-primary)"></span>Recursos</button>
+      <button class="pill on" aria-pressed="true" style="border:0;font-family:inherit;gap:8px"><span style="width:12px;height:12px;border-radius:6px;background:var(--surface);box-shadow:inset 0 0 0 3px var(--primary),0 0 0 2px var(--on-primary)"></span>Propostas</button>
+      <button class="pill" aria-pressed="false" style="border:0;font-family:inherit;gap:8px;color:var(--text)"><span style="width:12px;height:12px;border-radius:6px;background:var(--text)"></span>Decisões</button>
+    </div>
+
+    <div class="map" style="flex:1;height:auto" role="img" aria-label="Mapa da comunidade com 4 pontos">
+      <svg viewBox="0 0 358 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <path d="M0 300 C70 270 120 330 190 300 S300 250 358 280 V420 H0 Z" style="fill:var(--track)"/>
+        <path d="M0 120 C60 100 130 150 200 120 S310 80 358 100" style="fill:none;stroke:var(--line);stroke-width:2"/>
+        <path d="M0 190 C70 170 140 220 210 190 S320 150 358 170" style="fill:none;stroke:var(--line);stroke-width:2"/>
+        <path d="M60 0 C90 90 70 160 130 230 S200 340 180 420" style="fill:none;stroke:var(--surface);stroke-width:8;stroke-linecap:round"/>
+        <path d="M130 230 C190 220 250 240 358 210" style="fill:none;stroke:var(--surface);stroke-width:5;stroke-linecap:round"/>
+      </svg>
+      <span class="small" style="position:absolute;left:150px;top:248px;font-size:12px;font-weight:600">Pasto de baixo</span>
+      <span class="small" style="position:absolute;left:236px;top:60px;font-size:12px;font-weight:600">Horta</span>
+      <span class="small" style="position:absolute;left:24px;top:206px;font-size:12px;font-weight:600">Escola</span>
+
+      <span class="pin sun" style="left:196px;top:280px;width:32px;height:32px;box-shadow:0 0 0 3px var(--surface),0 2px 6px var(--shadow)"><span style="position:relative;width:18px;height:18px;transform:rotate(45deg);color:var(--on-sun)"><i data-icon="siren" class="s"></i></span></span>
+      <span class="pin leaf" style="left:84px;top:120px;width:32px;height:32px"><span style="position:relative;width:18px;height:18px;transform:rotate(45deg);color:var(--on-sun)"><i data-icon="star" class="s"></i></span></span>
+      <span class="pin" style="left:286px;top:150px;width:32px;height:32px;background:var(--surface);box-shadow:inset 0 0 0 3px var(--primary),0 2px 6px var(--shadow)"><span style="position:relative;width:18px;height:18px;transform:rotate(45deg);color:var(--primary)"><i data-icon="vote" class="s"></i></span></span>
+      <span class="pin sun" style="left:44px;top:330px;width:32px;height:32px"><span style="position:relative;width:18px;height:18px;transform:rotate(45deg);color:var(--on-sun)"><i data-icon="siren" class="s"></i></span></span>
+
+      <a class="card" href="#" style="position:absolute;left:12px;right:12px;top:12px;flex-direction:row;align-items:center;gap:12px;padding:12px 14px;box-shadow:0 2px 10px var(--shadow)">
+        <span class="avatar sun"><span style="position:relative;width:18px;height:18px"><i data-icon="siren" class="s"></i></span></span>
+        <span class="tx"><span class="small" style="font-size:13px">Problema, hoje às 7h40</span><span class="a">Cerca caída no pasto de baixo</span></span>
+        <span style="position:relative;width:22px;height:22px;flex:none"><i data-icon="next"></i></span>
+      </a>
+    </div>
+  </div>
+
+  <a class="fab" href="#" style="color:var(--on-primary)"><i data-icon="plus"></i>Relatar</a>
+
+  <nav class="bar" aria-label="Decide">
+    <a href="#"><span class="pad"><i data-icon="vote"></i></span>Decisões</a>
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="pin"></i></span>Mapa</a>
+    <a href="#"><span class="pad"><i data-icon="people"></i></span>Votos</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Ask: perguntar ao Mentor</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="ask">
+  <header class="cover">
+    <span data-glyph="ask"></span>
+    <div class="head">
+      <span class="name">Ask</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>O Mentor</h1>
+      <p>A voz do conhecimento daqui. Responde citando o acervo e diz quando não sabe.</p>
+    </div>
+  </header>
+
+  <div class="content">
+    <form class="card" style="gap:12px">
+      <label for="pergunta" class="label">Sua pergunta</label>
+      <textarea id="pergunta" class="input area" rows="2" style="width:100%;min-height:84px;resize:none">Como saber se o composto está pronto?</textarea>
+      <span style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span class="chip sun">2 perguntas na sua frente</span>
+        <span class="small">cerca de 1 minuto</span>
+      </span>
+      <button type="button" class="btn block">Perguntar</button>
+    </form>
+
+    <section class="list">
+      <h2 class="label">Suas respostas recentes</h2>
+      <a class="row" href="#"><span class="tx"><span class="a">O que ajuda em dor de barriga?</span><span class="b">Hoje</span></span><span class="chip" style="align-self:center">Com fonte</span></a>
+      <a class="row" href="#"><span class="tx"><span class="a">Quanto dura a bateria de gel?</span><span class="b">Ontem</span></span><span class="chip muted" style="align-self:center">Não sabia</span></a>
+    </section>
+
+    <p class="small" style="margin:0 4px">As respostas recentes ficam só neste aparelho. A pergunta segue sem o seu nome.</p>
+  </div>
+
+  <nav class="bar" aria-label="Ask">
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="bulb"></i></span>Perguntar</a>
+    <a href="#"><span class="pad"><i data-icon="list"></i></span>Respostas</a>
+    <a href="#"><span class="pad"><i data-icon="missing"></i></span>O que falta</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
