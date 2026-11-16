@@ -88,4 +88,4 @@ It also ran by hand on one computer, two machines in two tabs of a browser: each
 - The comparison of clocks when two machines meet.
 - A screen for the machines, for the administrator: today it is `-invite` and `-join` on the command line. Taking a machine off, or a token away, is not built either.
 - Learning a new address of a machine already known.
-- The network, the device's part and the four apps.
+- The network, the device's part and the five apps.

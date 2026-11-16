@@ -137,7 +137,7 @@ The [copies](copies.md) have a note of their own: what goes in one, the key the 
 
 ## Screens
 
-Pages are built on the server and work without JavaScript, except for the welcome page, which uses a small script to notice when the device starts trusting the certificate, and the conversation, which uses one to show new messages without a reload. Every text a person reads comes from a file in [`locales`](../../locales), one per language, with Brazilian Portuguese as the first.
+Pages are built on the server and work without JavaScript, except for the welcome page, which uses a small script to notice when the device starts trusting the certificate, the conversation, which uses one to show new messages without a reload, and the button that adds an app to the phone, which only a script can offer. The portal and the four apps share one layout, in [`core/page`](../../core/page): the header, the bar of each app and the button to add, as described in [a portal and four apps](apps.md). Every text a person reads comes from a file in [`locales`](../../locales), one per language, with Brazilian Portuguese as the first.
 
 ## What is not built yet
 
@@ -147,4 +147,4 @@ Pages are built on the server and work without JavaScript, except for the welcom
 - Guardians and children, approval of new residents, and every live update still goes to everyone: the table decides who writes and removes, and will decide who receives what once there are conversations that are not open.
 - The copies screen, with the pairing of second machines. The second machine itself is built, see [the second machine](replica.md).
 - Editing a message, and the record of searches that found nothing.
-- Most of [many machines, one community](many-machines.md): what is built is in [how the machines live together](machines.md). And [four apps on one address](apps.md).
+- Most of [many machines, one community](many-machines.md): what is built is in [how the machines live together](machines.md). And [a portal and five apps on one address](apps.md).

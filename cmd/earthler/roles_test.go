@@ -21,7 +21,7 @@ func (v *visitor) give(s *site, account uint64, role string) (int, string) {
 
 // removeWith removes a message that is not one's own, giving the reason.
 func (v *visitor) removeWith(s *site, number, reason string) (int, string) {
-	return v.post(s, "/chat/delete", s.srv.URL, url.Values{"number": {number}, "reason": {reason}})
+	return v.post(s, "/talk/delete", s.srv.URL, url.Values{"number": {number}, "reason": {reason}})
 }
 
 func entries(t *testing.T, s *site) uint64 {
@@ -44,15 +44,16 @@ func TestTheFirstResidentLooksAfterTheCommunity(t *testing.T) {
 	}
 	wantIn(t, body, "Ana", "the list of residents")
 	wantIn(t, body, "Bia", "the list of residents")
-	wantIn(t, body, `href="/admin/residents"`, "the navigation of the administrator")
+	_, portal := ana.get(s, "/")
+	wantIn(t, portal, `href="/admin/residents"`, "the portal of the administrator")
+	_, portal = bia.get(s, "/")
+	wantOut(t, portal, `href="/admin/residents"`, "the portal of a resident")
 
 	status, body = bia.get(s, "/admin/residents")
 	if status != http.StatusForbidden {
 		t.Fatalf("a resident reading the list: status %d", status)
 	}
-	_, body = bia.get(s, "/chat")
-	wantOut(t, body, `href="/admin/residents"`, "the navigation of a resident")
-	wantIn(t, body, `href="/log"`, "the navigation of a resident")
+	wantIn(t, portal, `href="/log"`, "the portal of a resident: the log is open to everyone")
 }
 
 // TestRolesAreGivenByAdministratorsAndRememberedAfterARebuild goes through

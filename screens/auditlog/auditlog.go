@@ -136,7 +136,7 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request) {
 		b.Acts = append(b.Acts, act{Time: time.UnixMilli(ms).Format(s.pages.T("time.short")), Text: s.sentence(kind, actor, target, detail)})
 	}
 	s.pages.Render(w, http.StatusOK, s.tmpl, page.Data{
-		Title: s.pages.T("log.title"), Active: "log", User: sess.Name, Role: string(sess.Role), Body: b})
+		Title: s.pages.T("log.title"), User: sess.Name, Role: string(sess.Role), Body: b})
 }
 
 // sentence says an act in the community's language.

@@ -1,0 +1,9 @@
+{{define "content"}}
+<section class="capa small">
+  {{glyph .App}}
+  <span class="tabicon">{{icon .Body.Icon}}</span>
+  <h2>{{.Body.Part}}</h2>
+  <p>{{t "app.soon"}}</p>
+</section>
+{{template "invite" .}}
+{{end}}

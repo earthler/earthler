@@ -188,7 +188,7 @@ func TestTwoJournalsMakeTheSameIndexesInAnyOrder(t *testing.T) {
 		"messages [6 2 4 1010 1031  1000000000002]",
 		"messages [1000000000003 2 3 1050 1050 olá da outra casa 0]",
 		// Search only finds what was not deleted.
-		"docs [1000000000003 chat 3 1050 olá da outra casa]",
+		"docs [1000000000003 chat 3 2 1050 olá da outra casa]",
 		// Ana's removal is an act in the log even though Bia's own
 		// deletion came first.
 		"acts [9 1032 3 removal 4 repetida]",

@@ -1,0 +1,16 @@
+{{define "content"}}
+<section class="capa">
+  {{glyph "talk"}}
+  <h2>{{t "talk.cover.title"}}</h2>
+  <p>{{t "talk.cover.text"}}</p>
+</section>
+{{template "invite" .}}
+<section class="lista">
+  <h2 class="olho">{{t "talk.channels"}}</h2>
+  {{range .Body}}
+  <a class="linha" href="/talk/channel/{{.Number}}">
+    <span class="tx"><span class="a">{{.Name}}</span><span class="b">{{if .Last}}{{.Author}}: {{.Last}}{{else}}{{t "talk.nothing"}}{{end}}</span></span>
+  </a>
+  {{end}}
+</section>
+{{end}}

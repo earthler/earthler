@@ -1,0 +1,9 @@
+{{define "content"}}
+{{with .Body}}
+<section class="card me">
+  <span class="avatar-me" aria-hidden="true">{{.Initial}}</span>
+  <span class="tx"><span class="a">{{.Name}}</span><span class="b">{{.Role}}</span></span>
+</section>
+<section class="tom"><p>{{t "profile.soon"}}</p></section>
+{{end}}
+{{end}}

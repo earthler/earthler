@@ -83,7 +83,7 @@ func TestAFileSentToDeleteIsNeverRead(t *testing.T) {
 	mw.WriteField("number", "1")
 	mw.Close()
 	size := int64(body.Len())
-	req, _ := http.NewRequest("POST", s.srv.URL+"/chat/delete", &body)
+	req, _ := http.NewRequest("POST", s.srv.URL+"/talk/delete", &body)
 	req.ContentLength = size
 	req.Header.Set("Content-Type", mw.FormDataContentType())
 	req.Header.Set("Origin", s.srv.URL)
@@ -183,8 +183,8 @@ func TestAccountsWrittenInTwoEntriesStillWork(t *testing.T) {
 	u, _ := url.Parse(s.srv.URL)
 	old := newVisitor(t)
 	old.client.Jar.SetCookies(u, []*http.Cookie{{Name: "earthler", Value: value + "." + hex.EncodeToString(mac.Sum(nil))}})
-	_, body := old.get(s, "/chat")
-	wantIn(t, body, "Antiga", "the page of an account from the two entry format")
+	_, body := old.get(s, "/")
+	wantIn(t, body, "Antiga", "the portal of an account from the two entry format")
 }
 
 // TestDeletedMessagesAreTheSameAfterARebuild deletes a message, lets the

@@ -2,7 +2,7 @@
 
 This document is how every screen behaves, whatever app it belongs to: what a person sees when the device has no link to the community, what happens to what they write meanwhile, how a page stays current, what waits for the machines and what never does, how deletion looks, in what order messages appear, what a page does when the system cannot write, how an app gets onto the phone, and the accessibility rules every screen keeps. Each area document refers here instead of repeating it.
 
-The rules come from [principles](principles.md), and the mechanisms behind them from the design notes: [the core](../design/core.md), [how the machines live together](../design/machines.md), [many machines, one community](../design/many-machines.md) and [four apps on one address](../design/apps.md). Every claim carries its mark: **Built**, **Proposed**, **To prove** or **Not decided**.
+The rules come from [principles](principles.md), and the mechanisms behind them from the design notes: [the core](../design/core.md), [how the machines live together](../design/machines.md), [many machines, one community](../design/many-machines.md) and [a portal and five apps on one address](../design/apps.md). Every claim carries its mark: **Built**, **Proposed**, **To prove** or **Not decided**.
 
 ## The four notices
 
@@ -13,7 +13,7 @@ The rules come from [principles](principles.md), and the mechanisms behind them 
 | Arrived later | A message joined a conversation after messages written later were already there | **Not decided** | "Chegou depois" | Beside the message's time |
 | Not now | Something counted cannot be done now | The person tries again and it works, or leaves the page | "Agora não dá para…", why, and what happens next | At the top of the form or the action that was refused |
 
-None of them mentions a machine. Each keeps its sentence and its place in the four apps, on the portal and on the pages of no app. Their words, like every text, live in the [locales](../../locales). **Proposed** as a whole; the sentences of "Not now" for creating an account and changing a role are **Built**, and with the four notices they wait for the maintainer's visual approval.
+None of them mentions a machine. Each keeps its sentence and its place in the five apps, on the portal and on the pages of no app. Their words, like every text, live in the [locales](../../locales). **Proposed** as a whole; the sentences of "Not now" for creating an account and changing a role are **Built**, and with the four notices they wait for the maintainer's visual approval.
 
 ### No link with the community
 
@@ -182,7 +182,7 @@ This is not one of the four notices. It mentions the machine, because only the p
 
 ## Adding an app to the home screen
 
-Each app has its own button to add it to the home screen, with no app store: on the [portal](portal.md), and inside the app, as a card at the top of its home when it is open in the browser. The icon is a shortcut to the app in the browser, and it opens full screen, with no browser bar. **Proposed**, see [four apps on one address](../design/apps.md#the-add-button). None of it is built.
+Each app has its own button to add it to the home screen, with no app store: on the [portal](portal.md), and inside the app, as a card at the top of its home when it is open in the browser. The icon is a shortcut to the app in the browser, and it opens full screen, with no browser bar. **Proposed**, see [a portal and five apps on one address](../design/apps.md#the-add-button). A first version is **Built**, made before the screens below: the sheet of the five apps on the portal, the card inside each app, each app's manifest and the four taps of Safari. Its card says "Agora não" where this section says "Depois", and it is aligned with this section in its own part. All of it is **To prove** on real phones.
 
 The way in is the same on every device: the poster, the community certificate, the account and the passphrase, then the icon. The button never shows on a page served without the certificate, because Chrome only installs a site with a secure connection, and because the icon keeps the address it was added from, which has to be the secure one. **Proposed.**
 
@@ -210,7 +210,7 @@ The card that invites has two buttons, "Adicionar" and "Depois". The second word
 
 **What they can do.** Install, and the icon goes to the home screen. Cancel, and the card stays.
 
-**States.** After installing, the card leaves the page in the browser too, because Chrome tells the page. **Proposed.** On Android, the browser and the icons share the sign in and the storage, so the icon opens signed in to the four apps (**To prove**).
+**States.** After installing, the card leaves the page in the browser too, because Chrome tells the page. **Proposed.** On Android, the browser and the icons share the sign in and the storage, so the icon opens signed in to the five apps (**To prove**).
 
 **Who may.** Anyone signed in.
 

@@ -31,7 +31,7 @@ func New(a *accounts.Service, pages *page.Renderer) *Screen {
 func (s *Screen) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /sign-up", func(w http.ResponseWriter, r *http.Request) {
 		if _, ok := s.accounts.Session(r); ok {
-			http.Redirect(w, r, "/chat", http.StatusSeeOther)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
 		s.show(w, http.StatusOK, "", "")
@@ -78,6 +78,6 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 		s.show(w, http.StatusInternalServerError, "error.internal", name)
 	default:
 		http.SetCookie(w, cookie)
-		http.Redirect(w, r, "/chat", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }

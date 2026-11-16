@@ -1,0 +1,51 @@
+{{define "content"}}
+{{with .Body}}
+<div class="ptop">
+  <div class="addr">{{icon "i-cadeado"}}<span>{{.Address}}</span></div>
+  <a class="avatar-me" href="/profile" aria-label="{{.Account}}">{{.Initial}}</a>
+</div>
+<div class="hero">
+  <img src="/brand/earthler-mark.png" alt="">
+  <h1>{{$.Community}}</h1>
+  <p class="lead">{{t "portal.line"}}</p>
+</div>
+<div class="portal">
+  <form class="search" action="/search" method="get" role="search">
+    {{icon "i-busca"}}
+    <input type="search" name="q" maxlength="200" enterkeyhint="search" placeholder="{{t "portal.search"}}" aria-label="{{t "portal.search"}}">
+  </form>
+  <nav class="apps" aria-label="{{t "portal.apps.label"}}">
+    {{range apps}}<a href="/{{.Key}}/"><span class="tile">{{glyph .Key}}</span>{{t (print "app." .Key ".name")}}</a>
+    {{end}}
+  </nav>
+  <section class="lista" aria-labelledby="now">
+    <h2 class="olho" id="now">{{t "portal.now"}}</h2>
+    {{range .Now}}<a class="linha" href="{{.Link}}"><span class="tile s {{.App}}">{{glyph .App}}</span><span class="tx"><span class="a">{{.Title}}</span><span class="b">{{.Line}}</span></span></a>
+    {{else}}<p class="empty">{{t "portal.now.none"}}</p>
+    {{end}}
+  </section>
+  <section class="tom add">
+    <p>{{t "portal.add"}}</p>
+    <a class="btna" id="add-open" href="#add-apps"><span class="solm">{{icon "i-mais-p"}}</span>{{t "add.button"}}</a>
+  </section>
+  {{if or (can $.Role "log.read") (can $.Role "residents.see")}}
+  <section class="lista" aria-labelledby="care">
+    <h2 class="olho" id="care">{{t "portal.community"}}</h2>
+    {{if can $.Role "log.read"}}<a class="linha" href="/log"><span class="tx"><span class="a">{{t "nav.log"}}</span><span class="b">{{t "portal.log"}}</span></span></a>{{end}}
+    {{if can $.Role "residents.see"}}<a class="linha" href="/admin/residents"><span class="tx"><span class="a">{{t "nav.residents"}}</span><span class="b">{{t "portal.residents"}}</span></span></a>{{end}}
+  </section>
+  {{end}}
+</div>
+<dialog class="folha" id="add-apps" aria-labelledby="add-title">
+  <div class="head">
+    <h2 id="add-title">{{t "portal.add.title"}}</h2>
+    <a class="icon-btn" href="#" data-close aria-label="{{t "portal.add.close"}}">{{icon "i-fecha"}}</a>
+  </div>
+  <p class="menor">{{t "portal.add.lead"}}</p>
+  <div class="lista">
+    {{range apps}}<div class="linha"><span class="tile s {{.Key}}">{{glyph .Key}}</span><span class="tx"><span class="a">{{t (print "app." .Key ".name")}}</span><span class="b">{{t (print "app." .Key ".description")}}</span></span><a class="btna" href="/{{.Key}}/?add=1" aria-label="{{named "add.button.app" .Key}}"><span class="solm">{{icon "i-mais-p"}}</span>{{t "add.button"}}</a></div>
+    {{end}}
+  </div>
+</dialog>
+{{end}}
+{{end}}

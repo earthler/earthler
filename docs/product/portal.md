@@ -2,7 +2,7 @@
 
 The community's address opens the portal. It is the center of Earthler: one field that searches the whole community, the five apps, and what is happening now. A resident comes here to find something without knowing which app holds it, to open an app, or to see at a glance what the community is doing. The apps are parts of Earthler, and the portal is the whole; it never becomes an icon on the phone.
 
-The maintainer approved this direction on 2026-11-15, with the look drawn below. **Proposed**: none of the portal is built. What exists today is a search of the open channels and a root address that sends a signed in resident straight to the conversation.
+The maintainer approved this direction on 2026-11-15, with the look drawn below. **Built** since 2026-11-16, as drawn and in light and dark: the portal and the search, with what exists behind them. Each section says what is built; what the other apps will add is **Proposed**.
 
 ## The portal
 
@@ -22,23 +22,25 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 - "Agora na comunidade": up to three things happening now, newest first, each with the small tile of the app it comes from, a title and one line that says what it is and when. Examples: a notice in Talk, a new place in Maps, an open vote in Decide, a new lesson in Learn.
 - A quiet card, "Ponha os aplicativos na tela do celular. Não passa por loja.", with the button to add.
 
+**Built:** the pill with the lock and the address, which is the name this machine's certificate covers, such as `vilaaurora.earthler`; the initial, without the photo, which is not built; the mark, the name and the line; the search field; the five tiles; "Agora na comunidade"; and the card with the button to add. "Agora na comunidade" says "Nada novo por enquanto." for now, because no app writes alerts, open votes, new lessons or new places yet, so nothing is shown, counted or sorted there. The same address on every machine and the poster are not built. Built and not drawn: under the card, "Para quem cuida", with the log for every resident and the list of residents for an administrator, as [administration](admin.md) asks of the portal.
+
 **What they can do:**
 
 - Type in the search field and see [the results](#search-results) from every app.
-- Tap a tile to open that app at its own path: `/talk/`, `/learn/`, `/decide/`, `/ask/` or `/maps/`.
-- Tap an item of "Agora na comunidade" to open it in its app, at that place.
-- Tap their initial to open [their account](account.md#your-account). **Proposed**: the account, the vault, the devices and the trusted people are all reached from here. From inside an app, the community's name at the top leads back to the portal, and from the portal the account is one tap away.
-- Tap "Adicionar" to put the apps on the phone. A sheet rises with the five apps, each with its own button to add. Choosing one opens that app's page, where the phone's own steps follow: on Android, Chrome's confirmation, "Instalar aplicativo"; on the iPhone, the steps in Safari. The portal itself offers nothing to install, so it never becomes an icon. **Proposed**, and **to prove** on Android. See [apps on one address](../design/apps.md#the-add-button).
+- Tap a tile to open that app at its own path: `/talk/`, `/learn/`, `/decide/`, `/ask/` or `/maps/`. **Built**: Talk opens its conversations; Learn opens a first cover with a search that finds, for now, the conversations; Decide, Ask and Maps open pages that say, inside the app, that the part is not in this version.
+- Tap an item of "Agora na comunidade" to open it in its app, at that place. **Proposed**, with the first app that writes what happens.
+- Tap their initial to open [their account](account.md#your-account). **Built** in part: the page shows the name and the role, and says that the rest is not built. **Proposed**: the account, the vault, the devices and the trusted people are all reached from here. From inside an app, the community's name at the top leads back to the portal, and from the portal the account is one tap away.
+- Tap "Adicionar" to put the apps on the phone. A sheet rises with the five apps, each with its own button to add. Choosing one opens that app's page, where the phone's own steps follow: on Android, Chrome's confirmation, "Instalar aplicativo"; on the iPhone, the steps in Safari. The portal itself offers nothing to install, so it never becomes an icon. **Built**: the sheet lists the five apps, each with its own button, and opens over the page with the script, or by its address without it. The steps on the phones are **to prove** on Android. See [apps on one address](../design/apps.md#the-add-button).
 
 **States:**
 
 | State | What the person reads |
 | --- | --- |
-| Nothing new | "Agora na comunidade" shows "Nada novo por enquanto." |
+| Nothing new | "Agora na comunidade" shows "Nada novo por enquanto." **Built** |
 | An emergency alert is active | The alert at the top of the portal, as in [the next section](#the-portal-with-an-emergency-alert) |
 | No link with the community | The notice "Sem ligação com a comunidade." across the top. "Agora na comunidade" keeps what the device saw last, and the search answers "A busca precisa da ligação com a comunidade. Tente de novo quando ela voltar." **Proposed**: opening the portal with no link needs the device's part, which is not built |
 | Someone asked for the person's help to recover an account | A small sun dot on the initial, and the request in [trusted people](account.md#trusted-people) |
-| Not signed in | The address leads to [creating an account](account.md#create-an-account), which links to signing in. **Built**: the root address sends a visitor with no session to `/sign-up`, and a signed in resident to `/chat`, because the portal does not exist yet |
+| Not signed in | The address leads to [creating an account](account.md#create-an-account), which links to signing in. **Built**: the root address sends a visitor with no session to `/sign-up`, and shows a signed in resident the portal |
 
 **Who may:** every signed in resident, whatever the role: resident, child, moderator, administrator. A child sees the same portal, and "Agora na comunidade" only shows what a child may read. A guardian sees what any resident sees.
 
@@ -105,9 +107,9 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 | Nothing in the chosen app | "Nada em Aulas para “bomba”." and a link "Ver em tudo" |
 | No link with the community | "A busca precisa da ligação com a comunidade. Tente de novo quando ela voltar." |
 
-**Built** today, at `/search`: one field, open to every signed in resident, that looks in the messages of the open channels and lists up to fifty of them, the best first, each with its origin ("Conversa"), its author, its time and its text. The words are reduced to their root with the Portuguese stemmer and stripped of accents, so `plantas`, `Plantar` and `planta` meet, and whatever is typed is read as words, never as an operator. Nothing personal ever enters the search index. See [the core](../design/core.md#search).
+**Built**, at `/search`, as drawn: the mark that leads back to the portal, the field with the words and the button to clear them, the row of filters, how many results and where, such as "1 resultado em Conversas", and one card per result with Talk's small tile, "Talk" and the channel, the author and the text with the word found marked, and "Canal aberto" with when it was written, such as "hoje às 8h12". A card opens the channel at the message, when the message is among the last 200 the channel shows; an older message is found, but the channel does not reach it yet. A long message is shown around the first word found. The search looks in the messages of the open channels and lists up to fifty of them, the best first; with fifty it says "Os 50 melhores resultados". The words are reduced to their root with the Portuguese stemmer and stripped of accents, so `plantas`, `Plantar` and `planta` meet, and whatever is typed is read as words, never as an operator. Nothing personal ever enters the search index. See [the core](../design/core.md#search).
 
-**Proposed:** the other four apps in the same search, the filters, the cards with the tile of each app and the word marked.
+**Proposed:** the other four apps in the same search. Until each app is built, its filter shows the state "Nothing in the chosen app", which is **Built**.
 
 **Who may:** every signed in role. A child only gets results from what a child may read. Personal conversations, closed groups and the vault are never searched by the community's search: they are encrypted, and the machines cannot read them.
 
@@ -137,9 +139,9 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 | A child searched | The soft card does not show, and the search goes into no list |
 | The Mentor is not available | The button still leads to Ask, which says so, as [Ask](ask.md) describes |
 
-**Built** today: the sentence "Nada encontrado para essa busca." The record of searches that found nothing is not built.
+**Built:** the card with "Nada encontrado para “…”", the button "Perguntar ao Mentor", which opens Ask, and the tip "Tente uma palavra só, ou outra parecida." The sentence of where the search looked names only what it looks in today: "A busca olhou as conversas abertas." The soft card and the record of searches that found nothing are not built, so the screen does not show the soft card.
 
-**Proposed:** everything else on this screen. A search that found nothing feeds "O que falta", the list in [Ask](ask.md) of what the collection is missing, grouped by subject, with the words and never the person.
+**Proposed:** the soft card, where the search looked naming each app as it is built, and Ask opening with the words already in the question; today the button opens Ask, which does not read them. A search that found nothing feeds "O que falta", the list in [Ask](ask.md) of what the collection is missing, grouped by subject, with the words and never the person.
 
 **Who may:** every signed in role. Searches of a child never go into the list, as the rules for children in [account](account.md#children) say.
 
@@ -173,3 +175,4 @@ The person taps "Adicionar" on the portal, chooses an app, and lands on that app
 - Whether the filters of the search carry the names of the apps or the names of what they hold, as drawn.
 - Which answers of the Mentor the search finds: only the ones the person asked, which Ask keeps on their device, or answers shared with the community.
 - How long an emergency alert stays at the top of the portal, and who ends it.
+- Where the ways in for those who look after the community sit on the portal. Today they are at the bottom, under "Para quem cuida", which is not drawn.

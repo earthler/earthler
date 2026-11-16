@@ -291,7 +291,7 @@ No path: a sheet over the open channel. **Built** as a field of reason and a but
 | --- | --- |
 | ![The passphrase asked once in the Talk icon, light](../screens/png/light/talk-passphrase.png) | ![The passphrase asked once in the Talk icon, dark](../screens/png/dark/talk-passphrase.png) |
 
-On an iPhone, each icon on the Home Screen is a separate app with storage of its own. The sign in goes with the icon when it is added, and the keys that open what is personal do not. On 2026-11-15 the maintainer decided that the Talk icon asks for the passphrase once, inside the icon, and fetches the sealed package from a machine; the passphrase never leaves the device. See [four apps on one address](../design/apps.md#what-a-real-iphone-showed).
+On an iPhone, each icon on the Home Screen is a separate app with storage of its own. The sign in goes with the icon when it is added, and the keys that open what is personal do not. On 2026-11-15 the maintainer decided that the Talk icon asks for the passphrase once, inside the icon, and fetches the sealed package from a machine; the passphrase never leaves the device. See [a portal and five apps on one address](../design/apps.md#what-a-real-iphone-showed).
 
 **What the person sees.** The home as always, with the open channels readable, because they are not encrypted. In place of the encrypted list, a card with the lock and "Só entre vocês, cifradas", the sentence "Neste ícone, as suas conversas ainda estão fechadas", the line "Digite a sua frase uma vez. Depois o Talk abre direto.", the field "Frase secreta, as 7 palavras", the line "Sua frase não sai deste aparelho." and the button "Abrir as minhas conversas".
 

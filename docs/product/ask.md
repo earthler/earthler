@@ -29,7 +29,7 @@ The design has a limit and the screens respect it: in a small community, the wor
 
 ## Screens
 
-The four apps share the header, the bar, the buttons, the cards and the four notices; see [principles](principles.md) and [visual identity](visual.md). Ask's cover is dark, its bar has three parts, "Perguntar", "Respostas" and "O que falta", and the community's name at the top leads to the portal.
+The five apps share the header, the bar, the buttons, the cards and the four notices; see [principles](principles.md) and [visual identity](visual.md). Ask's cover is dark, its bar has three parts, "Perguntar", "Respostas" and "O que falta", and the community's name at the top leads to the portal.
 
 ### Home: asking
 

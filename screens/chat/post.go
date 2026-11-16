@@ -41,7 +41,11 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 		s.show(w, r, http.StatusBadRequest, "chat.error.long", text)
 		return
 	}
-	channel, _, err := s.channel(r.Context())
+	channel, _, err := s.channel(r)
+	if errors.Is(err, sql.ErrNoRows) {
+		http.NotFound(w, r)
+		return
+	}
 	if err != nil {
 		log.Printf("chat: %v", err)
 		http.Error(w, s.pages.T("error.internal"), http.StatusInternalServerError)
@@ -52,7 +56,7 @@ func (s *Screen) post(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		_, err = s.scribe.Write(r.Context(), content)
 	}
-	s.answer(w, r, err, text)
+	s.answer(w, r, err, text, channel)
 }
 
 // cleanText gets a message ready to be written. Every kind of line end
@@ -117,20 +121,22 @@ func (s *Screen) delete(w http.ResponseWriter, r *http.Request) {
 		}
 		data.Author, data.Reason = account, reason
 	}
+	r.SetPathValue("channel", strconv.FormatUint(channel, 10))
 	if deleted != 0 {
-		http.Redirect(w, r, "/chat", http.StatusSeeOther)
+		http.Redirect(w, r, "/talk/channel/"+strconv.FormatUint(channel, 10), http.StatusSeeOther)
 		return
 	}
 	content, err := event.New(event.MessageDeleted, sess.Account, sess.Device, time.Now(), data)
 	if err == nil {
 		_, err = s.scribe.Write(r.Context(), content)
 	}
-	s.answer(w, r, err, "")
+	s.answer(w, r, err, "", channel)
 }
 
 // answer ends a write: back to the conversation, or the page again with
 // what went wrong and the draft kept.
-func (s *Screen) answer(w http.ResponseWriter, r *http.Request, err error, draft string) {
+func (s *Screen) answer(w http.ResponseWriter, r *http.Request, err error, draft string, channel uint64) {
+	r.SetPathValue("channel", strconv.FormatUint(channel, 10))
 	switch {
 	case errors.Is(err, scribe.ErrStopped):
 		s.show(w, r, http.StatusServiceUnavailable, "error.stopped", draft)
@@ -138,6 +144,6 @@ func (s *Screen) answer(w http.ResponseWriter, r *http.Request, err error, draft
 		log.Printf("chat: %v", err)
 		s.show(w, r, http.StatusInternalServerError, "error.internal", draft)
 	default:
-		http.Redirect(w, r, "/chat#end", http.StatusSeeOther)
+		http.Redirect(w, r, "/talk/channel/"+strconv.FormatUint(channel, 10)+"#end", http.StatusSeeOther)
 	}
 }

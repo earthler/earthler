@@ -10,7 +10,7 @@ The glyphs of the apps are made of the pieces of the mark: the sun, the leaves w
 
 ## Palette
 
-| Role | Light | Dark (proposed) | Used for |
+| Role | Light | Dark | Used for |
 | --- | --- | --- | --- |
 | Background | `#F3EFE7` | `#15120E` | The page |
 | Surface | `#FFFFFF` | `#221E18` | Cards, lists, the bar, sheets |
@@ -27,7 +27,7 @@ The glyphs of the apps are made of the pieces of the mark: the sun, the leaves w
 | Track | `#DED6C7` | `#3D352C` | Progress bars, switches off |
 | Border | `#CFC7B8` | `#4A4136` | Fields |
 
-Dark mode turns the palette around instead of inventing colors: the background is the warm dark of the text color, surfaces step up from it, and the leaf green takes the place of the primary, which is too dark to read on a dark background. The sun keeps its dark text in both modes. Every pair of text and background keeps a contrast of at least 4.5 to 1. **Proposed**: the dark palette waits for the maintainer's visual approval.
+Dark mode turns the palette around instead of inventing colors: the background is the warm dark of the text color, surfaces step up from it, and the leaf green takes the place of the primary, which is too dark to read on a dark background. The sun keeps its dark text in both modes. Every pair of text and background keeps a contrast of at least 4.5 to 1. The maintainer approved the screens of every part, drawn in light and dark, on 2026-11-15. **Built** since 2026-11-16: the system follows the device's choice with this palette, as [principles](principles.md#light-and-dark) say.
 
 ## Type
 

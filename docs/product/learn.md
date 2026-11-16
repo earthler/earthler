@@ -20,7 +20,7 @@ These rules shape every screen below. They are **Proposed** unless marked otherw
 
 ## Screens
 
-The four apps share the header, the bar, the buttons, the cards and the four notices; see [principles](principles.md) and [visual identity](visual.md). Learn's cover is the surface color with dark text, and its home starts with the question "O que você quer saber?" and the search. Its bar has five parts: "Assuntos", "Aulas", "Wiki", "Acervo" and "Cinema". The community's name at the top of each part leads to the portal.
+The five apps share the header, the bar, the buttons, the cards and the four notices; see [principles](principles.md) and [visual identity](visual.md). Learn's cover is the surface color with dark text, and its home starts with the question "O que você quer saber?" and the search. Its bar has five parts: "Assuntos", "Aulas", "Wiki", "Acervo" and "Cinema". The community's name at the top of each part leads to the portal.
 
 Pages for reading, such as a lesson, a wiki page or a film, keep the bar with the part they belong to marked, so a person moves through Learn without going back. Pages for a task, publishing a lesson, editing a page, deciding between two versions and reading a book, take the whole screen and have a way back. **Proposed.**
 
