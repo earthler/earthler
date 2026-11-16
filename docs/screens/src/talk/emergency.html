@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: aviso de emergência recebido</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk" role="alertdialog" aria-labelledby="alert-title" aria-describedby="alert-text" style="background:var(--sun);color:var(--on-sun)">
+  <div style="display:flex;align-items:center;gap:8px;padding:20px 20px 0;font-size:15px;font-weight:700">
+    <img data-mark alt="">Vila Aurora
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:0 24px">
+    <span style="width:88px;height:88px;border-radius:44px;background:var(--on-sun);color:var(--sun);display:flex;align-items:center;justify-content:center"><span style="display:flex;transform:scale(2)"><i data-icon="siren"></i></span></span>
+    <p style="font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase">Emergência, agora, 14h32</p>
+    <h1 id="alert-title" style="font-size:32px;line-height:1.1;font-weight:800">Fogo no pasto de cima, perto do bambuzal.</h1>
+    <p id="alert-text" style="font-size:20px;line-height:1.4;font-weight:500">Saiam da trilha e se reúnam no galpão.</p>
+    <p style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600"><i data-icon="person" class="s"></i>Enviado por Joel</p>
+    <p style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600"><i data-icon="bell" class="s"></i>A sirene da comunidade está tocando.</p>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:6px;padding:0 20px 26px">
+    <button class="btn block" type="button" style="background:var(--on-sun);color:var(--sun)">Entendi</button>
+    <a class="btn ghost block" href="#" style="color:var(--on-sun);min-height:44px">Ver todos os avisos</a>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

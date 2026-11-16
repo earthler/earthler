@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: o que fazer com a própria mensagem</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar às conversas"><i data-icon="back"></i></a>
+    <div class="tx">
+      <h1>Horta coletiva</h1>
+      <p class="sub">Canal aberto, toda a comunidade lê</p>
+    </div>
+    <a class="icon-btn" href="#" aria-label="Sobre o canal"><i data-icon="more"></i></a>
+  </header>
+
+  <div class="thread" aria-hidden="true">
+    <span class="day">Hoje</span>
+    <div class="bubble">
+      <span class="who">Joel</span>
+      Alguém tem semente de abóbora para trocar?
+      <span class="h">8h02</span>
+    </div>
+    <div class="bubble">
+      <span class="who">Bia</span>
+      Eu tenho de moranga, serve?
+      <span class="h">8h06</span>
+    </div>
+    <div class="bubble">
+      <span class="who">Joel</span>
+      Serve, Bia. Obrigado!
+      <span class="h">8h09</span>
+    </div>
+    <div class="bubble">
+      <span class="who">Neide</span>
+      Tenho, Joel. Levo na feira de sábado.
+      <span class="h">8h20</span>
+    </div>
+    <div class="bubble me">
+      As mudas de couve chegaram. Estão no galpão, ao lado da caixa d'água.
+      <span class="h">9h38</span>
+    </div>
+    <div class="bubble me">
+      Quem for plantar hoje, leve regador.
+      <span class="h">9h40</span>
+    </div>
+  </div>
+
+  <div class="compose" aria-hidden="true">
+    <span class="round soft"><i data-icon="plus"></i></span>
+    <span class="input"><span class="ph">Mensagem</span></span>
+    <span class="round"><i data-icon="mic"></i></span>
+  </div>
+
+  <div class="veil"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" style="gap:8px">
+    <p id="sheet-title" class="label">Sua mensagem, 9h38</p>
+    <p style="padding:10px 14px;border-radius:16px;background:var(--soft);font-size:15px;line-height:1.35">As mudas de couve chegaram. Estão no galpão, ao lado da caixa d'água.</p>
+    <div class="list" style="padding:0">
+      <a class="row" href="#"><i data-icon="talk"></i><span class="tx"><span class="a">Responder</span></span></a>
+      <a class="row" href="#"><i data-icon="send"></i><span class="tx"><span class="a">Encaminhar</span><span class="b">Para outra conversa ou canal</span></span></a>
+      <a class="row" href="#"><i data-icon="edit"></i><span class="tx"><span class="a">Editar</span><span class="b">Fica a marca de editada</span></span></a>
+      <a class="row" href="#" style="color:var(--danger)"><i data-icon="trash"></i><span class="tx"><span class="a">Apagar</span><span class="b wrap">Some para todos na hora. Fica o aviso de que havia uma mensagem.</span></span></a>
+    </div>
+    <button class="btn ghost block" type="button">Fechar</button>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

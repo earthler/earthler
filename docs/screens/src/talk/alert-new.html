@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: novo aviso geral</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar aos avisos"><i data-icon="back"></i></a>
+    <div class="tx">
+      <h1>Novo aviso</h1>
+      <p class="sub">Vai para todos da Vila Aurora</p>
+    </div>
+  </header>
+
+  <form class="content" action="#" style="gap:16px">
+    <div class="field">
+      <label for="text">O que todos precisam saber</label>
+      <div class="input area" id="text" role="textbox" aria-multiline="true" style="min-height:120px">Fogo no pasto de cima, perto do bambuzal. Saiam da trilha e se reúnam no galpão.</div>
+    </div>
+
+    <div class="field">
+      <span class="label" id="cat">Categoria</span>
+      <div class="chips" role="radiogroup" aria-labelledby="cat">
+        <a class="pill on" href="#" role="radio" aria-checked="true">Emergência</a>
+        <a class="pill" href="#" role="radio" aria-checked="false">Água</a>
+        <a class="pill" href="#" role="radio" aria-checked="false">Energia</a>
+        <a class="pill" href="#" role="radio" aria-checked="false">Saúde</a>
+        <a class="pill" href="#" role="radio" aria-checked="false">Geral</a>
+      </div>
+    </div>
+
+    <label class="card" style="flex-direction:row;align-items:center;gap:12px">
+      <span class="avatar sun"><i data-icon="siren" class="s"></i></span>
+      <span class="tx"><span class="a">Tocar a sirene</span><span class="b wrap">Só em emergência</span></span>
+      <span class="switch on" role="switch" aria-checked="true" aria-label="Tocar a sirene"></span>
+    </label>
+
+    <p class="small">Quem estiver com a Vila Aurora aberta vê o aviso em tela cheia. Seu nome vai junto.</p>
+
+    <button class="btn block" type="submit" style="margin-top:auto">Continuar</button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

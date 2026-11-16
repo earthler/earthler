@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: confirmar o aviso antes de disparar</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="inner" aria-hidden="true">
+    <span class="back"><i data-icon="back"></i></span>
+    <div class="tx">
+      <h1>Novo aviso</h1>
+      <p class="sub">Vai para todos da Vila Aurora</p>
+    </div>
+  </header>
+
+  <div class="content" aria-hidden="true" style="gap:16px">
+    <div class="field">
+      <span class="label">O que todos precisam saber</span>
+      <div class="input area" style="min-height:120px">Fogo no pasto de cima, perto do bambuzal. Saiam da trilha e se reúnam no galpão.</div>
+    </div>
+  </div>
+
+  <div class="veil"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <h2 id="sheet-title">Confira antes de disparar</h2>
+    <div class="card ring" style="background:var(--surface);gap:8px">
+      <span class="chip sun"><i data-icon="siren" class="s"></i>Emergência</span>
+      <p style="font-size:17px;font-weight:700;line-height:1.35">Fogo no pasto de cima, perto do bambuzal. Saiam da trilha e se reúnam no galpão.</p>
+    </div>
+    <ul class="steps">
+      <li><span class="n"><i data-icon="check" class="s"></i></span>Aparece em tela cheia para quem está com a Vila Aurora aberta.</li>
+      <li><span class="n"><i data-icon="check" class="s"></i></span>A sirene toca assim que você disparar.</li>
+      <li><span class="n"><i data-icon="check" class="s"></i></span>Seu nome vai junto e fica no Registro. Depois de enviado, o aviso não volta.</li>
+    </ul>
+    <button class="btn danger block" type="button">Disparar o aviso agora</button>
+    <button class="btn ghost block" type="button" style="min-height:44px">Voltar e mudar</button>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

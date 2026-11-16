@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: nova conversa</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar às conversas"><i data-icon="back"></i></a>
+    <div class="tx">
+      <h1>Nova conversa</h1>
+      <p class="sub"><i data-icon="lock" class="s"></i>Cifrada, só quem participa lê</p>
+    </div>
+  </header>
+
+  <form class="content" action="#">
+    <div class="search" role="search"><i data-icon="search"></i>Procurar pessoa</div>
+
+    <div class="chips" aria-label="Escolhidas">
+      <span class="chip"><i data-icon="check" class="s"></i>Bia</span>
+      <span class="chip"><i data-icon="check" class="s"></i>Caio</span>
+    </div>
+
+    <div class="field">
+      <label for="group">Nome do grupo, porque são duas pessoas ou mais</label>
+      <div class="input" id="group" role="textbox">Mutirão da horta</div>
+    </div>
+
+    <section class="list" aria-label="Pessoas">
+      <label class="row"><span class="avatar">B</span><span class="tx"><span class="a">Bia</span></span>
+        <span role="checkbox" aria-checked="true" style="width:28px;height:28px;flex:none;border-radius:14px;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center"><i data-icon="check" class="s"></i></span></label>
+      <label class="row"><span class="avatar">C</span><span class="tx"><span class="a">Caio</span></span>
+        <span role="checkbox" aria-checked="true" style="width:28px;height:28px;flex:none;border-radius:14px;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center"><i data-icon="check" class="s"></i></span></label>
+      <label class="row"><span class="avatar">J</span><span class="tx"><span class="a">Joel</span></span>
+        <span role="checkbox" aria-checked="false" style="width:28px;height:28px;flex:none;border-radius:14px;box-shadow:inset 0 0 0 2px var(--border)"></span></label>
+      <label class="row"><span class="avatar">N</span><span class="tx"><span class="a">Neide</span></span>
+        <span role="checkbox" aria-checked="false" style="width:28px;height:28px;flex:none;border-radius:14px;box-shadow:inset 0 0 0 2px var(--border)"></span></label>
+    </section>
+
+    <p class="small">Tudo é cifrado no seu aparelho antes de sair. Só quem participa lê, e quem cuida da comunidade não.</p>
+
+    <button class="btn block" type="submit" style="margin-top:auto">Começar o grupo</button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
