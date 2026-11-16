@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Learn: cinema</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="learn">
+  <header class="cover">
+    <span data-glyph="learn"></span>
+    <div class="head">
+      <span class="name">Learn</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>Cinema</h1>
+      <p>Filmes, desenhos e documentários livres, para todos.</p>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="chips" role="tablist" aria-label="Tipo">
+      <a class="pill on" href="#" role="tab" aria-selected="true">Tudo</a>
+      <a class="pill" href="#" role="tab" style="color:var(--on-soft)">Filmes</a>
+      <a class="pill" href="#" role="tab" style="color:var(--on-soft)">Desenhos</a>
+      <a class="pill" href="#" role="tab" style="color:var(--on-soft)">Documentários</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px">
+      <a href="#" style="display:flex;flex-direction:column;gap:6px">
+        <span class="picture" style="height:112px"><svg viewBox="0 0 174 112" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><circle cx="128" cy="36" r="18" style="fill:var(--sun)"/><path d="M0 84 C50 56 100 60 174 80 V112 H0 Z" style="fill:var(--soft)"/></svg></span>
+        <span class="tx"><span class="a" style="font-size:15px">A água da serra</span><span class="b">Documentário, 48 min</span></span>
+      </a>
+      <a href="#" style="display:flex;flex-direction:column;gap:6px">
+        <span class="picture soft" style="height:112px"><svg viewBox="0 0 174 112" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><rect x="74" y="34" width="26" height="60" rx="4" style="fill:var(--primary)"/><path d="M87 40 L87 14 M87 40 L111 52 M87 40 L63 52" style="stroke:var(--primary);stroke-width:6;stroke-linecap:round"/><circle cx="36" cy="30" r="12" style="fill:var(--sun)"/></svg></span>
+        <span class="tx"><span class="a" style="font-size:15px">O moinho e o vento</span><span class="b">Filme, 1h12</span></span>
+      </a>
+      <a href="#" style="display:flex;flex-direction:column;gap:6px">
+        <span class="picture soft" style="height:112px"><svg viewBox="0 0 174 112" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><circle cx="87" cy="52" r="22" style="fill:var(--sun)"/><path d="M0 96 C60 80 114 80 174 96 V112 H0 Z" style="fill:var(--leaf)"/></svg></span>
+        <span class="tx"><span class="a" style="font-size:15px">A semente viajante</span><span class="b">Desenho, 9 min</span></span>
+      </a>
+      <a href="#" style="display:flex;flex-direction:column;gap:6px">
+        <span class="picture" style="height:112px"><svg viewBox="0 0 174 112" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true"><path d="M0 70 C40 60 70 80 110 70 C140 62 160 66 174 70 V112 H0 Z" style="fill:var(--on-primary);opacity:.22"/><path d="M0 92 C50 82 120 100 174 90 V112 H0 Z" style="fill:var(--soft)"/><circle cx="40" cy="32" r="12" style="fill:var(--sun)"/></svg></span>
+        <span class="tx"><span class="a" style="font-size:15px">Histórias do rio</span><span class="b">Documentário, 55 min</span></span>
+      </a>
+    </div>
+
+    <p class="small">Só obras em domínio público ou com licença livre. A administração escolhe o que entra.</p>
+  </div>
+
+  <nav class="bar" aria-label="Learn">
+    <a href="#"><span class="pad"><i data-icon="grid"></i></span>Assuntos</a>
+    <a href="#"><span class="pad"><i data-icon="lesson"></i></span>Aulas</a>
+    <a href="#"><span class="pad"><i data-icon="wiki"></i></span>Wiki</a>
+    <a href="#"><span class="pad"><i data-icon="collection"></i></span>Acervo</a>
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="cinema"></i></span>Cinema</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
