@@ -16,7 +16,7 @@ import (
 func (v *visitor) listen(s *site, after string) (*bufio.Scanner, func()) {
 	v.t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
-	req, _ := http.NewRequestWithContext(ctx, "GET", s.srv.URL+"/chat/live?after="+after, nil)
+	req, _ := http.NewRequestWithContext(ctx, "GET", s.srv.URL+"/talk/live?after="+after, nil)
 	res, err := v.client.Do(req)
 	if err != nil {
 		v.t.Fatal(err)
@@ -49,7 +49,7 @@ func block(t *testing.T, sc *bufio.Scanner) string {
 }
 
 func (v *visitor) remove(s *site, number string) (int, string) {
-	return v.post(s, "/chat/delete", s.srv.URL, url.Values{"number": {number}})
+	return v.post(s, "/talk/delete", s.srv.URL, url.Values{"number": {number}})
 }
 
 // TestMessagesArriveLiveAndCanBeDeleted is the proof of live updates and

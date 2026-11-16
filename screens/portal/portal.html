@@ -1,0 +1,29 @@
+{{define "content"}}
+<h1 class="sr">{{t "portal.title"}}</h1>
+<p class="lead">{{t "portal.lead"}}</p>
+<p class="menor">{{t "portal.you"}} <b>{{.User}}</b>.</p>
+<form class="busca" action="/search" method="get" role="search">
+  {{icon "i-busca"}}
+  <input type="search" name="q" placeholder="{{t "portal.search"}}" aria-label="{{t "portal.search"}}">
+  <button type="submit">{{t "portal.search.button"}}</button>
+</form>
+<h2 class="olho">{{t "portal.apps"}}</h2>
+<div class="porta">
+  {{range .Body}}
+  <div class="sv">
+    <a class="open" href="/{{.Key}}/"><span class="tile">{{glyph .Key}}</span><span class="a">{{t (print "app." .Key ".name")}}</span></a>
+    <span class="b">{{t (print "app." .Key ".description")}}</span>
+    <a class="btna" href="/{{.Key}}/?add=1" aria-label="{{named "add.button.app" .Key}}"><span class="solm">{{icon "i-mais-p"}}</span>{{t "add.button"}}</a>
+  </div>
+  {{end}}
+</div>
+<section class="tom"><p>{{t "portal.store"}}</p></section>
+<p class="menor centro">{{t "portal.browser"}}</p>
+{{if or (can .Role "log.read") (can .Role "residents.see")}}
+<section class="lista">
+  <h2 class="olho">{{t "portal.community"}}</h2>
+  {{if can .Role "log.read"}}<a class="linha" href="/log"><span class="tx"><span class="a">{{t "nav.log"}}</span><span class="b">{{t "portal.log"}}</span></span></a>{{end}}
+  {{if can .Role "residents.see"}}<a class="linha" href="/admin/residents"><span class="tx"><span class="a">{{t "nav.residents"}}</span><span class="b">{{t "portal.residents"}}</span></span></a>{{end}}
+</section>
+{{end}}
+{{end}}

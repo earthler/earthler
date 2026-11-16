@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sync"
 	"time"
 
+	"github.com/earthler/earthler/brand"
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/certificate"
 	"github.com/earthler/earthler/core/copies"
@@ -19,8 +21,12 @@ import (
 	"github.com/earthler/earthler/core/page"
 	"github.com/earthler/earthler/core/replica"
 	"github.com/earthler/earthler/core/scribe"
+	"github.com/earthler/earthler/screens/ask"
 	"github.com/earthler/earthler/screens/auditlog"
 	"github.com/earthler/earthler/screens/chat"
+	"github.com/earthler/earthler/screens/decide"
+	"github.com/earthler/earthler/screens/learn"
+	"github.com/earthler/earthler/screens/portal"
 	people "github.com/earthler/earthler/screens/residents"
 	"github.com/earthler/earthler/screens/search"
 	"github.com/earthler/earthler/screens/signup"
@@ -150,22 +156,26 @@ func open(cfg config) (*app, error) {
 	}
 	plain := http.NewServeMux()
 	plain.Handle("GET /static/", page.Static())
+	plain.Handle("GET /brand/", brand.Handler())
 	welcome.New(a.chain, pages, cfg.httpsPort).Routes(plain)
 	a.welcome = pages.Guard(plain)
 
 	mux := http.NewServeMux()
 	mux.Handle("GET /static/", page.Static())
+	mux.Handle("GET /brand/", brand.Handler())
 	mux.HandleFunc("GET /probe.gif", welcome.Probe)
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
-		if _, signedIn := residents.Session(r); signedIn {
-			http.Redirect(w, r, "/chat", http.StatusSeeOther)
-			return
-		}
-		http.Redirect(w, r, "/sign-up", http.StatusSeeOther)
-	})
+	who := func(r *http.Request) (string, string) {
+		sess := accounts.From(r.Context())
+		return sess.Name, string(sess.Role)
+	}
+	portal.New(residents, pages).Routes(mux)
 	signup.New(residents, pages).Routes(mux)
 	a.chat = chat.New(byName[chat.Area.Name], a.scribe, pages)
 	a.chat.Routes(mux, residents.Require)
+	learn.Routes(mux, pages, residents.Require, who)
+	decide.Routes(mux, pages, residents.Require, who)
+	ask.Routes(mux, pages, residents.Require, who)
+	pages.AppRoutes(mux, residents.Require, who, slices.Concat(chat.Paths, learn.Paths, decide.Paths, ask.Paths)...)
 	search.New(byName[search.Area.Name], pages).Routes(mux, residents.Require)
 	auditlog.New(byName[auditlog.Area.Name], pages).Routes(mux, residents.Require)
 	people.New(residents, pages).Routes(mux, residents.Require)

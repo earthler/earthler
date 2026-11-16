@@ -92,9 +92,16 @@ func New(ix *index.Index, pages *page.Renderer) *Screen {
 	return &Screen{index: ix, pages: pages, tmpl: pages.Screen(files, "search.html")}
 }
 
-// Routes adds the screen to the server.
+// Routes adds the screen to the server: the search of the whole community,
+// from the portal, and the same search inside Learn, so an installed Learn
+// never leaves its own window to search.
 func (s *Screen) Routes(mux *http.ServeMux, signedIn func(http.Handler) http.Handler) {
-	mux.Handle("GET /search", signedIn(http.HandlerFunc(s.show)))
+	mux.Handle("GET /search", signedIn(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s.show(w, r, "", "/search")
+	})))
+	mux.Handle("GET /learn/search", signedIn(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s.show(w, r, "learn", "/learn/search")
+	})))
 }
 
 type result struct {
@@ -105,17 +112,20 @@ type result struct {
 }
 
 type body struct {
+	Action  string // where the field sends the next search
 	Asked   bool
 	Results []result
 }
 
-func (s *Screen) show(w http.ResponseWriter, r *http.Request) {
+// show searches. app is the app the page belongs to, or empty for the
+// portal's search.
+func (s *Screen) show(w http.ResponseWriter, r *http.Request, app, action string) {
 	sess := accounts.From(r.Context())
 	asked := strings.TrimSpace(r.URL.Query().Get("q"))
 	if len([]rune(asked)) > 200 {
 		asked = string([]rune(asked)[:200])
 	}
-	b := body{}
+	b := body{Action: action}
 	if query := terms.Query(asked); query != "" {
 		b.Asked = true
 		rows, err := s.index.DB().QueryContext(r.Context(), `
@@ -146,5 +156,9 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request) {
 			b.Results = append(b.Results, res)
 		}
 	}
-	s.pages.Render(w, http.StatusOK, s.tmpl, page.Data{Title: s.pages.T("search.title"), User: sess.Name, Role: string(sess.Role), Query: asked, Body: b})
+	data := page.Data{Title: s.pages.T("search.title"), User: sess.Name, Role: string(sess.Role), Query: asked, Body: b}
+	if app != "" {
+		data.App, data.Tab = app, "subjects"
+	}
+	s.pages.Render(w, http.StatusOK, s.tmpl, data)
 }

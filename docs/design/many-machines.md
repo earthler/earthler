@@ -127,7 +127,7 @@ The light parts, conversation, wiki, map, voting and search by word, go inside e
 | Exchange between machines | Machines that are images follow each other's journals, live, each straight from the machine that wrote it (**built**). The second machine stays as an option | The same, with signed entries so a copy can be handed on | Reuses the pairing code, the fingerprint and the seal check of the second machine |
 | The device | Keeps nothing (**built**) | Keeps what is personal and an outbox | New code in the browser |
 | The network | Outside the software | Each machine is a point of the network | A new piece, the least proven |
-| Screens | One site | Four apps, see [four apps on one address](apps.md) | The screens split into four, on four paths |
+| Screens | The portal and four apps, on four paths (**built**) | The same, with each app's own screens | See [a portal and four apps](apps.md) |
 
 It is a rework of the core that exists, plus one new piece, the network. Consensus between machines is not on the list.
 

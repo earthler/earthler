@@ -1,14 +1,16 @@
-// Package chat is the conversation screen. For now it shows one open channel
-// that every resident reads and writes.
+// Package chat is Talk, the app of conversations: its home with the open
+// channels of the community, and the conversation of each one. For now the
+// community has one open channel, which every resident reads and writes.
 package chat
 
 import (
-	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/earthler/earthler/core/accounts"
@@ -20,7 +22,7 @@ import (
 	"github.com/earthler/earthler/core/scribe"
 )
 
-//go:embed chat.html chat.js
+//go:embed chat.html home.html chat.js
 var files embed.FS
 
 // MaxText is the longest message, in characters.
@@ -119,13 +121,15 @@ type Screen struct {
 	scribe *scribe.Scribe
 	pages  *page.Renderer
 	tmpl   *template.Template
+	home   *template.Template
 	hub    *live.Hub
 }
 
 // New returns the screen and starts listening to the scribe, so that every
 // open page learns of a message as soon as it is written.
 func New(ix *index.Index, s *scribe.Scribe, pages *page.Renderer) *Screen {
-	sc := &Screen{index: ix, scribe: s, pages: pages, tmpl: pages.Screen(files, "chat.html"), hub: live.NewHub()}
+	sc := &Screen{index: ix, scribe: s, pages: pages, tmpl: pages.Screen(files, "chat.html"),
+		home: pages.Screen(files, "home.html"), hub: live.NewHub()}
 	s.Listen(sc.announce)
 	return sc
 }
@@ -133,16 +137,22 @@ func New(ix *index.Index, s *scribe.Scribe, pages *page.Renderer) *Screen {
 // Routes adds the screen to the server. signedIn wraps what only residents
 // may reach.
 func (s *Screen) Routes(mux *http.ServeMux, signedIn func(http.Handler) http.Handler) {
-	mux.Handle("GET /chat", signedIn(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("GET /talk/{$}", signedIn(http.HandlerFunc(s.showHome)))
+	mux.Handle("GET /talk/channel/{channel}", signedIn(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s.show(w, r, http.StatusOK, "", "")
 	})))
-	mux.Handle("GET /chat/live", signedIn(http.HandlerFunc(s.live)))
-	mux.Handle("POST /chat", signedIn(http.HandlerFunc(s.post)))
-	mux.Handle("POST /chat/delete", signedIn(http.HandlerFunc(s.delete)))
-	mux.HandleFunc("GET /chat.js", func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("POST /talk/channel/{channel}", signedIn(http.HandlerFunc(s.post)))
+	mux.Handle("GET /talk/live", signedIn(http.HandlerFunc(s.live)))
+	mux.Handle("POST /talk/delete", signedIn(http.HandlerFunc(s.delete)))
+	mux.HandleFunc("GET /talk/chat.js", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFileFS(w, r, files, "chat.js")
 	})
+	// The address of the conversation before there were four apps.
+	mux.Handle("GET /chat", signedIn(http.HandlerFunc(s.toFirstChannel)))
 }
+
+// Paths is what the screen serves of Talk's bar.
+var Paths = []string{"/talk/"}
 
 // message is one card of the conversation.
 type message struct {
@@ -154,6 +164,7 @@ type message struct {
 	Mine    bool
 	Deleted uint64 // the entry that deleted it, or zero
 	Place   int64  // where it goes in the conversation, with Number
+	Channel uint64
 
 	// Removable says that the reader may remove this message, though it is
 	// not theirs, with a reason.
@@ -161,7 +172,8 @@ type message struct {
 }
 
 type body struct {
-	Channel  string
+	Channel  uint64
+	Name     string // of the channel
 	Position string // how far the page has seen, see live.Position
 	Me       uint64 // the account of the person reading
 	Messages []message
@@ -175,12 +187,12 @@ type body struct {
 
 // messageColumns is what every query of messages reads, in the order that
 // scanMessage expects.
-const messageColumns = `m.number, m.account, coalesce(a.name, ''), m.time, m.text, m.deleted, m.place`
+const messageColumns = `m.number, m.account, coalesce(a.name, ''), m.time, m.text, m.deleted, m.place, m.channel`
 
 func (s *Screen) scanMessage(rows interface{ Scan(...any) error }, me uint64, canRemove bool) (message, error) {
 	var m message
 	var ms int64
-	err := rows.Scan(&m.Number, &m.Account, &m.Author, &ms, &m.Text, &m.Deleted, &m.Place)
+	err := rows.Scan(&m.Number, &m.Account, &m.Author, &ms, &m.Text, &m.Deleted, &m.Place, &m.Channel)
 	m.Time = time.UnixMilli(ms).Format(s.pages.T("time.short"))
 	m.Mine = m.Account == me
 	m.Removable = canRemove && !m.Mine
@@ -195,13 +207,17 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey
 	if errKey != "" {
 		b.Error = s.pages.T(errKey)
 	}
-	channel, name, err := s.channel(r.Context())
+	channel, name, err := s.channel(r)
+	if errors.Is(err, sql.ErrNoRows) {
+		http.NotFound(w, r)
+		return
+	}
 	if err != nil {
 		log.Printf("chat: %v", err)
 		http.Error(w, s.pages.T("error.internal"), http.StatusInternalServerError)
 		return
 	}
-	b.Channel = name
+	b.Channel, b.Name = channel, name
 	// Read before the messages, so the page can only have seen more than it
 	// says, never less: what it is sent twice, it shows once.
 	b.Position = live.Position(s.index.Positions()).String()
@@ -227,14 +243,29 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey
 	for i, j := 0, len(b.Messages)-1; i < j; i, j = i+1, j-1 {
 		b.Messages[i], b.Messages[j] = b.Messages[j], b.Messages[i]
 	}
-	s.pages.Render(w, status, s.tmpl, page.Data{Title: s.pages.T("chat.title"), Active: "chat", User: sess.Name, Role: string(sess.Role), Script: "/chat.js", Body: b})
+	s.pages.Render(w, status, s.tmpl, page.Data{Title: name, App: "talk", Tab: "conversations",
+		Inner: &page.Inner{Title: name, Sub: s.pages.T("talk.channel.sub"), Back: "/talk/"},
+		User:  sess.Name, Role: string(sess.Role), Script: "/talk/chat.js", Body: b})
 }
 
-// channel returns the open channel. There is one for now, created together
-// with the community.
-func (s *Screen) channel(ctx context.Context) (uint64, string, error) {
-	var number uint64
+// channel returns the open channel the address names.
+func (s *Screen) channel(r *http.Request) (uint64, string, error) {
+	number, err := strconv.ParseUint(r.PathValue("channel"), 10, 63)
+	if err != nil {
+		return 0, "", sql.ErrNoRows
+	}
 	var name string
-	err := s.index.DB().QueryRowContext(ctx, `SELECT number, name FROM channels ORDER BY number LIMIT 1`).Scan(&number, &name)
+	err = s.index.DB().QueryRowContext(r.Context(), `SELECT name FROM channels WHERE number = ?`, number).Scan(&name)
 	return number, name, err
+}
+
+// toFirstChannel sends an old address of the conversation to the open
+// channel the community started with.
+func (s *Screen) toFirstChannel(w http.ResponseWriter, r *http.Request) {
+	var number uint64
+	if err := s.index.DB().QueryRowContext(r.Context(), `SELECT number FROM channels ORDER BY number LIMIT 1`).Scan(&number); err != nil {
+		http.Redirect(w, r, "/talk/", http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/talk/channel/"+strconv.FormatUint(number, 10), http.StatusSeeOther)
 }

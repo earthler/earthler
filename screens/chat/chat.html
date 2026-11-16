@@ -1,16 +1,15 @@
 {{define "content"}}
 {{with .Body}}
-<h1>{{.Channel}}</h1>
 <p class="muted" id="empty"{{if .Messages}} hidden{{end}}>{{t "chat.empty"}}</p>
-<ul class="messages" id="messages" data-me="{{.Me}}" data-position="{{.Position}}" data-deleted="{{t "chat.deleted"}}"{{if .CanRemove}} data-can-remove="1"{{end}}>
+<ul class="messages" id="messages" data-me="{{.Me}}" data-channel="{{.Channel}}" data-position="{{.Position}}" data-deleted="{{t "chat.deleted"}}"{{if .CanRemove}} data-can-remove="1"{{end}}>
   {{range .Messages}}{{template "message" .}}{{end}}
 </ul>
 {{if .Error}}<p class="notice" role="alert">{{.Error}}</p>{{end}}
 {{if .CanRemove}}<template id="remove-form">{{template "remove" .}}</template>{{end}}
 {{if .CanWrite}}
-<form class="card" id="end" action="/chat" method="post">
-  <label for="text">{{t "chat.message"}}</label>
-  <textarea id="text" name="text" maxlength="{{.MaxText}}" required>{{.Draft}}</textarea>
+<form class="compose" id="end" action="/talk/channel/{{.Channel}}" method="post">
+  <label class="sr" for="text">{{t "chat.message"}}</label>
+  <textarea id="text" name="text" rows="1" maxlength="{{.MaxText}}" required placeholder="{{t "chat.message"}}">{{.Draft}}</textarea>
   <button type="submit">{{t "chat.send"}}</button>
 </form>
 {{else}}
@@ -19,13 +18,15 @@
 {{end}}
 {{end}}
 
-{{define "remove"}}<form class="inline remove" action="/chat/delete" method="post"><input type="hidden" name="number" value=""><input type="text" name="reason" maxlength="200" required placeholder="{{t "chat.remove.reason"}}" aria-label="{{t "chat.remove.reason"}}"><button type="submit" class="delete">{{t "chat.remove"}}</button></form>{{end}}
+{{define "remove"}}<details><summary>{{t "chat.remove"}}</summary><form class="remove" action="/talk/delete" method="post"><input type="hidden" name="number" value=""><input type="text" name="reason" maxlength="200" required placeholder="{{t "chat.remove.reason"}}" aria-label="{{t "chat.remove.reason"}}"><button type="submit">{{t "chat.remove"}}</button></form></details>{{end}}
 
 {{define "message"}}
-<li data-number="{{.Number}}" data-place="{{.Place}}" data-account="{{.Account}}"{{if .Deleted}} data-deleted="{{.Deleted}}"{{end}}{{if .Mine}} class="mine"{{end}}>
-  <div class="meta"><strong>{{.Author}}</strong><span>{{.Time}}</span></div>
+<li data-number="{{.Number}}" data-place="{{.Place}}" data-channel="{{.Channel}}" data-account="{{.Account}}"{{if .Deleted}} data-deleted="{{.Deleted}}"{{end}}{{if .Mine}} class="mine"{{end}}>
+  <span class="who">{{.Author}}</span>
   {{if .Deleted}}<p class="muted">{{t "chat.deleted"}}</p>{{else}}<p>{{.Text}}</p>{{end}}
-  {{if and .Mine (not .Deleted)}}<form class="inline" action="/chat/delete" method="post"><input type="hidden" name="number" value="{{.Number}}"><button type="submit" class="delete">{{t "chat.delete"}}</button></form>{{end}}
-  {{if and .Removable (not .Deleted)}}<form class="inline remove" action="/chat/delete" method="post"><input type="hidden" name="number" value="{{.Number}}"><input type="text" name="reason" maxlength="200" required placeholder="{{t "chat.remove.reason"}}" aria-label="{{t "chat.remove.reason"}}"><button type="submit" class="delete">{{t "chat.remove"}}</button></form>{{end}}
+  <div class="h"><span>{{.Time}}</span>
+  {{if and .Mine (not .Deleted)}}<form class="inline" action="/talk/delete" method="post"><input type="hidden" name="number" value="{{.Number}}"><button type="submit" class="delete">{{t "chat.delete"}}</button></form>{{end}}
+  {{if and .Removable (not .Deleted)}}<details><summary>{{t "chat.remove"}}</summary><form class="remove" action="/talk/delete" method="post"><input type="hidden" name="number" value="{{.Number}}"><input type="text" name="reason" maxlength="200" required placeholder="{{t "chat.remove.reason"}}" aria-label="{{t "chat.remove.reason"}}"><button type="submit">{{t "chat.remove"}}</button></form></details>{{end}}
+  </div>
 </li>
 {{end}}

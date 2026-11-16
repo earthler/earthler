@@ -3,6 +3,7 @@
 package page
 
 import (
+	"bytes"
 	"embed"
 	"errors"
 	"html/template"
@@ -10,12 +11,14 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
+	"github.com/earthler/earthler/brand"
 	"github.com/earthler/earthler/core/permissions"
 	"github.com/earthler/earthler/locales"
 )
 
-//go:embed layout.html static
+//go:embed layout.html shell.html icons.html soon.html static
 var files embed.FS
 
 // Renderer draws screens inside the layout.
@@ -37,9 +40,26 @@ type Data struct {
 	Script string // address of the screen's own script, for the few that need one
 	Images string // another origin that images may be loaded from, or empty
 
+	// App is the app the screen belongs to, talk, learn, decide or ask, and
+	// Tab the item of its bar. A screen of no app, such as the portal or the
+	// sign up, leaves them empty and is drawn with the community's header.
+	App string
+	Tab string
+
+	// Inner is set by a screen inside an app that is drawn full, like a
+	// conversation: a header with a way back, and no bar.
+	Inner *Inner
+
 	// Filled by the renderer.
 	Lang      string
 	Community string
+}
+
+// Inner is the header of a screen drawn full inside an app.
+type Inner struct {
+	Title string
+	Sub   string // a line under the title, or empty
+	Back  string // where the way back leads
 }
 
 // New prepares the layout for a language and a community name.
@@ -49,6 +69,10 @@ func New(lang, community string) (*Renderer, error) {
 		return nil, err
 	}
 	r := &Renderer{lang: lang, community: community, texts: texts}
+	drawings, err := drawn()
+	if err != nil {
+		return nil, err
+	}
 	r.base, err = template.New("layout.html").Funcs(template.FuncMap{
 		"t": texts.T,
 		// can asks the permission table, so a screen offers only what the
@@ -56,11 +80,48 @@ func New(lang, community string) (*Renderer, error) {
 		"can": func(role, action string) bool {
 			return permissions.Can(permissions.Role(role), permissions.Action(action))
 		},
-	}).ParseFS(files, "layout.html")
+		// icon and glyph draw a line icon and the glyph of an app.
+		"icon":  func(name string) template.HTML { return drawings[name] },
+		"glyph": func(app string) template.HTML { return drawings["glyph-"+app] },
+		"tabs": func(key string) []Tab {
+			a, _ := app(key)
+			return a.Tabs
+		},
+		"apps": func() []App { return Apps },
+		// named fills the name of an app into a text, where it says {app}.
+		"named": func(key, app string) string {
+			return strings.ReplaceAll(texts.T(key), "{app}", texts.T("app."+app+".name"))
+		},
+	}).ParseFS(files, "layout.html", "shell.html")
 	if err != nil {
 		return nil, err
 	}
 	return r, nil
+}
+
+// drawn renders, once, every line icon and the glyph of every app, so a
+// screen can ask for one by its name.
+func drawn() (map[string]template.HTML, error) {
+	set, err := template.New("icons").ParseFS(files, "icons.html")
+	if err != nil {
+		return nil, err
+	}
+	if _, err := set.Parse(brand.Glyphs); err != nil {
+		return nil, err
+	}
+	out := map[string]template.HTML{}
+	for _, t := range set.Templates() {
+		name := t.Name()
+		if !strings.HasPrefix(name, "i-") && !strings.HasPrefix(name, "glyph-") {
+			continue
+		}
+		var b bytes.Buffer
+		if err := set.ExecuteTemplate(&b, name, nil); err != nil {
+			return nil, err
+		}
+		out[name] = template.HTML(b.String())
+	}
+	return out, nil
 }
 
 // T returns a screen text in the community's language.

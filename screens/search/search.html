@@ -1,17 +1,19 @@
 {{define "content"}}
+<h1 class="sr">{{t "search.title"}}</h1>
+<form class="busca" action="{{.Body.Action}}" method="get" role="search">
+  {{icon "i-busca"}}
+  <input type="search" name="q" value="{{.Query}}" placeholder="{{t "portal.search"}}" aria-label="{{t "portal.search"}}">
+  <button type="submit">{{t "portal.search.button"}}</button>
+</form>
 {{with .Body}}
-<h1>{{t "search.title"}}</h1>
 {{if not .Asked}}
 <p class="muted">{{t "search.hint"}}</p>
 {{else if .Results}}
-<ul class="messages">
+<section class="lista">
   {{range .Results}}
-  <li>
-    <div class="meta"><strong>{{.Origin}}{{if .Author}} · {{.Author}}{{end}}</strong><span>{{.Time}}</span></div>
-    <p>{{.Text}}</p>
-  </li>
+  <div class="linha"><span class="tx"><span class="b">{{.Origin}}{{if .Author}} · {{.Author}}{{end}} · {{.Time}}</span><span class="a">{{.Text}}</span></span></div>
   {{end}}
-</ul>
+</section>
 {{else}}
 <p class="muted">{{t "search.empty"}}</p>
 {{end}}

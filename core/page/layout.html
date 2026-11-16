@@ -2,30 +2,43 @@
 <html lang="{{.Lang}}">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{.Title}} · {{.Community}}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{.Title}} · {{if .App}}{{t (print "app." .App ".name")}}{{else}}{{.Community}}{{end}}</title>
 <link rel="stylesheet" href="/static/base.css">
+<meta name="theme-color" content="#F3EFE7">
+{{if .App}}
+<link rel="manifest" href="/{{.App}}/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/brand/apps/{{.App}}-180.png">
+<meta name="apple-mobile-web-app-title" content="{{t (print "app." .App ".name")}}">
+<meta name="mobile-web-app-capable" content="yes">
+{{end}}
 </head>
-<body>
-<header class="top">
-  <a class="community" href="/">{{.Community}}</a>
-  {{if .User}}
-  <form class="search" action="/search" method="get" role="search">
-    <input type="search" name="q" value="{{.Query}}" placeholder="{{t "search.placeholder"}}" aria-label="{{t "search.placeholder"}}">
-  </form>
-  {{end}}
+<body{{if .App}} class="in-app{{if .Inner}} inner-page{{end}}" data-app="{{.App}}"{{end}}>
+{{if .Inner}}
+<header class="inner">
+  <a class="back" href="{{.Inner.Back}}" aria-label="{{t "nav.back"}}">{{icon "i-volta"}}</a>
+  <div class="tx"><h1>{{.Inner.Title}}</h1>{{if .Inner.Sub}}<p>{{.Inner.Sub}}</p>{{end}}</div>
 </header>
+{{else if .App}}
+<header class="acab">
+  {{glyph .App}}<h1>{{t (print "app." .App ".name")}}</h1>
+  <a class="com" href="/" title="{{t "nav.portal"}}"><img class="marca" src="/brand/earthler-mark.png" alt="">{{.Community}}</a>
+</header>
+{{else}}
+<header class="top">
+  <a class="com big" href="/"><img class="marca" src="/brand/earthler-mark.png" alt="">{{.Community}}</a>
+</header>
+{{end}}
 <main>
 {{template "content" .}}
 </main>
-{{if .User}}
-<nav class="tabs">
-  <a href="/chat" {{if eq .Active "chat"}}aria-current="page"{{end}}>{{t "nav.chat"}}</a>
-  {{if can .Role "log.read"}}<a href="/log" {{if eq .Active "log"}}aria-current="page"{{end}}>{{t "nav.log"}}</a>{{end}}
-  {{if can .Role "residents.see"}}<a href="/admin/residents" {{if eq .Active "residents"}}aria-current="page"{{end}}>{{t "nav.residents"}}</a>{{end}}
-  <span class="who">{{.User}}</span>
+{{if and .App (not .Inner)}}
+<nav class="abas" aria-label="{{t (print "app." .App ".name")}}">
+{{range (tabs .App)}}<a href="{{.Path}}"{{if eq .Key $.Tab}} class="at" aria-current="page"{{end}}>{{icon .Icon}}<span>{{t (print "app." $.App ".tab." .Key)}}</span></a>{{end}}
 </nav>
+{{template "sheets" .}}
 {{end}}
+{{if .App}}<script src="/static/apps.js"></script>{{end}}
 {{if .Script}}<script src="{{.Script}}"></script>{{end}}
 </body>
 </html>

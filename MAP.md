@@ -34,9 +34,11 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`core/copies`](core/copies) | Encrypted copies of the journal and the secrets, and the way back from one |
 | [`core/search`](core/search) | How text becomes search terms, in Portuguese |
 | [`core/page`](core/page) | The layout and the base style that every screen is drawn in |
+| [`screens/portal`](screens/portal) | The portal the community's address opens: the search of the whole community and the four apps |
+| [`screens/learn`](screens/learn), [`screens/decide`](screens/decide), [`screens/ask`](screens/ask) | The homes of Learn, Decide and Ask, which say what is not built yet |
 | [`screens/welcome`](screens/welcome) | The only screen without HTTPS: it walks a new device through installing the certificate, one page per kind of device |
 | [`screens/signup`](screens/signup) | Creating an account |
-| [`screens/chat`](screens/chat) | The open channel |
+| [`screens/chat`](screens/chat) | Talk: its home with the open channels, and the conversation of each |
 | [`screens/auditlog`](screens/auditlog) | The log of what administrators and moderators did |
 | [`screens/residents`](screens/residents) | The list of residents, where an administrator gives roles |
 | [`screens/search`](screens/search) | The search field and its results |
@@ -46,7 +48,7 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`docs/product`](docs/product) | Every screen people will see, what it does and how it behaves: the specification the screens are built against |
 | [`docs/screens`](docs/screens) | The drawings of those screens, one HTML file each, and their pictures in light and dark mode |
 | [`docs/glossary.md`](docs/glossary.md) | The words the code uses, and what each one means |
-| [`brand`](brand) | The logo. Not under the code license |
+| [`brand`](brand) | The logo, and the glyphs and icons of the four apps made from it. Not under the code license |
 
 ## Where the data lives
 

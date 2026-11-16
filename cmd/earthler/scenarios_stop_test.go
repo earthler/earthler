@@ -72,7 +72,7 @@ func TestStoppingInTheMiddleOfWriting(t *testing.T) {
 				default:
 				}
 				text := fmt.Sprintf("escritor %d, mensagem %d", i, n)
-				req, _ := http.NewRequest("POST", s.srv.URL+"/chat", strings.NewReader(url.Values{"text": {text}}.Encode()))
+				req, _ := http.NewRequest("POST", s.srv.URL+"/talk/channel/2", strings.NewReader(url.Values{"text": {text}}.Encode()))
 				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 				req.Header.Set("Origin", s.srv.URL)
 				res, err := v.client.Do(req)
@@ -80,7 +80,7 @@ func TestStoppingInTheMiddleOfWriting(t *testing.T) {
 					return
 				}
 				res.Body.Close()
-				if res.StatusCode == http.StatusSeeOther && res.Header.Get("Location") == "/chat#end" {
+				if res.StatusCode == http.StatusSeeOther && res.Header.Get("Location") == "/talk/channel/2#end" {
 					mu.Lock()
 					accepted = append(accepted, text)
 					mu.Unlock()

@@ -92,7 +92,7 @@ func (v *visitor) signUp(s *site, name string) (int, string) {
 }
 
 func (v *visitor) say(s *site, text string) (int, string) {
-	return v.post(s, "/chat", s.srv.URL, url.Values{"text": {text}})
+	return v.post(s, "/talk/channel/2", s.srv.URL, url.Values{"text": {text}})
 }
 
 func wantIn(t *testing.T, body, text, where string) {
@@ -126,9 +126,12 @@ func TestResidentWritesAndFindsText(t *testing.T) {
 	if status, body := ana.signUp(s, "Ana"); status != http.StatusOK {
 		t.Fatalf("sign up: status %d\n%s", status, body)
 	} else {
-		wantIn(t, body, "Geral", "after signing up")
-		wantIn(t, body, "Ninguém escreveu ainda.", "an empty channel")
+		wantIn(t, body, "Talk", "the portal, after signing up")
+		wantIn(t, body, "Ana", "the portal says who signed in")
 	}
+	_, body = ana.get(s, "/chat")
+	wantIn(t, body, "Geral", "the open channel")
+	wantIn(t, body, "Ninguém escreveu ainda.", "an empty channel")
 	_, body = ana.say(s, garden)
 	wantIn(t, body, garden, "the channel after writing")
 	ana.say(s, "Reunião na sexta, depois do almoço")
@@ -211,7 +214,7 @@ func TestRequestsFromOtherSitesAreRefused(t *testing.T) {
 	before, _ := s.app.journal.Last()
 
 	for _, origin := range []string{"", "https://example.org", "http://127.0.0.1:1"} {
-		if status, _ := ana.post(s, "/chat", origin, url.Values{"text": {"sent from elsewhere"}}); status != http.StatusForbidden {
+		if status, _ := ana.post(s, "/talk/channel/2", origin, url.Values{"text": {"sent from elsewhere"}}); status != http.StatusForbidden {
 			t.Errorf("origin %q: status %d, want 403", origin, status)
 		}
 		if status, _ := newVisitor(t).post(s, "/sign-up", origin, url.Values{"name": {"Eve"}}); status != http.StatusForbidden {

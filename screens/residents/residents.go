@@ -91,7 +91,7 @@ func (s *Screen) show(w http.ResponseWriter, r *http.Request, status int, errKey
 		b.Residents = append(b.Residents, l)
 	}
 	s.pages.Render(w, status, s.tmpl, page.Data{
-		Title: s.pages.T("residents.title"), Active: "residents", User: sess.Name, Role: string(sess.Role), Body: b})
+		Title: s.pages.T("residents.title"), User: sess.Name, Role: string(sess.Role), Body: b})
 }
 
 func (s *Screen) changeRole(w http.ResponseWriter, r *http.Request) {

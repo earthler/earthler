@@ -1,0 +1,40 @@
+{{/* What every app has: the invitation to put it on the phone, and the steps
+that an iPhone needs, which only the script shows. Without the script none
+of it appears, and the app works as a page. */}}
+
+{{define "invite"}}
+<section class="tom invite" id="invite" hidden>
+  <div class="row">
+    <span class="tile">{{glyph .App}}</span>
+    <span class="tx"><span class="tc">{{named "add.title" .App}}</span><span>{{t "add.sub"}}</span></span>
+  </div>
+  <div class="row">
+    <button type="button" class="btnp cm" id="add"><span class="solm">{{icon "i-mais-p"}}</span>{{t "add.button"}}</button>
+    <button type="button" class="btn3" id="later">{{t "add.later"}}</button>
+  </div>
+  <p class="small" id="add-help" hidden>{{t "add.help"}}</p>
+</section>
+{{end}}
+
+{{define "sheets"}}
+<div class="veu" id="ios" hidden>
+  <div class="folha" role="dialog" aria-modal="true" aria-labelledby="ios-title">
+    <h2 id="ios-title">{{t "add.ios.title"}}</h2>
+    <p class="menor">{{t "add.ios.lead"}}</p>
+    <ol class="passos">
+      <li><span class="n">1</span><span>{{t "add.ios.1a"}} <span role="img" aria-label="{{t "add.ios.menu.label"}}">{{icon "i-menupag"}}</span> {{t "add.ios.1b"}} <b>{{t "add.ios.share"}}</b>. {{t "add.ios.1c"}} <span role="img" aria-label="{{t "add.ios.share.label"}}">{{icon "i-compart"}}</span> {{t "add.ios.1d"}}</span></li>
+      <li><span class="n">2</span><span>{{t "add.ios.2a"}} <b>{{t "add.ios.home"}}</b>.</span></li>
+      <li><span class="n">3</span><span>{{t "add.ios.3a"}} <b>{{t "add.ios.webapp"}}</b>, {{t "add.ios.3b"}}</span></li>
+      <li><span class="n">4</span><span>{{t "add.ios.4a"}} <b>{{t "add.ios.add"}}</b>.</span></li>
+    </ol>
+    <button type="button" id="ios-ok">{{t "add.ios.ok"}}</button>
+  </div>
+</div>
+<div class="veu" id="ios-other" hidden>
+  <div class="folha" role="dialog" aria-modal="true" aria-labelledby="ios-other-title">
+    <h2 id="ios-other-title">{{t "add.ios.other.title"}}</h2>
+    <p class="menor">{{t "add.ios.other.text"}}</p>
+    <button type="button" class="ok">{{t "add.ios.ok"}}</button>
+  </div>
+</div>
+{{end}}

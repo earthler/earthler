@@ -1,0 +1,13 @@
+{{define "content"}}
+<section class="capa">
+  {{glyph "learn"}}
+  <h2>{{t "learn.search"}}</h2>
+  <form class="busca" action="/learn/search" method="get" role="search">
+    {{icon "i-busca"}}
+    <input type="search" name="q" placeholder="{{t "learn.search.field"}}" aria-label="{{t "learn.search"}}">
+    <button type="submit">{{t "portal.search.button"}}</button>
+  </form>
+</section>
+{{template "invite" .}}
+<section class="tom"><p>{{t "learn.soon"}}</p></section>
+{{end}}
