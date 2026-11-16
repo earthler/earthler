@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Zelador: uma mudança proposta na máquina</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar ao Zelador"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Mudança 47</h1><p class="sub">Proposta hoje às 8h20</p></div>
+    <span class="chip sun">Aguardando</span>
+  </header>
+
+  <div class="content">
+    <h2 style="font-size:20px;font-weight:700;line-height:1.2">Limite da conversão de vídeo</h2>
+
+    <section class="card" aria-labelledby="what">
+      <p class="label" id="what">O que muda, escrito pelo programa</p>
+      <p style="font-size:16px;font-weight:700">1 arquivo de código e 1 de teste, 4 linhas</p>
+      <pre style="margin:0;padding:10px 12px;border-radius:12px;background:var(--surface-2);font:14px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap">services/video
+- memória máxima 2 GB
++ memória máxima 1,5 GB</pre>
+      <div class="chips">
+        <span class="chip"><i data-icon="check" class="s"></i>Compilou</span>
+        <span class="chip"><i data-icon="check" class="s"></i>214 de 214 testes</span>
+        <span class="chip"><i data-icon="lock" class="s"></i>Nada travado tocado</span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="why">
+      <div style="display:flex;align-items:center;gap:8px"><p class="label" id="why" style="flex:1">O motivo, nas palavras da IA</p><span class="chip line">IA de fora</span></div>
+      <p style="font-size:16px;line-height:1.4">A conversão de vídeo disputa memória com o Mentor nas horas de mais uso. Um teto menor evita a pausa nas respostas.</p>
+      <p class="small">Proposta por Ajudante do Joel, perfil Sustentação.</p>
+    </section>
+
+    <section class="card ring" aria-label="Aprovação">
+      <p class="small">Joel aprovou às 8h41. Falta a sua. Se a saúde da máquina falhar depois, ela volta sozinha à versão de antes.</p>
+      <button class="btn block"><i data-icon="key"></i>Aprovar com minha chave</button>
+      <a class="btn small ghost" href="#" style="align-self:center">Recusar</a>
+    </section>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Zelador: o estado das máquinas</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar à administração"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Zelador</h1><p class="sub">Cuida das máquinas e não lê a comunidade</p></div>
+  </header>
+
+  <div class="content">
+    <nav class="segmented" aria-label="Máquina" style="align-self:stretch;justify-content:space-between">
+      <span class="on" aria-current="true">Escola</span><span>Galpão</span><span>Casa da Neide</span>
+    </nav>
+
+    <section class="list" aria-label="Estado da Escola">
+      <div class="row" style="min-height:52px"><span class="tx"><span class="a" style="font-weight:400">Serviços</span></span><span style="font-weight:700;color:var(--primary)">Todos no ar</span></div>
+      <div class="row" style="min-height:52px"><span class="tx"><span class="a" style="font-weight:400">Disco de dados</span></span><span class="chip sun">91% cheio</span></div>
+      <div class="row" style="min-height:52px"><span class="tx"><span class="a" style="font-weight:400">Última cópia</span></span><span style="font-weight:700;color:var(--primary)">Ontem, 23h</span></div>
+      <div class="row" style="min-height:52px"><span class="tx"><span class="a" style="font-weight:400">Certificado</span></span><span style="font-weight:700;color:var(--primary)">Vale mais 140 dias</span></div>
+    </section>
+
+    <section class="card ring" aria-labelledby="p">
+      <p class="label">Precisa da sua aprovação</p>
+      <h2 id="p" style="font-size:20px;font-weight:700;line-height:1.2">O disco de dados está quase cheio</h2>
+      <div><p class="label">O que vou fazer</p><p style="font-size:16px;line-height:1.4">Apagar os arquivos de vídeo que já viraram aulas.</p></div>
+      <div><p class="label">Se der errado</p><p style="font-size:16px;line-height:1.4">Nada do que é da comunidade é tocado.</p></div>
+      <p class="small">1 de 2 aprovações. Falta a sua.</p>
+      <button class="btn block"><i data-icon="key"></i>Aprovar com minha chave</button>
+      <div class="actions" style="justify-content:space-between">
+        <a class="btn small ghost" href="#">Ver o que muda</a>
+        <a class="btn small ghost" href="#">Recusar</a>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

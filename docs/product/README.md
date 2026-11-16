@@ -16,8 +16,10 @@ The architecture that carries it is in [`docs/design`](../design). Where this fo
 | [Learn](learn.md) | Subjects, lessons, the wiki, the collection and films |
 | [Decide](decide.md) | Proposals, votes, delegations and the map |
 | [Ask](ask.md) | Questions to the Mentor, answers and what the collection is missing |
+| [Administration](admin.md) | Residents and roles, moderation, the charter, the log, guardians, the collection, the machines, the caretaker, copies, doors to the internet and connected AIs |
+| [Setup](setup.md) | Installing a community and its first screens, before anyone signs up |
 
-The other areas come in changes of their own, one area at a time, so that each is reviewed on its own: administration and setup; and the notices and behavior shared by every screen. Each adds its line to this table. Until then, a link from these documents to one of them leads nowhere.
+The last area comes in a change of its own, so that it is reviewed on its own: the notices and behavior shared by every screen. It adds its line to this table. Until then, a link from these documents to one of them leads nowhere.
 
 Every screen is drawn in [`docs/screens`](../screens), in light and in dark mode, from one HTML file each. The pictures in these documents come from there.
 

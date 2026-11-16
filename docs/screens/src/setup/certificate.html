@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Configuração: o certificado nasce</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header style="display:flex;align-items:center;gap:12px;padding:18px 20px 0">
+    <img data-mark alt="" style="width:34px;height:28px;object-fit:contain">
+    <span class="progress" style="flex:1" role="progressbar" aria-label="Configuração" aria-valuemin="1" aria-valuemax="15" aria-valuenow="6"><span style="width:40%"></span></span>
+    <span class="small" style="font-weight:600;white-space:nowrap">6 de 15</span>
+  </header>
+
+  <div class="content" style="padding:18px 20px 20px;gap:14px">
+    <p class="label">Certificado</p>
+    <h1 class="big-title">A ligação segura nasceu</h1>
+
+    <section class="card">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <span class="avatar sq"><i data-icon="shield" class="s"></i></span>
+        <span class="tx"><span class="a">Certificado da Vila Aurora</span><span class="b wrap">Vale só para vilaaurora.internal e para os endereços da rede local. Não dá poder sobre nenhum outro site.</span></span>
+      </div>
+      <span class="chip"><i data-icon="check" class="s"></i>A chave que o criou já foi apagada</span>
+    </section>
+
+    <section class="card ring" aria-labelledby="fp">
+      <h2 class="label" id="fp">Impressão digital, vai impressa no cartaz</h2>
+      <p style="font-size:32px;font-weight:800;letter-spacing:.08em;font-variant-numeric:tabular-nums">A1 F3 9C 07</p>
+      <p class="small">Cada pessoa confere estes caracteres no celular antes de instalar o certificado. São eles que provam que o certificado é este.</p>
+    </section>
+
+    <section class="card soft" role="status" style="flex-direction:row;gap:12px;align-items:center">
+      <span class="avatar sun"><i data-icon="check" class="s"></i></span>
+      <span class="tx"><span class="a">Este aparelho já confia</span><span class="b wrap" style="color:var(--on-soft)">Daqui em diante, a configuração segue cifrada.</span></span>
+    </section>
+
+    <div style="margin-top:auto;display:flex;gap:10px">
+      <button class="btn soft" type="button" style="flex:0 0 38%">Voltar</button>
+      <button class="btn" type="button" style="flex:1">Continuar</button>
+    </div>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

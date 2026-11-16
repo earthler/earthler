@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Configuração: a prova sem a internet de fora</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header style="display:flex;align-items:center;gap:12px;padding:18px 20px 0">
+    <img data-mark alt="" style="width:34px;height:28px;object-fit:contain">
+    <span class="progress" style="flex:1" role="progressbar" aria-label="Configuração" aria-valuemin="1" aria-valuemax="15" aria-valuenow="14"><span style="width:93%"></span></span>
+    <span class="small" style="font-weight:600;white-space:nowrap">14 de 15</span>
+  </header>
+
+  <div class="content" style="padding:18px 20px 20px;gap:12px">
+    <p class="label">A prova</p>
+    <h1 class="big-title">Agora, sem internet</h1>
+    <p class="lead">Desligue o cabo ou o roteador que traz a internet de fora. A comunidade precisa funcionar assim.</p>
+
+    <section class="list" aria-label="Testes" aria-live="polite">
+      <div class="row"><span class="tx"><span class="a">Conversa</span><span class="b">A mensagem foi e voltou</span></span><span class="chip"><i data-icon="check" class="s"></i>Passou</span></div>
+      <div class="row"><span class="tx"><span class="a">Chamada entre dois aparelhos</span><span class="b">Com um segundo celular na rede</span></span><span class="chip"><i data-icon="check" class="s"></i>Passou</span></div>
+      <div class="row"><span class="tx"><span class="a">Busca</span><span class="b">Achou a palavra de teste</span></span><span class="chip"><i data-icon="check" class="s"></i>Passou</span></div>
+      <div class="row"><span class="tx"><span class="a">Wiki</span><span class="b">Abriu uma página do acervo</span></span><span class="chip"><i data-icon="check" class="s"></i>Passou</span></div>
+      <div class="row"><span class="tx"><span class="a">Vídeo</span><span class="b">Tocando um trecho</span></span><span class="chip muted"><i data-icon="clock" class="s"></i>Testando</span></div>
+      <div class="row"><span class="tx"><span class="a">Mentor</span><span class="b">Esta máquina não roda o Mentor</span></span><span class="chip line">Fora</span></div>
+    </section>
+
+    <div style="margin-top:auto;display:flex">
+      <button class="btn soft block" type="button" aria-disabled="true">Esperando o último teste</button>
+    </div>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

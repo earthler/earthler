@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Configuração: o nome da comunidade e o nome curto</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header style="display:flex;align-items:center;gap:12px;padding:18px 20px 0">
+    <img data-mark alt="" style="width:34px;height:28px;object-fit:contain">
+    <span class="progress" style="flex:1" role="progressbar" aria-label="Configuração" aria-valuemin="1" aria-valuemax="15" aria-valuenow="5"><span style="width:33%"></span></span>
+    <span class="small" style="font-weight:600;white-space:nowrap">5 de 15</span>
+  </header>
+
+  <form class="content" style="padding:18px 20px 20px;gap:14px" action="#" method="post">
+    <p class="label">A comunidade</p>
+    <h1 class="big-title">Como a comunidade se chama</h1>
+
+    <div class="field">
+      <label for="name">Nome da comunidade</label>
+      <input class="input" id="name" name="name" value="Vila Aurora" maxlength="40">
+      <span class="hint">É o nome que todos veem no portal, no cartaz e na lista de certificados do celular.</span>
+    </div>
+
+    <div class="field">
+      <label for="short">Nome curto, para o endereço</label>
+      <div class="input" style="padding:0 14px;gap:2px">
+        <input id="short" name="short" value="vilaaurora" style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:17px;padding:0">
+        <span aria-hidden="true" style="color:var(--muted)">.internal</span>
+      </div>
+      <span class="hint">Letras sem acento, números e hífen. Ele entra no certificado e não muda depois.</span>
+    </div>
+
+    <section class="list">
+      <a class="row" href="#"><span class="avatar sq"><i data-icon="pin" class="s"></i></span><span class="tx"><span class="a">Lugar no mapa</span><span class="b">Toque para marcar onde fica</span></span><i data-icon="next" class="s"></i></a>
+      <a class="row" href="#"><span class="avatar sq"><i data-icon="wiki" class="s"></i></span><span class="tx"><span class="a">Bioma</span><span class="b">Deduzido do lugar, dá para trocar</span></span><i data-icon="next" class="s"></i></a>
+    </section>
+
+    <div style="margin-top:auto;display:flex;gap:10px">
+      <button class="btn soft" type="button" style="flex:0 0 38%">Voltar</button>
+      <button class="btn" type="submit" style="flex:1">Continuar</button>
+    </div>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
