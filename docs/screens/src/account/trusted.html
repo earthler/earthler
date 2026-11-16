@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Pessoas de confiança</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar para Sua conta"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Pessoas de confiança</h1><span class="sub">Para voltar se perder a frase</span></div>
+  </header>
+
+  <form class="content">
+    <a class="card ring" href="#" style="flex-direction:row;align-items:center;gap:12px;padding:12px 16px">
+      <span class="avatar sun">B</span>
+      <span class="tx"><span class="a">Bia pediu a sua ajuda</span><span class="b">Para voltar à conta dela</span></span>
+      <i data-icon="next" class="s"></i>
+    </a>
+
+    <p class="lead">Se você perder a frase, elas ajudam você a voltar. Nenhuma delas sozinha consegue abrir o que é seu.</p>
+
+    <section class="list">
+      <div class="row"><span class="avatar">M</span><span class="tx"><span class="a">Marta</span></span><button class="btn small ghost" type="button" aria-label="Tirar Marta">Tirar</button></div>
+      <div class="row"><span class="avatar">J</span><span class="tx"><span class="a">Joel</span></span><button class="btn small ghost" type="button" aria-label="Tirar Joel">Tirar</button></div>
+      <div class="row"><span class="avatar">N</span><span class="tx"><span class="a">Neide</span></span><button class="btn small ghost" type="button" aria-label="Tirar Neide">Tirar</button></div>
+      <a class="row" href="#" style="color:var(--primary);font-weight:700"><span class="avatar sq"><i data-icon="plus"></i></span>Escolher mais alguém</a>
+    </section>
+
+    <div class="field">
+      <label id="l-need">Quantas precisam ajudar</label>
+      <div class="input" role="combobox" aria-labelledby="l-need" aria-expanded="false" style="justify-content:space-between">2 de 3<i data-icon="down"></i></div>
+      <span class="hint">São pelo menos duas. A ajuda só vale se elas conferirem o código com você, pessoalmente.</span>
+    </div>
+
+    <button class="btn block" type="submit" style="margin-top:auto">Salvar</button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Boas-vindas: a primeira página, sem conexão segura</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <div class="top">
+    <span class="community big"><img data-mark alt="">Vila Aurora</span>
+  </div>
+
+  <div class="content" style="gap:12px;padding-top:8px">
+    <h1 class="big-title">Boas-vindas</h1>
+    <p class="lead">Esta é a internet da nossa comunidade. Ela funciona aqui dentro, mesmo quando a internet de fora não chega.</p>
+    <p class="lead">Para entrar com segurança, este aparelho precisa instalar o certificado da comunidade. É uma vez só, leva uns minutos, e as páginas a seguir explicam cada toque.</p>
+
+    <section class="card" style="gap:12px">
+      <h2 style="font-size:18px;font-weight:700">Qual é o seu aparelho?</h2>
+      <p style="display:flex;align-items:center;gap:10px"><i data-icon="device"></i>Parece um iPhone ou iPad.</p>
+      <a class="btn block" href="#" style="color:var(--on-primary)">Começar</a>
+      <p class="small">Outro aparelho:</p>
+      <nav class="actions" aria-label="Outro aparelho" style="gap:6px">
+        <a class="pill" href="#" style="background:var(--surface-2);padding:0 14px">Android</a>
+        <a class="pill" href="#" style="background:var(--surface-2);padding:0 14px">Windows</a>
+        <a class="pill" href="#" style="background:var(--surface-2);padding:0 14px">Mac</a>
+        <a class="pill" href="#" style="background:var(--surface-2);padding:0 14px">Linux</a>
+        <a class="pill" href="#" style="background:var(--surface-2);padding:0 14px">Computador</a>
+      </nav>
+    </section>
+
+    <section class="card soft" role="status" style="flex-direction:row;align-items:center;gap:12px;padding:14px 16px">
+      <i data-icon="refresh"></i>
+      <p style="flex:1;font-size:15px;line-height:1.35">Este aparelho ainda não confia no certificado. Esta página confere de novo a cada poucos segundos.</p>
+    </section>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

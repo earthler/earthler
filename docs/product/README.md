@@ -11,8 +11,9 @@ The architecture that carries it is in [`docs/design`](../design). Where this fo
 | [Principles](principles.md) | The rules every screen follows: one address, the portal, four apps, the same face, the four notices, nothing lost, what waits says so, accessibility, language |
 | [Visual identity](visual.md) | The Terra palette in light and dark, the type, the pieces of every screen, and the cover of each app |
 | [Portal and search](portal.md) | What the community's address opens, and the search of the whole community |
+| [Account](account.md) | Arriving, the certificate, creating an account, the passphrase, signing in on another device, recovering access, the profile, devices, the personal vault and leaving |
 
-The other areas come in changes of their own, one area at a time, so that each is reviewed on its own: the account, from arriving to leaving; Talk, Learn, Decide and Ask; administration and setup; and the notices and behavior shared by every screen. Each adds its line to this table. Until then, a link from these documents to one of them leads nowhere.
+The other areas come in changes of their own, one area at a time, so that each is reviewed on its own: Talk, Learn, Decide and Ask; administration and setup; and the notices and behavior shared by every screen. Each adds its line to this table. Until then, a link from these documents to one of them leads nowhere.
 
 Every screen is drawn in [`docs/screens`](../screens), in light and in dark mode, from one HTML file each. The pictures in these documents come from there.
 

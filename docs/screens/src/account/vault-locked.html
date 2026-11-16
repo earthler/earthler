@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Cofre trancado: pede a frase</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar para Sua conta"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Cofre</h1><span class="sub"><i data-icon="lock" class="s"></i>Cifrado neste aparelho</span></div>
+  </header>
+
+  <form class="content" style="gap:14px">
+    <section class="card" style="gap:12px;padding:20px">
+      <span class="avatar sq" style="width:56px;height:56px;border-radius:18px"><i data-icon="lock"></i></span>
+      <h2 style="font-size:21px;font-weight:700">O cofre está trancado</h2>
+      <p class="lead">Digite a sua frase para abrir o que é seu neste aparelho. Ela não sai daqui.</p>
+      <div class="field">
+        <label id="l-phrase">Frase secreta, as 7 palavras</label>
+        <div class="input area" role="textbox" aria-multiline="true" aria-labelledby="l-phrase"><span class="ph">abacate janela tijolo…</span></div>
+      </div>
+      <button class="btn block" type="submit">Abrir o cofre</button>
+    </section>
+
+    <a class="btn block ghost" href="#" style="color:var(--primary)">Esqueci minha frase</a>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
