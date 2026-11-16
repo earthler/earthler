@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Decide: nova proposta</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="decide">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Fechar sem publicar"><i data-icon="close"></i></a>
+    <div class="tx"><h1>Nova proposta</h1><span class="sub">O rascunho fica guardado neste aparelho</span></div>
+  </header>
+
+  <form class="content" style="gap:14px" onsubmit="return false">
+    <div class="field">
+      <label for="t">O que você propõe</label>
+      <input class="input" id="t" value="Mutirão para refazer a cerca no sábado">
+    </div>
+    <div class="field">
+      <label for="w">Por quê, e como</label>
+      <textarea class="input area" id="w" rows="4" style="min-height:120px;resize:none;line-height:1.4">Dois mourões caíram com a chuva, e o gado já chega perto do milho. Precisamos de dez pessoas por uma manhã. O arame já está no galpão.</textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field">
+        <label for="s">Assunto</label>
+        <button type="button" class="input" id="s" style="width:100%;justify-content:space-between">Terra<i data-icon="down"></i></button>
+      </div>
+      <div class="field">
+        <label for="d">Prazo</label>
+        <button type="button" class="input" id="d" style="width:100%;justify-content:space-between">7 dias<i data-icon="down"></i></button>
+      </div>
+    </div>
+    <div class="field">
+      <span class="label">Ligada a um relato do mapa</span>
+      <span class="chips"><span class="chip"><i data-icon="pin" class="s"></i>Cerca caída no pasto de baixo<i data-icon="close" class="s"></i></span></span>
+    </div>
+    <section class="card soft" style="gap:6px;padding:14px 16px">
+      <p style="font-size:15px;line-height:1.4">Pela carta da comunidade, o voto é aberto. Para valer, a proposta precisa de 1 em cada 5 votantes e da maioria dos votos.</p>
+    </section>
+    <p class="small">Depois de publicada, o Mentor escreve um resumo e as consequências que conseguir deduzir, sempre marcadas como deduzidas.</p>
+    <button class="btn block" style="margin-top:auto" type="submit">Publicar proposta</button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

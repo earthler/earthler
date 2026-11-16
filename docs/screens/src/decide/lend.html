@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Decide: emprestar o voto</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="decide">
+  <header class="cover" aria-hidden="true">
+    <span data-glyph="decide"></span>
+    <div class="head">
+      <span class="name">Decide</span>
+      <span class="community"><img data-mark alt="">Vila Aurora</span>
+    </div>
+    <div class="title">
+      <h1>Votos</h1>
+      <p>Emprestados por assunto</p>
+    </div>
+  </header>
+  <div class="content" aria-hidden="true">
+    <section class="list">
+      <h2 class="label">A quem emprestei</h2>
+      <div class="row"><span class="tx"><span class="a">Energia, para Marta</span><span class="b">Vale até março</span></span></div>
+      <div class="row"><span class="tx"><span class="a">Água, para Joel</span><span class="b">Vence em 12 dias</span></span></div>
+    </section>
+  </div>
+  <nav class="bar" aria-hidden="true">
+    <a href="#"><span class="pad"><i data-icon="vote"></i></span>Decisões</a>
+    <a href="#"><span class="pad"><i data-icon="pin"></i></span>Mapa</a>
+    <a class="on" href="#"><span class="pad"><i data-icon="people"></i></span>Votos</a>
+  </nav>
+
+  <div class="veil"></div>
+  <form class="sheet" role="dialog" aria-modal="true" aria-labelledby="h" onsubmit="return false">
+    <h2 id="h">Emprestar o seu voto</h2>
+    <div class="field">
+      <label for="s">Em que assunto</label>
+      <button type="button" class="input" id="s" style="width:100%;justify-content:space-between">Convivência<i data-icon="down"></i></button>
+    </div>
+    <div class="field">
+      <label for="q">Para quem</label>
+      <div class="search flat" style="height:48px"><i data-icon="search"></i><input id="q" value="Bi" style="flex:1;min-width:0;border:0;background:transparent;font:inherit;color:var(--text)"></div>
+    </div>
+    <section class="list" style="background:var(--surface-2);padding:0 14px" aria-label="Pessoas">
+      <label class="row" style="min-height:58px">
+        <span class="avatar" style="background:var(--surface)">B</span>
+        <span class="tx"><span class="a">Bia</span><span class="b">Já carrega 2 votos em Convivência</span></span>
+        <span style="width:26px;height:26px;border-radius:13px;background:var(--primary);color:var(--on-primary);display:flex;align-items:center;justify-content:center"><i data-icon="check" class="s"></i></span>
+      </label>
+    </section>
+    <p class="small">Vale até maio, pela carta da comunidade. Você retira quando quiser, e o seu voto direto numa proposta sempre vence o empréstimo.</p>
+    <button class="btn block" type="submit">Emprestar a Bia</button>
+    <button class="btn ghost block" type="button" style="min-height:44px">Cancelar</button>
+  </form>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

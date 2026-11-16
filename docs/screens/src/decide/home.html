@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Decide: decisões abertas</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="decide">
+  <header class="cover">
+    <span data-glyph="decide"></span>
+    <div class="head">
+      <span class="name">Decide</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>Decisões</h1>
+      <p>2 votações abertas. Falta o seu voto em uma.</p>
+    </div>
+    <div class="segmented" role="tablist" aria-label="Decisões">
+      <span class="on" role="tab" aria-selected="true" tabindex="0">Abertas</span>
+      <span role="tab" aria-selected="false" tabindex="-1">Encerradas</span>
+    </div>
+  </header>
+
+  <div class="content">
+    <a class="card" href="#">
+      <span style="display:flex;align-items:center;gap:8px"><span class="chip sun"><i data-icon="vote" class="s"></i>Falta o seu voto</span><span class="small">Convivência</span></span>
+      <span style="font-size:18px;font-weight:700;line-height:1.25">Silêncio depois das 22h</span>
+      <span class="progress" role="img" aria-label="38 de 212 votaram"><span style="width:18%"></span></span>
+      <span class="small" style="display:flex;justify-content:space-between"><span>38 de 212 votaram</span><span>Faltam 2 dias</span></span>
+    </a>
+
+    <a class="card" href="#">
+      <span style="display:flex;align-items:center;gap:8px"><span class="chip">Marta votou por você</span><span class="small">Energia</span></span>
+      <span style="font-size:18px;font-weight:700;line-height:1.25">Comprar a segunda bomba solar</span>
+      <span class="progress" role="img" aria-label="64 de 212 votaram"><span style="width:30%"></span></span>
+      <span class="small" style="display:flex;justify-content:space-between"><span>64 de 212 votaram</span><span>Faltam 3 dias</span></span>
+    </a>
+
+    <a class="card" href="#" style="padding:0;gap:0;overflow:hidden">
+      <span class="map" style="height:62px;border-radius:0" aria-hidden="true">
+        <svg viewBox="0 0 358 62" preserveAspectRatio="none"><path d="M0 44 C60 28 110 54 170 38 S280 12 358 30 V62 H0 Z" style="fill:var(--track)"/><path d="M0 18 C70 32 120 6 200 18 S300 38 358 10" style="fill:none;stroke:var(--surface);stroke-width:6;stroke-linecap:round"/></svg>
+        <span class="pin sun" style="left:82px;top:14px;width:22px;height:22px"></span>
+        <span class="pin leaf" style="left:206px;top:30px;width:22px;height:22px"></span>
+        <span class="pin" style="left:282px;top:8px;width:22px;height:22px;background:var(--surface);box-shadow:inset 0 0 0 3px var(--primary)"></span>
+      </span>
+      <span style="padding:12px 16px 14px;display:flex;align-items:center;gap:10px">
+        <span style="display:flex;color:var(--primary)"><i data-icon="pin"></i></span>
+        <span class="tx"><span class="a">Mapa da comunidade</span><span class="b">3 relatos novos esta semana</span></span>
+      </span>
+    </a>
+  </div>
+
+  <a class="fab" href="#" style="color:var(--on-primary)"><i data-icon="plus"></i>Propor</a>
+
+  <nav class="bar" aria-label="Decide">
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="vote"></i></span>Decisões</a>
+    <a href="#"><span class="pad"><i data-icon="pin"></i></span>Mapa</a>
+    <a href="#"><span class="pad"><i data-icon="people"></i></span>Votos</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
