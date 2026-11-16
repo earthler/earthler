@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Maps: camadas do mapa</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="maps">
+  <div class="map full" data-map="0 0 390 768" data-land data-garden data-alert data-houses data-me aria-hidden="true">
+    <span class="pin sun big" style="left:306px;top:286px"><span><i data-icon="bell"></i></span></span>
+    <span class="pin home" style="left:258px;top:504px"><span><i data-icon="home" class="s"></i></span></span>
+    <span class="pin primary" style="left:212px;top:268px"><span><i data-icon="tool" class="s"></i></span></span>
+  </div>
+  <div class="veil"></div>
+
+  <section class="sheet" role="dialog" aria-labelledby="layers" style="gap:10px;padding-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h2 id="layers">Camadas</h2>
+      <button class="icon-btn" aria-label="Fechar"><i data-icon="close"></i></button>
+    </div>
+    <div class="segmented" role="radiogroup" aria-label="Fundo do mapa" style="background:var(--surface-2)">
+      <span class="on" role="radio" aria-checked="true">Mapa</span>
+      <span role="radio" aria-checked="false">Foto aérea</span>
+    </div>
+    <p class="small">A foto aérea é de 12 de outubro, feita com drone pela comunidade.</p>
+    <div class="list" style="padding:0 2px;gap:0">
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sun" style="width:36px;height:36px"><i data-icon="bell" class="s"></i></span><span class="tx"><span class="a">Avisos</span><span class="b">Do Talk</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Avisos"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sun" style="width:36px;height:36px"><i data-icon="siren" class="s"></i></span><span class="tx"><span class="a">Relatos e propostas</span><span class="b">Do Decide</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Relatos e propostas"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sq" style="width:36px;height:36px"><i data-icon="wiki" class="s"></i></span><span class="tx"><span class="a">Notas e páginas</span><span class="b">Do Learn</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Notas e páginas"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sq" style="width:36px;height:36px"><i data-icon="home" class="s"></i></span><span class="tx"><span class="a">Casas</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Casas"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sq" style="width:36px;height:36px"><i data-icon="sprout" class="s"></i></span><span class="tx"><span class="a">Plantios</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Plantios"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sq" style="width:36px;height:36px"><i data-icon="tool" class="s"></i></span><span class="tx"><span class="a">Equipamentos</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Equipamentos"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sq" style="width:36px;height:36px"><i data-icon="drop" class="s"></i></span><span class="tx"><span class="a">Água</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Água"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sq" style="width:36px;height:36px"><i data-icon="route" class="s"></i></span><span class="tx"><span class="a">Caminhos</span></span><span class="switch" role="switch" aria-checked="false" aria-label="Caminhos"></span></div>
+      <div class="row" style="min-height:50px;padding:4px 0"><span class="avatar sq" style="width:36px;height:36px"><i data-icon="area" class="s"></i></span><span class="tx"><span class="a">Divisas de terra</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Divisas de terra"></span></div>
+    </div>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

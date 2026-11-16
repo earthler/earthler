@@ -1,6 +1,6 @@
 # Portal and search
 
-The community's address opens the portal. It is the center of Earthler: one field that searches the whole community, the four apps, and what is happening now. A resident comes here to find something without knowing which app holds it, to open an app, or to see at a glance what the community is doing. The apps are parts of Earthler, and the portal is the whole; it never becomes an icon on the phone.
+The community's address opens the portal. It is the center of Earthler: one field that searches the whole community, the five apps, and what is happening now. A resident comes here to find something without knowing which app holds it, to open an app, or to see at a glance what the community is doing. The apps are parts of Earthler, and the portal is the whole; it never becomes an icon on the phone.
 
 The maintainer approved this direction on 2026-11-15, with the look drawn below. **Proposed**: none of the portal is built. What exists today is a search of the open channels and a root address that sends a signed in resident straight to the conversation.
 
@@ -18,17 +18,17 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 - On the right of the address, a round button with the initial or the photo of the person. It leads to their account.
 - The community's mark, its name in large type, and the line "Tudo da comunidade, num lugar só."
 - The search field, "Buscar em toda a comunidade".
-- The four apps as tiles on a white background, with their names under them: Talk, Learn, Decide and Ask. The tiles are the icons each app becomes on the phone.
-- "Agora na comunidade": up to three things happening now, newest first, each with the small tile of the app it comes from, a title and one line that says what it is and when. Examples: a notice in Talk, an open vote in Decide, a new lesson in Learn.
+- The five apps as tiles on a white background, with their names under them: Talk, Learn, Decide, Ask and Maps. The tiles are the icons each app becomes on the phone.
+- "Agora na comunidade": up to three things happening now, newest first, each with the small tile of the app it comes from, a title and one line that says what it is and when. Examples: a notice in Talk, a new place in Maps, an open vote in Decide, a new lesson in Learn.
 - A quiet card, "Ponha os aplicativos na tela do celular. Não passa por loja.", with the button to add.
 
 **What they can do:**
 
 - Type in the search field and see [the results](#search-results) from every app.
-- Tap a tile to open that app at its own path: `/talk/`, `/learn/`, `/decide/` or `/ask/`.
+- Tap a tile to open that app at its own path: `/talk/`, `/learn/`, `/decide/`, `/ask/` or `/maps/`.
 - Tap an item of "Agora na comunidade" to open it in its app, at that place.
 - Tap their initial to open [their account](account.md#your-account). **Proposed**: the account, the vault, the devices and the trusted people are all reached from here. From inside an app, the community's name at the top leads back to the portal, and from the portal the account is one tap away.
-- Tap "Adicionar" to put the apps on the phone. A sheet rises with the four apps, each with its own button to add. Choosing one opens that app's page, where the phone's own steps follow: on Android, Chrome's confirmation, "Instalar aplicativo"; on the iPhone, the steps in Safari. The portal itself offers nothing to install, so it never becomes an icon. **Proposed**, and **to prove** on Android. See [apps on one address](../design/apps.md#the-add-button).
+- Tap "Adicionar" to put the apps on the phone. A sheet rises with the five apps, each with its own button to add. Choosing one opens that app's page, where the phone's own steps follow: on Android, Chrome's confirmation, "Instalar aplicativo"; on the iPhone, the steps in Safari. The portal itself offers nothing to install, so it never becomes an icon. **Proposed**, and **to prove** on Android. See [apps on one address](../design/apps.md#the-add-button).
 
 **States:**
 
@@ -54,7 +54,7 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 | --- | --- |
 | ![The portal with an emergency alert, light](../screens/png/light/portal-alert.png) | ![The portal with an emergency alert, dark](../screens/png/dark/portal-alert.png) |
 
-**What the person sees:** the address and the initial, as always. Then the alert, first on the page, in a card the color of the sun with dark text: the siren mark and "Aviso de emergência", the title in large type, the text of the alert, who sent it and when, such as "Joel, da brigada, há 4 minutos", and the button "Abrir no Talk". Under it, the rest of the portal, a little shorter: the mark and the name in one line, the search, the four apps and "Agora na comunidade", without the alert repeated in it.
+**What the person sees:** the address and the initial, as always. Then the alert, first on the page, in a card the color of the sun with dark text: the siren mark and "Aviso de emergência", the title in large type, the text of the alert, who sent it and when, such as "Joel, da brigada, há 4 minutos", and the button "Abrir no Talk". Under it, the rest of the portal, a little shorter: the mark and the name in one line, the search, the five apps and "Agora na comunidade", without the alert repeated in it.
 
 **What they can do:** open the alert in Talk, where it lives with its conversation, and use the rest of the portal as usual.
 
@@ -85,7 +85,7 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 **What the person sees:**
 
 - At the top, the community's mark, which leads back to the portal, and the search field with the words typed and a button to clear them.
-- A row of filters, "Tudo", "Conversas", "Aulas", "Decisões" and "Mentor", with "Tudo" chosen. The row slides sideways when it is wider than the screen. Each filter is one app: Conversas is Talk, Aulas is Learn (lessons, the wiki and the notes on the collection), Decisões is Decide (proposals and reports on the map), Mentor is Ask.
+- A row of filters, "Tudo", "Conversas", "Aulas", "Decisões", "Mentor" and "Lugares", with "Tudo" chosen. The row slides sideways when it is wider than the screen. Each filter is one app: Conversas is Talk, Aulas is Learn (lessons, the wiki and the notes on the collection), Decisões is Decide (proposals and reports on the map), Mentor is Ask, Lugares is Maps (houses, plantings, equipment, water, paths, notes and lands).
 - How many results there are: "4 resultados em toda a comunidade".
 - One card per result, the best first. Each card starts with the small tile of its app and where it comes from, such as "Talk, Horta coletiva" or "Learn, wiki". Then the text, with the word found marked on a soft background, and a line of context: when it was written, by whom, or how long a vote still runs. A vote also shows its progress bar.
 
@@ -107,7 +107,7 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 
 **Built** today, at `/search`: one field, open to every signed in resident, that looks in the messages of the open channels and lists up to fifty of them, the best first, each with its origin ("Conversa"), its author, its time and its text. The words are reduced to their root with the Portuguese stemmer and stripped of accents, so `plantas`, `Plantar` and `planta` meet, and whatever is typed is read as words, never as an operator. Nothing personal ever enters the search index. See [the core](../design/core.md#search).
 
-**Proposed:** the other three apps in the same search, the filters, the cards with the tile of each app and the word marked.
+**Proposed:** the other four apps in the same search, the filters, the cards with the tile of each app and the word marked.
 
 **Who may:** every signed in role. A child only gets results from what a child may read. Personal conversations, closed groups and the vault are never searched by the community's search: they are encrypted, and the machines cannot read them.
 
@@ -123,7 +123,7 @@ The maintainer approved this direction on 2026-11-15, with the look drawn below.
 | --- | --- |
 | ![Search with nothing found, light](../screens/png/light/portal-search-empty.png) | ![Search with nothing found, dark](../screens/png/dark/portal-search-empty.png) |
 
-**What the person sees:** the same top and filters as the results. Then a card: "Nada encontrado para “círculo de bananeiras”", and where the search looked, "A busca olhou as conversas abertas, as aulas, a wiki, as decisões e as respostas do Mentor." Under it a soft card: "Esta busca entra na lista do que falta, no Ask, sem o seu nome. Assim a comunidade sabe o que trazer para o acervo." Then the button "Perguntar ao Mentor" and a tip: "Tente uma palavra só, ou outra parecida."
+**What the person sees:** the same top and filters as the results. Then a card: "Nada encontrado para “círculo de bananeiras”", and where the search looked, "A busca olhou as conversas abertas, as aulas, a wiki, as decisões, as respostas do Mentor e os lugares do mapa." Under it a soft card: "Esta busca entra na lista do que falta, no Ask, sem o seu nome. Assim a comunidade sabe o que trazer para o acervo." Then the button "Perguntar ao Mentor" and a tip: "Tente uma palavra só, ou outra parecida."
 
 **What they can do:**
 
@@ -155,7 +155,7 @@ A resident searches and finds nothing. The words go into the list of what is mis
 
 ### From the portal to an icon on the phone
 
-The person taps "Adicionar" on the portal, chooses an app, and lands on that app's page, where its own button to add follows the phone's steps. On the iPhone the sign in goes with the icon, and on Android the four icons share it. The way in that comes before, from the poster to the portal, is in [account](account.md#the-way-in).
+The person taps "Adicionar" on the portal, chooses an app, and lands on that app's page, where its own button to add follows the phone's steps. On the iPhone the sign in goes with the icon, and on Android the icons share it. The way in that comes before, from the poster to the portal, is in [account](account.md#the-way-in).
 
 ## Who may do what
 
@@ -170,7 +170,7 @@ The person taps "Adicionar" on the portal, chooses an app, and lands on that app
 ## Not decided
 
 - The end of the community's address. The maintainer wrote `minhacomunidade.earthler`, and the screens are drawn the same way, with `vilaaurora.earthler`; today the community certificate only covers names that end in `.internal`. See [principles](principles.md#not-decided).
-- Whether the names under the tiles stay Talk, Learn, Decide and Ask.
+- Whether the names under the tiles stay Talk, Learn, Decide, Ask and Maps.
 - Whether the filters of the search carry the names of the apps or the names of what they hold, as drawn.
 - Which answers of the Mentor the search finds: only the ones the person asked, which Ask keeps on their device, or answers shared with the community.
 - How long an emergency alert stays at the top of the portal, and who ends it.

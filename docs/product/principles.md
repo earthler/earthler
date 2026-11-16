@@ -7,9 +7,9 @@ Every screen of Earthler follows these rules. They come from the maintainer's de
 The maintainer put it as an essential rule, always: consistency of what people see. In practice:
 
 - **One address.** A community has one address, the same on every machine, printed on a poster with a QR code. A resident never chooses a machine and never sees a machine's name or number. Machines are a matter for the administrator's screens. **Proposed**; the machines behind it are in [many machines](../design/many-machines.md).
-- **The portal is the center.** The address opens the portal: the search of the whole community, the four apps, and what is happening now. Earthler is the whole, and the apps are parts of it. The portal never becomes an icon. See [portal](portal.md).
-- **Four apps.** Talk, Learn, Decide and Ask each live on a path of their own, `/talk/`, `/learn/`, `/decide/` and `/ask/`, each with its icon, its cover, its bar and its button to add it to the phone, with no app store. See [apps on one address](../design/apps.md).
-- **The same face.** The header, the bar at the bottom, the buttons, the cards, the type, the four notices and the button to add are the same in the four apps. What changes from one app to another is its cover and the shape of its home, made for what it does. See [visual identity](visual.md).
+- **The portal is the center.** The address opens the portal: the search of the whole community, the apps, and what is happening now. Earthler is the whole, and the apps are parts of it. The portal never becomes an icon. See [portal](portal.md).
+- **Five apps.** Talk, Learn, Decide, Ask and Maps each live on a path of their own, `/talk/`, `/learn/`, `/decide/`, `/ask/` and `/maps/`, each with its icon, its cover, its bar and its button to add it to the phone, with no app store. Maps joined the first four on 2026-11-15. See [apps on one address](../design/apps.md) and [Maps](maps.md).
+- **The same face.** The header, the bar at the bottom, the buttons, the cards, the type, the four notices and the button to add are the same in every app. What changes from one app to another is its cover and the shape of its home, made for what it does. See [visual identity](visual.md).
 - **The community's name, at the top of every app, leads to the portal.** From the portal, every app is one tap away.
 - **The same screens on every machine.** A machine with another version of the screens follows the journals but does not serve residents until it is updated.
 
@@ -30,7 +30,7 @@ What is counted, such as creating an account, changing a role or closing a vote,
 | Arrived later | A message joined a conversation after others written later | The mark "Chegou depois" beside its time |
 | Not now | Something counted cannot be done yet | "Agora não dá para…", why, and what happens next |
 
-None of them mentions a machine. Each has its fixed sentence and its fixed place in all four apps, drawn in the sun color with dark text. The behavior behind each one is in [notices and behavior](behavior.md).
+None of them mentions a machine. Each has its fixed sentence and its fixed place in every app, drawn in the sun color with dark text. The behavior behind each one is in [notices and behavior](behavior.md).
 
 ## The way in is the same on every device
 

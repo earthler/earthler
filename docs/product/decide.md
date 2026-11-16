@@ -13,7 +13,7 @@ These rules shape every screen below.
 - **The charter says who.** Who may propose and vote, the voting age, the participation and majority a proposal needs, and how long a lent vote lasts are rules of each community's charter. The suggestions the setup offers are in [setup](setup.md), marked **Proposed** there; none of the values is the maintainer's decision.
 - **Weight in sight.** Everyone can see how many votes each person carries, and lent votes expire and ask to be renewed, so power gathered through lending stays visible and has to be confirmed. **Proposed.**
 - **The Mentor explains, it never decides.** The Mentor writes a summary of each proposal and the consequences it can deduce, always marked as deduced. It is not essential: a proposal without a summary can still be voted. **Proposed.**
-- **The map never shows people.** The maintainer decided that the map shows problems, resources, proposals and decisions, and that houses and people never become markers. The base of the map may still draw buildings.
+- **The map is the community's.** The map of Decide is a view of [Maps](maps.md), the map every app shares: here it shows problems, resources, proposals and decisions, and a point opens in Decide. The maintainer first decided that houses and people never become markers; on 2026-11-15 he changed that for houses: each resident may mark their own house, with a name every resident sees, and people still never become markers. See [your house](maps.md#your-house).
 - **What waits, and what never waits.** Proposing, voting in an open vote and reporting on the map never wait: any machine accepts them alone. Closing and counting a vote, and voting by secret ballot, wait until every listed machine can see the others. The maintainer accepted that list on 2026-11-13. See [many machines](../design/many-machines.md#essential-and-not-essential) and [notices and behavior](behavior.md).
 
 ## Screens
@@ -292,7 +292,7 @@ The sun color is kept for what asks for the person's action, so it marks only th
 | Proposal | A ring of the primary color, with a ballot |
 | Decision | The text color, with a check |
 
-Tapping a pin marks it and shows a card at the top of the map with its kind, its time and its title, "Problema, hoje às 7h40, Cerca caída no pasto de baixo", which opens the point. The button "Relatar" floats over the bottom right. The base of the map is the region cut from OpenStreetMap into one file of the collection, read straight by the browser with no internet. **Proposed.**
+Tapping a pin marks it and shows a card at the top of the map with its kind, its time and its title, "Problema, hoje às 7h40, Cerca caída no pasto de baixo", which opens the point. The button "Relatar" floats over the bottom right. The base of the map is the region cut from OpenStreetMap into one file of the collection, read straight by the browser with no internet; it is the map of [Maps](maps.md#the-tools), with only the layers of Decide. **Proposed.**
 
 **What they can do.** Turn kinds on and off, move and zoom the map, open a point, report.
 
@@ -317,7 +317,7 @@ Tapping a pin marks it and shows a card at the top of the map with its kind, its
 | --- | --- |
 | ![New report on the map, light](../screens/png/light/decide-report-new.png) | ![New report on the map, dark](../screens/png/dark/decide-report-new.png) |
 
-**What the person sees.** The inner header "Novo relato", with a way to close and "O rascunho fica guardado neste aparelho". A piece of the map with the pin in the middle, and "Arraste o mapa para pôr o ponto no lugar. Casas e pessoas não aparecem no mapa." "Tipo", with "Problema" and "Recurso". "O que você viu", a text. "Acrescentar foto". The button "Publicar relato".
+**What the person sees.** The inner header "Novo relato", with a way to close and "O rascunho fica guardado neste aparelho". A piece of the map with the pin in the middle, and "Arraste o mapa para pôr o ponto no lugar. Todos os moradores veem o relato." "Tipo", with "Problema" and "Recurso". "O que você viu", a text. "Acrescentar foto". The button "Publicar relato".
 
 **What they can do.** Place the point, choose the kind, write, add a photo and publish. After publishing, the map opens on the new point.
 
@@ -326,7 +326,7 @@ Tapping a pin marks it and shows a card at the top of the map with its kind, its
 - No text: "Conte o que você viu."
 - A photo still going up: "Enviando a foto…" with its progress; the upload resumes where it stopped if the Wi-Fi drops, as every upload of the system does. **Proposed.**
 - No link with the community: the notice "Sem ligação com a comunidade." The draft stays on the device. Whether a report written with no link waits in the outbox, with "Ainda não enviada", and goes out by itself is **Not decided**; see [the outbox](behavior.md#the-outbox).
-- No region map installed: how the person marks the place is **Not decided**, and so is offering the device's location.
+- No region map installed: the place is marked where the person is, with the phone's location, as in [Maps](maps.md#no-region-map). **Proposed.**
 
 **Who may.** Residents, moderators and administrators. A child as the charter says.
 
@@ -437,7 +437,6 @@ Every row is **Proposed**, except where marked.
 - What happens to a secret ballot whose deadline passes while a listed machine is away.
 - Where a child's age comes from, so the charter's voting age can apply.
 - Who may mark a point resolved, and whether a resolved point can be opened again.
-- How the place of a report is marked when the region map is not installed, and whether the device's location is offered.
 - Whether a moderator may remove a proposal open for voting, and what happens to its votes.
 
 ## To prove

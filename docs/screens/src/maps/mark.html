@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Maps: o que marcar</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="maps">
+  <div class="map full" data-map="0 0 390 768" data-land data-garden data-houses data-me aria-hidden="true">
+    <span class="pin home" style="left:258px;top:504px"><span><i data-icon="home" class="s"></i></span></span>
+    <span class="pin primary" style="left:212px;top:268px"><span><i data-icon="tool" class="s"></i></span></span>
+  </div>
+  <div class="veil"></div>
+
+  <section class="sheet" role="dialog" aria-labelledby="what" style="gap:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h2 id="what">O que você quer marcar?</h2>
+      <button class="icon-btn" aria-label="Fechar"><i data-icon="close"></i></button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+      <a class="kind" href="#"><span class="ic home"><i data-icon="home"></i></span><span>Minha casa<small>Só a sua</small></span></a>
+      <a class="kind" href="#"><span class="ic"><i data-icon="sprout"></i></span><span>Plantio<small>Horta, roça, pomar</small></span></a>
+      <a class="kind" href="#"><span class="ic"><i data-icon="tool"></i></span><span>Equipamento<small>Bomba, caixa, placa</small></span></a>
+      <a class="kind" href="#"><span class="ic water"><i data-icon="drop"></i></span><span>Água<small>Nascente, poço, cisterna</small></span></a>
+      <a class="kind" href="#"><span class="ic"><i data-icon="route"></i></span><span>Caminho<small>Trilha, estrada, ponte</small></span></a>
+      <a class="kind" href="#"><span class="ic"><i data-icon="area"></i></span><span>Divisa de terra<small>Desenhar ou caminhar</small></span></a>
+      <a class="kind" href="#"><span class="ic"><i data-icon="wiki"></i></span><span>Nota num lugar<small>Para quem passar ali</small></span></a>
+      <a class="kind" href="#"><span class="ic sun"><i data-icon="siren"></i></span><span>Um problema<small>Vira relato no Decide</small></span></a>
+    </div>
+    <p class="small">Um aviso urgente para todos sai pelo Talk, e lá você diz onde é.</p>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

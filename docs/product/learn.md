@@ -15,6 +15,7 @@ These rules shape every screen below. They are **Proposed** unless marked otherw
 - **Publishing and converting a lesson live where they fit.** They work while a machine that carries the video service is up. A lesson that was sent but not yet converted waits and goes on by itself.
 - **Nothing personal.** Learn keeps nothing personal on the machines. What a person watched, for "Continuar de onde parou", stays on their device, in Learn's own storage. **Not decided** whether it stays there; see the end.
 - **The collection is never changed.** A book of the collection is shown exactly as it was downloaded. What the community adds, notes, lives beside it.
+- **A page can have a place.** A page of the wiki, such as the calendar of the garden or how the pump works, can be tied to a place on [Maps](maps.md). The page shows its place, and the place lists the page. **Proposed**, approved with the drawings of Maps on 2026-11-15.
 - **What waits says so.** A lesson or a film that is out of reach, a lesson still converting and an upload that paused each say it in one sentence, on the screen where the person is.
 
 ## Screens

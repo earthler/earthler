@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Administração: o mapa da comunidade</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar à administração"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Mapa</h1><p class="sub">O fundo do Maps, guardado nas máquinas</p></div>
+  </header>
+
+  <div class="content" style="gap:12px">
+    <section class="card" aria-labelledby="region" style="gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <p class="label" id="region">Mapa da região</p>
+        <span class="chip">Instalado</span>
+      </div>
+      <p style="font-size:16px;line-height:1.4">OpenStreetMap de setembro de 2026, recortado na região da comunidade, do nível da cidade ao das casas. 312 MB.</p>
+      <a class="btn block soft" href="#" aria-disabled="true" style="background:var(--track);color:var(--muted)"><i data-icon="refresh" class="s"></i>Atualizar quando houver internet</a>
+      <p class="hint">A porta para a internet está fechada. Abra em Portas para a internet para atualizar.</p>
+    </section>
+
+    <section class="card" aria-labelledby="aerial" style="gap:8px">
+      <p class="label" id="aerial">Foto aérea</p>
+      <div class="map" data-map="0 200 390 220" data-garden style="height:110px;border-radius:14px" role="img" aria-label="A foto aérea de outubro, desenhada"></div>
+      <p style="font-size:16px;line-height:1.4">12 de outubro de 2026, feita com o drone da comunidade. 4 centímetros por ponto, 38 MB.</p>
+      <a class="btn block soft" href="#"><i data-icon="upload" class="s"></i>Enviar uma foto aérea nova</a>
+      <p class="hint">A foto montada no OpenDroneMap, num arquivo GeoTIFF, vira uma camada do Maps.</p>
+    </section>
+
+    <section class="list">
+      <div class="row" style="min-height:56px"><span class="tx"><span class="a">Casas no mapa</span><span class="b">Cada morador marca a sua</span></span><span class="switch on" role="switch" aria-checked="true" aria-label="Casas no mapa"></span></div>
+    </section>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

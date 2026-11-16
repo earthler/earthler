@@ -1,9 +1,11 @@
-// Draws what the screens share: dark mode, the glyphs of the four apps, the
-// line icons and the community's mark. A screen marks where each goes:
+// Draws what the screens share: dark mode, the glyphs of the apps, the line
+// icons, the community's mark and the drawn map of the example community.
+// A screen marks where each goes:
 //
 //   <span data-glyph="talk"></span>   the glyph of an app, sized by CSS
 //   <i data-icon="search"></i>        a line icon
 //   <img data-mark alt="">           the Earthler mark, from brand/
+//   <div class="map" data-map="…">   the drawn map, for Maps
 //
 // "#dark" at the end of the address draws the screen in dark mode, and so
 // does a system that prefers dark. The glyphs and the mark are the Earthler
@@ -22,7 +24,10 @@
     talk: '<circle class="gs" cx="67" cy="24" r="15"/><path class="gf" d="M4 66 C7 59 7 52 7 41 A21 21 0 0 1 28 20 H45 A21 21 0 0 1 66 41 A21 21 0 0 1 45 62 H24 C16 62 10 63.5 4 66 Z"/><path class="gf2" d="M93 90 C90 84 90 79 90 70 A17 17 0 0 0 73 53 H60 A17 17 0 0 0 43 70 A17 17 0 0 0 60 87 H76 C83 87 88 88 93 90 Z"/>',
     learn: '<circle class="gs" cx="48" cy="38" r="19"/><path class="gf" d="M45.5 87 C34 81 21 79 7 81 C5 67 5 54 5 41 C22 38 37 45 45.5 57 Z"/><path class="gf" d="M50.5 87 C62 81 75 79 89 81 C91 67 91 54 91 41 C74 38 59 45 50.5 57 Z"/>',
     decide: '<circle class="gs" cx="25" cy="25" r="14"/><path class="gf" d="M9.0 48.0 C6.9 65.0 26.0 84.6 43.0 83.0 C45.1 66.0 26.0 46.4 9.0 48.0 Z"/><path class="gf" d="M37.0 86.0 C57.9 85.3 87.6 43.9 90.0 12.0 C62.2 25.7 32.5 67.1 37.0 86.0 Z"/>',
-    ask: '<path class="gt" d="M27 35 C27 22 36 14 48 14 C60 14 70 22 70 33 C70 42 64 46 57.5 51 C51.5 55.5 48.5 58 48.5 64"/><circle class="gs" cx="48.5" cy="82" r="9"/>'
+    ask: '<path class="gt" d="M27 35 C27 22 36 14 48 14 C60 14 70 22 70 33 C70 42 64 46 57.5 51 C51.5 55.5 48.5 58 48.5 64"/><circle class="gs" cx="48.5" cy="82" r="9"/>',
+    // Maps, proposed: the sun over two leaves that meet in a point, a pin
+    // made of the pieces of the mark.
+    maps: '<circle class="gs" cx="48" cy="25" r="16"/><path class="gf" d="M11 47 C8 66 27 86 45 90 C48 70 31 48 11 47 Z"/><path class="gf2" d="M85 47 C88 66 69 86 51 90 C48 70 65 48 85 47 Z"/>'
   };
 
   var icons = {
@@ -86,7 +91,17 @@
     child: '<circle cx="12" cy="6" r="3"/><path d="M8 21v-6l-2-3h12l-2 3v6"/>',
     door: '<path d="M5 21V4h11v17M5 21h14M13 12h.01"/>',
     robot: '<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9 16h6"/>',
-    hand: '<path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11V6a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7H9a5 5 0 0 1-4-2l-2-4a1.5 1.5 0 0 1 2.5-1.5L8 15"/>'
+    hand: '<path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11V6a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7H9a5 5 0 0 1-4-2l-2-4a1.5 1.5 0 0 1 2.5-1.5L8 15"/>',
+    layers: '<path d="M12 3 2 8l10 5 10-5z"/><path d="M2 13l10 5 10-5M2 17.5l10 5 10-5"/>',
+    locate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+    drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
+    sprout: '<path d="M12 21v-8"/><path d="M12 13c0-4.5 3.5-7.5 8.5-7.5 0 4.5-3.5 7.5-8.5 7.5z"/><path d="M12 15c0-3.5-2.8-6-7.5-6 0 3.5 2.8 6 7.5 6z"/>',
+    tool: '<path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18l3 3 5.7-5.7a4.5 4.5 0 0 0 6-6l-3 3-3-3z"/>',
+    route: '<circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/>',
+    area: '<path d="M4 8l7-4.5 9 5-3 10.5-11 1.5z"/><circle cx="4" cy="8" r="1.6"/><circle cx="11" cy="3.5" r="1.6"/><circle cx="20" cy="8.5" r="1.6"/><circle cx="17" cy="19" r="1.6"/><circle cx="6" cy="20.5" r="1.6"/>',
+    walk: '<circle cx="13" cy="4" r="2"/><path d="M10 21l2-6 3 3v3M8 12l3-4 3 2 3 1M11 8l-1 5 2 2"/>',
+    undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+    plane: '<path d="M3 13l18-8-6 16-3-7z"/><path d="M12 14l3-3"/>'
   };
 
   function svg(viewBox, body, cls) {
@@ -109,6 +124,45 @@
     if (!g) { el.outerHTML = '<span style="color:red">[' + name + ']</span>'; return; }
     keep(el, svg('0 0 24 24', g, 'i ' + (el.className || '')));
   });
+  // The drawn map of the example community, the same place on every Maps
+  // screen. data-map holds the piece to show, as an SVG viewBox in the
+  // coordinates of the whole map (390 by 768); the other attributes add what
+  // lies over the land: data-garden, data-land, data-alert, data-houses and
+  // data-me. A drawing, never a picture of a real place.
+  var land = '<rect class="m-field" x="-400" y="-400" width="1200" height="1600"/>' +
+    '<path class="m-forest" d="M390 236 C330 232 278 268 266 320 C256 372 292 424 352 432 C370 434 382 432 390 430 Z"/>' +
+    '<path class="m-pasture" d="M0 640 C80 615 150 680 230 658 S330 628 390 645 V900 H0 Z"/>' +
+    '<path class="m-contour" d="M0 600 C90 580 160 630 250 605 S340 570 390 585"/>' +
+    '<path class="m-contour" d="M0 250 C80 232 150 280 230 258 S330 222 390 236"/>' +
+    '<path class="m-water" d="M80 0 C110 90 150 160 172 230 S250 380 300 470 S370 600 390 640"/>' +
+    '<path class="m-road" d="M190 900 C200 660 160 580 176 500 S236 330 210 230 S170 90 180 0"/>' +
+    '<path class="m-road2" d="M176 500 C120 480 60 456 0 450"/>' +
+    '<path class="m-trail" d="M214 330 C240 338 262 350 276 372"/>' +
+    '<path class="m-trail" d="M176 500 C140 560 120 600 110 668"/>' +
+    '<rect class="m-building" x="214" y="402" width="36" height="22" rx="2"/>' +
+    '<rect class="m-building" x="262" y="538" width="20" height="16" rx="2"/>' +
+    '<rect class="m-building" x="84" y="566" width="20" height="16" rx="2"/>' +
+    '<rect class="m-building" x="40" y="520" width="16" height="13" rx="2"/>' +
+    '<rect class="m-building" x="300" y="590" width="16" height="13" rx="2"/>' +
+    '<circle class="m-spring" cx="368" cy="474" r="7"/>' +
+    '<text class="m-text" x="300" y="418">Mata</text>' +
+    '<text class="m-text quiet" x="250" y="460">Rio</text>' +
+    '<text class="m-text" x="212" y="442">Escola</text>' +
+    '<text class="m-text" x="150" y="736">Pasto de baixo</text>';
+  var over = {
+    'data-land': '<path class="m-land" d="M24 296 L140 278 L158 392 L38 412 Z"/>',
+    'data-garden': '<path class="m-garden" d="M44 316 L124 304 L136 376 L56 390 Z"/><text class="m-text" x="46" y="350">Horta coletiva</text>',
+    'data-alert': '<circle class="m-alert" cx="330" cy="326" r="60"/>',
+    'data-houses': '<text class="m-text" x="228" y="574">Casa da Neide</text><text class="m-text" x="62" y="604">Casa do Joel</text>',
+    'data-me': '<circle class="m-halo" cx="196" cy="470" r="22"/><circle class="m-me" cx="196" cy="470" r="8"/>'
+  };
+  document.querySelectorAll('[data-map]').forEach(function (el) {
+    var body = land;
+    Object.keys(over).forEach(function (k) { if (el.hasAttribute(k)) body += over[k]; });
+    el.insertAdjacentHTML('afterbegin', '<svg viewBox="' + (el.getAttribute('data-map') || '0 0 390 768') +
+      '" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + body + '</svg>');
+  });
+
   document.querySelectorAll('img[data-mark]').forEach(function (el) {
     el.src = mark;
     if (!el.className) el.className = 'mark';

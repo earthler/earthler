@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Talk: o lugar de um aviso novo</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar"><i data-icon="back"></i></a>
+    <div class="tx"><h1>Novo aviso</h1><p class="sub">Vai para todos da Vila Aurora</p></div>
+  </header>
+
+  <div class="content" style="gap:12px">
+    <div class="field">
+      <label for="what">O que todos precisam saber</label>
+      <div class="input area" id="what" style="min-height:76px">Fogo na mata perto da estrada do rio</div>
+    </div>
+    <div class="field">
+      <span class="label">Categoria</span>
+      <div class="chips"><span class="pill on" style="min-height:40px">Emergência</span><span class="pill" style="min-height:40px">Água</span><span class="pill" style="min-height:40px">Energia</span></div>
+    </div>
+
+    <div class="field">
+      <span class="label">Onde é</span>
+      <div class="map" data-map="190 230 300 170" data-alert style="height:170px" role="img" aria-label="Pedaço do mapa com a área do aviso sobre a mata">
+        <span class="pin sun big" style="left:104px;top:42px;box-shadow:0 0 0 3px var(--surface),0 2px 8px var(--shadow)"><span><i data-icon="bell"></i></span></span>
+      </div>
+      <p class="hint">Arraste o mapa para pôr o aviso no lugar. Ele aparece no Maps enquanto valer.</p>
+    </div>
+    <div class="segmented" role="radiogroup" aria-label="Tamanho da área" style="align-self:stretch;justify-content:space-between">
+      <span role="radio" aria-checked="false">Um ponto</span>
+      <span class="on" role="radio" aria-checked="true">Área média</span>
+      <span role="radio" aria-checked="false">Sem lugar</span>
+    </div>
+
+    <button class="btn block" style="margin-top:auto">Continuar</button>
+  </div>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

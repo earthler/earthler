@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Maps: demarcar caminhando</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="maps">
+  <div class="map flat" data-map="-60 214 390 300" data-garden style="position:absolute;left:0;right:0;top:0;height:470px" role="img" aria-label="A divisa sendo marcada: quatro pontos ligados, e você no quarto canto">
+    <svg viewBox="-60 214 390 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">
+      <path class="m-land solid" d="M24 296 L140 278 L158 392 L100 401" style="fill:none"/>
+      <path d="M100 401 L24 296" style="fill:none;stroke:var(--primary);stroke-width:2;stroke-dasharray:3 6;opacity:.7"/>
+      <circle class="m-vertex" cx="24" cy="296" r="6"/>
+      <circle class="m-vertex" cx="140" cy="278" r="6"/>
+      <circle class="m-vertex" cx="158" cy="392" r="6"/>
+      <circle class="m-halo" cx="100" cy="401" r="16"/>
+      <circle class="m-me" cx="100" cy="401" r="8"/>
+    </svg>
+  </div>
+
+  <div class="float" style="left:12px;right:12px;top:12px;display:flex;align-items:center;gap:8px">
+    <a class="map-btn" href="#" aria-label="Parar e sair"><i data-icon="close"></i></a>
+    <span class="chip-on-map" style="min-height:48px;padding:0 16px;font-size:16px"><i data-icon="walk" class="s"></i>Demarcar caminhando</span>
+  </div>
+
+  <section class="sheet" aria-labelledby="pt" style="gap:12px;padding-top:20px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+      <h2 id="pt" style="font-size:24px;font-weight:800">Canto 4</h2>
+      <span class="chip">Precisão de 4 metros</span>
+    </div>
+    <p style="font-size:16px;line-height:1.4">Até aqui: 1,4 hectare e 380 metros de divisa.</p>
+    <p class="small">Pare em cada canto da cerca e toque em "Marcar este canto". Se a precisão passar de 10 metros, espere um pouco parado.</p>
+    <button class="btn block"><i data-icon="pin" class="s"></i>Marcar este canto</button>
+    <div class="btn-row">
+      <button class="btn soft"><i data-icon="undo" class="s"></i>Desfazer</button>
+      <button class="btn soft"><i data-icon="check" class="s"></i>Fechar a divisa</button>
+    </div>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

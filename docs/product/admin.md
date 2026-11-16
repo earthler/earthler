@@ -30,6 +30,7 @@ Everything else on this page is **Proposed**, and drawn here so it can be built.
 | [Log](#log) | `/log` | Every resident | Built in part |
 | [Guardian](#guardian) | `/guardian` | The guardian | Proposed |
 | [Collection](#collection) | `/admin/collection` | Administrator | Proposed |
+| [Map](maps.md#the-map-in-administration) | `/admin/map` | Administrator | Proposed; drawn with [Maps](maps.md) |
 | [Machines](#machines) | `/admin/machines` | Administrator | Proposed |
 | [Invite a machine](#invite-a-machine) | A sheet over `/admin/machines` | Administrator | Proposed; built on the command line |
 | [Take a machine off](#take-a-machine-off) | A sheet over `/admin/machines/<name>` | Administrator | Proposed |

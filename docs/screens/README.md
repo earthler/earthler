@@ -24,10 +24,10 @@ The names, messages and numbers on the screens are examples, to show the design.
 - One file per screen, in the folder of its area, named for what it is: `conversation.html`, not `screen3.html`.
 - Only the pieces of the kit. A new piece goes in `kit.css`, described in [visual identity](../product/visual.md).
 - Colors only through the kit's variables, so dark mode follows by itself.
-- Icons through `<i data-icon="name">`, glyphs through `<span data-glyph="app">`, the mark through `<img data-mark alt="">`. Never a picture of an icon, never an emoji.
+- Icons through `<i data-icon="name">`, glyphs through `<span data-glyph="app">`, the mark through `<img data-mark alt="">`, the drawn map of the example community through `<div class="map" data-map="x y width height">`. Never a picture of an icon, never an emoji.
 - Real buttons, links and fields, with names a screen reader reads.
 - No status bar of a phone: the drawing starts where the page starts.
 
 ## The license of the drawings
 
-The HTML, the kit and the pictures are under the code license, except the Earthler mark and the glyphs of the four apps, which `kit.js` draws and which belong to the Earthler brand: see [TRADEMARKS](../../TRADEMARKS.md). The Figtree font in `fonts/` is under the SIL Open Font License, in `fonts/OFL.txt`.
+The HTML, the kit and the pictures are under the code license, except the Earthler mark and the glyphs of the apps, which `kit.js` draws and which belong to the Earthler brand: see [TRADEMARKS](../../TRADEMARKS.md). The Figtree font in `fonts/` is under the SIL Open Font License, in `fonts/OFL.txt`.
