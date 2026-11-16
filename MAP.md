@@ -43,6 +43,8 @@ Two tests in [`rules_test.go`](rules_test.go) keep this shape: no file has more 
 | [`locales`](locales) | Every text people read on a screen, one file per language |
 | [`experiments`](experiments) | Disposable programs that test the design on real devices. Not part of the system |
 | [`docs/design`](docs/design) | Why each part is the way it is |
+| [`docs/product`](docs/product) | Every screen people will see, what it does and how it behaves: the specification the screens are built against |
+| [`docs/screens`](docs/screens) | The drawings of those screens, one HTML file each, and their pictures in light and dark mode |
 | [`docs/glossary.md`](docs/glossary.md) | The words the code uses, and what each one means |
 | [`brand`](brand) | The logo. Not under the code license |
 

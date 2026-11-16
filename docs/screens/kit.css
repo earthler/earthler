@@ -1,0 +1,286 @@
+/* The kit every drawn screen uses: the Terra identity in light and dark,
+   and the pieces the screens are made of. A screen is a phone of 390 by 844
+   CSS pixels. The same file draws both modes: dark comes from the system's
+   preference, or from "#dark" at the end of the address (see kit.js). */
+
+@font-face {
+  font-family: "Figtree";
+  src: url("fonts/figtree.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --bg: #F3EFE7;          /* Fundo */
+  --surface: #FFFFFF;     /* Superfície */
+  --surface-2: #F3EFE7;   /* a field or a chip on a surface */
+  --text: #2A241C;        /* Texto */
+  --muted: #5F5546;       /* Texto secundário */
+  --primary: #025D2E;     /* Primária */
+  --primary-hover: #014A25;
+  --on-primary: #FFFFFF;
+  --leaf: #01A26D;        /* Folha */
+  --sun: #FDB504;         /* Sol, always with dark text */
+  --on-sun: #2A241C;
+  --soft: #E3EBDF;        /* Tom suave */
+  --on-soft: #025D2E;
+  --line: #ECE6DA;        /* Linhas */
+  --track: #DED6C7;       /* Trilho */
+  --border: #CFC7B8;      /* Borda */
+  --shadow: rgba(42, 36, 28, .12);
+  --veil: rgba(42, 36, 28, .46);
+  --danger: #A23B1E;      /* only for what cannot be undone */
+
+  /* The cover of each app, from the palette. */
+  --talk-cover: #025D2E;  --talk-ink: #F3EFE7;  --talk-sub: #E3EBDF;
+  --learn-cover: #FFFFFF; --learn-ink: #2A241C; --learn-sub: #5F5546;
+  --decide-cover: #E3EBDF; --decide-ink: #2A241C; --decide-sub: #025D2E;
+  --ask-cover: #2A241C;   --ask-ink: #F3EFE7;   --ask-sub: #DED6C7;
+}
+
+/* Dark mode, proposed: the same palette turned around. The background is the
+   warm dark of the text color, surfaces step up from it, the leaf green takes
+   the place of the primary, which is too dark to read on dark, and the sun
+   keeps its dark text. */
+html.dark {
+  --bg: #15120E;
+  --surface: #221E18;
+  --surface-2: #2E2820;
+  --text: #F3EFE7;
+  --muted: #CFC7B8;
+  --primary: #01A26D;
+  --primary-hover: #04B87C;
+  --on-primary: #0E1510;
+  --leaf: #01A26D;
+  --sun: #FDB504;
+  --on-sun: #2A241C;
+  --soft: #1E3328;
+  --on-soft: #BFE3CF;
+  --line: #332C24;
+  --track: #3D352C;
+  --border: #4A4136;
+  --shadow: rgba(0, 0, 0, .40);
+  --veil: rgba(0, 0, 0, .60);
+  --danger: #F08B6B;
+
+  --talk-cover: #025D2E;  --talk-ink: #F3EFE7;  --talk-sub: #CFE6D8;
+  --learn-cover: #221E18; --learn-ink: #F3EFE7; --learn-sub: #CFC7B8;
+  --decide-cover: #1E3328; --decide-ink: #F3EFE7; --decide-sub: #BFE3CF;
+  --ask-cover: #0B0A08;   --ask-ink: #F3EFE7;   --ask-sub: #CFC7B8;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #8C8478; }
+body { display: block; }
+
+/* The phone. */
+.screen {
+  position: relative;
+  width: 390px; height: 844px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--bg); color: var(--text);
+  font: 400 16px/1.4 Figtree, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  --gap: var(--bg);
+}
+/* Links take the color of where they are, with no weight of their own, so a
+   link drawn as a button keeps the button's colors. */
+:where(.screen) a { color: inherit; text-decoration: none; }
+.screen h1, .screen h2, .screen h3, .screen p { margin: 0; }
+
+/* Line icons and the glyphs of the apps, drawn by kit.js. */
+.i { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.i.s { width: 18px; height: 18px; }
+.gl { display: block; flex: none; overflow: visible; }
+.gs { fill: var(--sun); }
+.gf { fill: var(--leaf); stroke: var(--gap); stroke-width: 5; paint-order: stroke; stroke-linejoin: round; }
+.gf2 { fill: var(--leaf2, var(--primary)); stroke: var(--gap); stroke-width: 5; paint-order: stroke; stroke-linejoin: round; }
+html.dark .gf2 { fill: var(--leaf2, #025D2E); }
+.gt { fill: none; stroke: var(--leaf); stroke-width: 14.5; stroke-linecap: round; stroke-linejoin: round; }
+.mark { width: 24px; height: 20px; object-fit: contain; flex: none; }
+
+/* The header of a page of no app: the community's. */
+.top { display: flex; align-items: center; gap: 10px; padding: 14px 16px 6px; }
+.community { min-height: 44px; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--primary); white-space: nowrap; }
+.community.big { gap: 10px; font-size: 24px; font-weight: 800; color: var(--text); }
+.community.big .mark { width: 40px; height: 34px; }
+.avatar-me { margin-left: auto; width: 44px; height: 44px; border-radius: 22px; background: var(--soft); color: var(--on-soft); display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.address { flex: 1; min-width: 0; height: 40px; border-radius: 20px; background: var(--surface); display: flex; align-items: center; gap: 8px; padding: 0 14px; font-size: 15px; color: var(--muted); }
+
+/* The cover of an app: its header, its own color and its glyph drawn large. */
+.cover {
+  position: relative; overflow: hidden;
+  padding: 14px 20px 22px;
+  border-radius: 0 0 28px 28px;
+  display: flex; flex-direction: column; gap: 22px;
+}
+.cover.slim { padding-bottom: 16px; gap: 0; }
+.cover > .gl { position: absolute; right: -40px; top: 34px; width: 196px; height: 196px; pointer-events: none; }
+.cover.slim > .gl { width: 120px; height: 120px; right: -26px; top: -14px; }
+.cover .head { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; }
+.cover .head .name { flex: 1; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+.cover .head .community { color: inherit; }
+.cover .title { position: relative; display: flex; flex-direction: column; gap: 4px; max-width: 64%; }
+.cover h1 { font-size: 32px; line-height: 1.05; font-weight: 800; letter-spacing: -0.01em; }
+.cover p { font-size: 15px; line-height: 1.38; }
+.cover .search, .cover .segmented, .cover .chip { position: relative; }
+.screen[data-app="talk"] .cover { background: var(--talk-cover); color: var(--talk-ink); --gap: var(--talk-cover); --leaf2: #F3EFE7; }
+.screen[data-app="talk"] .cover p { color: var(--talk-sub); }
+.screen[data-app="learn"] .cover { background: var(--learn-cover); color: var(--learn-ink); --gap: var(--learn-cover); }
+.screen[data-app="learn"] .cover p { color: var(--learn-sub); }
+.screen[data-app="learn"] .cover .head .community { color: var(--primary); }
+.screen[data-app="decide"] .cover { background: var(--decide-cover); color: var(--decide-ink); --gap: var(--decide-cover); }
+.screen[data-app="decide"] .cover p { color: var(--decide-sub); }
+.screen[data-app="decide"] .cover .head .community { color: var(--decide-sub); }
+.screen[data-app="ask"] .cover { background: var(--ask-cover); color: var(--ask-ink); --gap: var(--ask-cover); }
+.screen[data-app="ask"] .cover p { color: var(--ask-sub); }
+
+/* The header of a page drawn full inside an app, with a way back. */
+.inner { display: flex; align-items: center; gap: 6px; padding: 10px 12px 10px 4px; background: var(--surface); }
+.inner .back, .icon-btn, .round, .fab { border: 0; font: inherit; }
+.inner .back, .icon-btn { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--text); border-radius: 22px; }
+.inner .tx { flex: 1; min-width: 0; }
+.inner h1 { font-size: 20px; font-weight: 700; line-height: 1.2; }
+.inner .sub { font-size: 13px; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+.icon-btn.on { color: var(--primary); }
+
+/* The body of a page. */
+.content { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 14px 16px 16px; overflow: hidden; }
+.label { font-size: 14px; font-weight: 600; color: var(--muted); }
+.lead { font-size: 16px; line-height: 1.45; color: var(--muted); }
+.small { font-size: 14px; line-height: 1.4; color: var(--muted); }
+.big-title { font-size: 26px; line-height: 1.12; font-weight: 800; letter-spacing: -0.01em; }
+
+.card { background: var(--surface); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.card.soft { background: var(--soft); color: var(--on-soft); --gap: var(--soft); }
+.card.ring { box-shadow: 0 0 0 3px var(--sun); }
+.list { background: var(--surface); border-radius: 20px; padding: 2px 16px; display: flex; flex-direction: column; --gap: var(--surface); }
+.list > .label { padding: 12px 0 2px; display: flex; align-items: center; gap: 6px; }
+.row { min-height: 62px; padding: 8px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tx .a { font-size: 16px; font-weight: 700; line-height: 1.25; }
+.tx .b { font-size: 14px; line-height: 1.3; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx .b.wrap { white-space: normal; }
+.meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 13px; color: var(--muted); }
+.meta .now { color: var(--primary); font-weight: 700; }
+.avatar { width: 42px; height: 42px; flex: none; border-radius: 21px; background: var(--surface-2); color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+.avatar.sq { border-radius: 14px; background: var(--soft); color: var(--on-soft); }
+.avatar.sun { background: var(--sun); color: var(--on-sun); }
+.count { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--primary); color: var(--on-primary); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+/* Chips and marks. */
+.row .chip { align-self: center; }
+.chip { align-self: flex-start; min-height: 28px; padding: 3px 12px; border-radius: 14px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; background: var(--soft); color: var(--on-soft); white-space: nowrap; }
+.chip.sun { background: var(--sun); color: var(--on-sun); }
+.chip.muted { background: var(--surface-2); color: var(--muted); }
+.chip.line { background: transparent; box-shadow: inset 0 0 0 1px var(--border); color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { min-height: 44px; padding: 0 16px; border-radius: 22px; background: var(--surface); color: var(--on-soft); display: inline-flex; align-items: center; font-size: 15px; font-weight: 700; }
+.pill.on { background: var(--primary); color: var(--on-primary); }
+
+/* Buttons. */
+.btn { min-height: 54px; padding: 0 22px; border: 0; border-radius: 27px; background: var(--primary); color: var(--on-primary); display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-size: 17px; font-weight: 700; }
+.btn.block { width: 100%; }
+.btn.soft { background: var(--soft); color: var(--on-soft); }
+.btn.ghost { background: transparent; color: var(--muted); }
+.btn.danger { background: transparent; color: var(--danger); box-shadow: inset 0 0 0 1.5px var(--danger); }
+.btn.small { min-height: 44px; padding: 0 16px; font-size: 15px; }
+.btn-add { min-height: 44px; padding: 0 16px 0 10px; border-radius: 22px; background: var(--soft); color: var(--on-soft); display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+.btn-add.strong { background: var(--primary); color: var(--on-primary); }
+.sun-plus { width: 24px; height: 24px; flex: none; border-radius: 12px; background: var(--sun); color: var(--on-sun); display: inline-flex; align-items: center; justify-content: center; }
+.sun-plus .i { width: 18px; height: 18px; stroke-width: 2.6; }
+.fab { position: absolute; right: 16px; bottom: 92px; min-height: 52px; padding: 0 20px; border-radius: 26px; background: var(--primary); color: var(--on-primary); display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; box-shadow: 0 4px 14px var(--shadow); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn.muted, .btn[aria-disabled="true"] { background: var(--track); color: var(--muted); }
+.btn-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.btn-row .btn { width: 100%; padding: 0 12px; }
+.source { min-height: 44px; display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); color: var(--primary); font-size: 15px; font-weight: 600; }
+
+/* Fields. */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 14px; font-weight: 600; color: var(--muted); }
+.input { min-height: 54px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); font: inherit; font-size: 17px; display: flex; align-items: center; }
+.input.area { min-height: 96px; align-items: flex-start; }
+.input .ph { color: var(--muted); }
+.hint { font-size: 13px; color: var(--muted); }
+.error { font-size: 14px; font-weight: 600; color: var(--danger); }
+.search { height: 54px; border-radius: 27px; background: var(--surface); display: flex; align-items: center; gap: 10px; padding: 0 16px; color: var(--muted); font-size: 16px; box-shadow: 0 2px 10px var(--shadow); }
+.search.flat { box-shadow: none; background: var(--surface-2); }
+.search .q { color: var(--text); }
+.switch { width: 52px; height: 32px; border-radius: 16px; background: var(--track); position: relative; flex: none; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 13px; background: var(--surface); }
+.switch.on { background: var(--primary); }
+.switch.on::after { left: 23px; }
+
+.segmented { align-self: flex-start; display: flex; gap: 4px; padding: 4px; border-radius: 26px; background: var(--surface); }
+.segmented span { min-height: 44px; padding: 0 18px; border-radius: 22px; display: flex; align-items: center; font-size: 15px; font-weight: 600; color: var(--text); }
+.segmented .on { background: var(--primary); color: var(--on-primary); font-weight: 700; }
+
+.progress { height: 8px; border-radius: 4px; background: var(--track); display: block; overflow: hidden; }
+.progress > span { display: block; height: 100%; border-radius: 4px; background: var(--leaf); }
+
+/* The conversation. */
+.thread { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 12px 14px; overflow: hidden; }
+.bubble { max-width: 82%; padding: 10px 14px; border-radius: 18px 18px 18px 4px; background: var(--surface); align-self: flex-start; font-size: 16px; line-height: 1.35; }
+.bubble.me { align-self: flex-end; border-radius: 18px 18px 4px 18px; background: var(--soft); color: var(--text); }
+.bubble .who { display: block; font-size: 13px; font-weight: 700; color: var(--primary); }
+.bubble .h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; color: var(--muted); }
+.day { align-self: center; font-size: 13px; font-weight: 600; color: var(--muted); background: var(--surface-2); padding: 3px 12px; border-radius: 12px; }
+.compose { display: flex; align-items: center; gap: 8px; padding: 8px 12px 14px; background: var(--surface); }
+.compose .input { flex: 1; min-height: 48px; border-radius: 24px; background: var(--surface-2); border: 0; padding: 0 18px; }
+.round { width: 48px; height: 48px; flex: none; border-radius: 24px; background: var(--primary); color: var(--on-primary); display: flex; align-items: center; justify-content: center; }
+.round.soft { background: transparent; color: var(--text); }
+
+/* The bar at the bottom of an app. */
+.bar { margin-top: auto; height: 76px; flex: none; background: var(--surface); display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); padding: 6px 0 10px; }
+.bar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; color: var(--muted); }
+.bar a .pad { padding: 4px 16px; border-radius: 16px 16px 16px 5px; display: flex; }
+.bar a.on { color: var(--primary); font-weight: 700; }
+.bar a.on .pad { background: var(--soft); color: var(--on-soft); }
+
+/* A sheet over the page, and the veil behind it. */
+.veil { position: absolute; inset: 0; background: var(--veil); z-index: 5; }
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-radius: 28px 28px 0 0; padding: 24px 20px 28px; display: flex; flex-direction: column; gap: 14px; }
+.sheet h2 { font-size: 21px; font-weight: 700; }
+.dialog { position: absolute; left: 24px; right: 24px; top: 50%; transform: translateY(-50%); z-index: 6; background: var(--surface); border-radius: 28px; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.steps li { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 1.4; }
+.steps .n { width: 28px; height: 28px; flex: none; border-radius: 14px; background: var(--soft); color: var(--on-soft); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+.steps li.now .n { background: var(--sun); color: var(--on-sun); }
+.steps li.done .n { background: var(--primary); color: var(--on-primary); }
+.steps li.wait { color: var(--muted); }
+.steps li.wait .n { background: var(--surface-2); color: var(--muted); }
+
+/* The four notices, always the same sentence in the same place. */
+.notice { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--sun); color: var(--on-sun); font-size: 14px; font-weight: 600; }
+.notice.card { flex-direction: row; border-radius: 16px; padding: 12px 14px; }
+.mark-late { min-height: 22px; padding: 1px 8px; border-radius: 11px; background: var(--sun); color: var(--on-sun); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+.mark-wait { min-height: 22px; padding: 1px 8px; border-radius: 11px; background: var(--sun); color: var(--on-sun); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+
+/* App tiles, as on the portal. */
+.tile { width: 62px; height: 62px; flex: none; border-radius: 14px; background: #FFFFFF; box-shadow: 0 1px 2px var(--shadow); display: flex; align-items: center; justify-content: center; --gap: #FFFFFF; --leaf2: #025D2E; }
+/* The icon of an app sits on white in both modes, as approved and as it is
+   on the phone. */
+.tile .gl { width: 72%; height: 72%; }
+.tile.s { width: 36px; height: 36px; border-radius: 10px; box-shadow: none; }
+.tile.xs { width: 26px; height: 26px; border-radius: 8px; box-shadow: none; }
+.tile.talk { background: var(--talk-cover); --gap: var(--talk-cover); --leaf2: #F3EFE7; }
+.tile.learn { background: var(--learn-cover); --gap: var(--learn-cover); box-shadow: 0 0 0 1px var(--track); }
+.tile.decide { background: var(--decide-cover); --gap: var(--decide-cover); }
+.tile.ask { background: var(--ask-cover); --gap: var(--ask-cover); }
+
+/* A drawn map, for Decide. */
+.map { position: relative; height: 200px; border-radius: 20px; overflow: hidden; background: var(--soft); }
+.map > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pin { position: absolute; width: 28px; height: 28px; border-radius: 14px 14px 14px 3px; transform: rotate(-45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px var(--shadow); }
+.pin.sun { background: var(--sun); }
+.pin.leaf { background: var(--leaf); }
+.pin.primary { background: #025D2E; }
+
+/* A drawn picture, for lessons and films: shapes from the mark, never a photo. */
+.picture { position: relative; border-radius: 16px; overflow: hidden; background: var(--primary); }
+.picture.soft { background: var(--soft); }
+.picture .play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 56px; height: 56px; border-radius: 28px; background: rgba(243, 239, 231, .92); color: #2A241C; display: flex; align-items: center; justify-content: center; }
