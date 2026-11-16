@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Um navegador que não instala sozinho: onde fica a opção</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="cover">
+    <span data-glyph="talk"></span>
+    <div class="head">
+      <span class="name">Talk</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>Conversas</h1>
+      <p>3 canais abertos e 2 conversas novas</p>
+    </div>
+  </header>
+
+  <div class="content" aria-hidden="true">
+    <section class="card soft">
+      <div style="display:flex;gap:12px;align-items:center">
+        <span class="tile"><span data-glyph="talk"></span></span>
+        <span class="tx"><span class="a">Ponha o Talk na tela do celular</span><span class="b wrap" style="color:var(--on-soft)">Abre com um toque e não passa por loja.</span></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="veil"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+    <h2 id="menu-title">Este navegador põe o ícone pelo menu dele</h2>
+    <p class="small">Ele não deixa a página fazer isso sozinha. Faça assim:</p>
+    <ol class="steps">
+      <li><span class="n">1</span><span>Abra o menu do navegador, num dos cantos da tela.</span></li>
+      <li><span class="n">2</span><span>Procure <strong>Adicionar à tela inicial</strong> ou <strong>Instalar</strong>.</span></li>
+      <li><span class="n">3</span><span>Confirme. O ícone do Talk aparece na tela do celular.</span></li>
+    </ol>
+    <p class="small">No Chrome, o botão Adicionar faz isso com um toque.</p>
+    <button class="btn block" type="button">Entendi</button>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Adicionar no iPhone, a partir de outro navegador: abrir no Safari</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="talk">
+  <header class="cover">
+    <span data-glyph="talk"></span>
+    <div class="head">
+      <span class="name">Talk</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>Conversas</h1>
+      <p>3 canais abertos e 2 conversas novas</p>
+    </div>
+  </header>
+
+  <div class="content" aria-hidden="true">
+    <section class="card soft">
+      <div style="display:flex;gap:12px;align-items:center">
+        <span class="tile"><span data-glyph="talk"></span></span>
+        <span class="tx"><span class="a">Ponha o Talk na tela do celular</span><span class="b wrap" style="color:var(--on-soft)">Abre com um toque e não passa por loja.</span></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="veil"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="safari-title">
+    <h2 id="safari-title">No iPhone, o ícone se põe pelo Safari</h2>
+    <p class="small">Abra esta página no Safari e toque em Adicionar lá. É o mesmo caminho do certificado.</p>
+    <div class="field">
+      <label for="address">Endereço desta página</label>
+      <div class="input" style="background:var(--surface-2);border-color:transparent;gap:10px">
+        <i data-icon="link" class="s"></i>
+        <input id="address" readonly value="https://192.168.1.200/talk/" style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:16px;padding:0">
+      </div>
+    </div>
+    <button class="btn block" type="button">Copiar o endereço</button>
+    <button class="btn ghost block" type="button">Fechar</button>
+  </section>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
