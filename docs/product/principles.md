@@ -19,7 +19,7 @@ What is written with no link to the community stays in the device's outbox, in s
 
 ## What waits says that it waits
 
-What is counted, such as creating an account, changing a role or closing a vote, waits for the machines that decide it. The screen answers at once, in one sentence: not now, why, and what happens next. Nothing sits in a hidden queue. **Built** for creating an account and changing a role.
+What is counted, such as creating an account, changing a role or closing a vote, waits for the machines that decide it. When they cannot be reached, the screen says so at once, in one sentence: not now, why, and what happens next. Nothing sits in a hidden queue. **Built** for creating an account, which says not now within five seconds, and for changing a role, which today first waits about ten seconds for the change to arrive before it says not now. Saying it at once there is **Proposed**.
 
 ## Four notices, always the same
 
