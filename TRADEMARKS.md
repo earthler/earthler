@@ -12,4 +12,4 @@ You may use, study, modify and distribute the code under the terms of the licens
 
 A modified version may not present itself as the official Earthler, and a community or organization may not present itself as certified or as part of the movement unless the criteria exist and have been met.
 
-The files in `brand/` are the Earthler logo, created by Quim Pierotto, and the glyphs and icons of the four apps, made from the pieces of the logo and approved by him. They are not under the code license. All rights are reserved, and they may only be used to identify this project. Anyone who publishes a modified version must remove the logo from it.
+The files in `brand/` are the Earthler logo, created by Quim Pierotto, and the glyphs and icons of the five apps, made from the pieces of the logo and approved by him. They are not under the code license. All rights are reserved, and they may only be used to identify this project. Anyone who publishes a modified version must remove the logo from it.

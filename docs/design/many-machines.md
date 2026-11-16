@@ -2,7 +2,7 @@
 
 **Proposed, and being built since 2026-11-15, on the maintainer's word.** Today a community runs on one machine, with one [journal](journal.md) and one scribe, and a [second machine](replica.md) can keep an encrypted copy that it cannot read. This note is the design that comes after that, and it changes as the maintainer decides. What is built so far is listed in [what is built](#what-is-built).
 
-The measure of the design is what a resident sees: it is right only if nobody ever notices which machine they are on. That part has a note of its own, [four apps on one address](apps.md).
+The measure of the design is what a resident sees: it is right only if nobody ever notices which machine they are on. That part has a note of its own, [a portal and five apps on one address](apps.md).
 
 Each claim carries a mark where it matters. **Built** is in the code today. **Proposed** is a choice that can change. **To prove** only holds after a test on real machines or devices. **Inference** is a reading, to be corrected.
 
@@ -127,7 +127,7 @@ The light parts, conversation, wiki, map, voting and search by word, go inside e
 | Exchange between machines | Machines that are images follow each other's journals, live, each straight from the machine that wrote it (**built**). The second machine stays as an option | The same, with signed entries so a copy can be handed on | Reuses the pairing code, the fingerprint and the seal check of the second machine |
 | The device | Keeps nothing (**built**) | Keeps what is personal and an outbox | New code in the browser |
 | The network | Outside the software | Each machine is a point of the network | A new piece, the least proven |
-| Screens | The portal and four apps, on four paths (**built**) | The same, with each app's own screens | See [a portal and four apps](apps.md) |
+| Screens | The portal and five apps, on five paths (**built**) | The same, with each app's own screens | See [a portal and five apps](apps.md) |
 
 It is a rework of the core that exists, plus one new piece, the network. Consensus between machines is not on the list.
 

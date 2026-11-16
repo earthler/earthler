@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{{.Title}} · {{if .App}}{{t (print "app." .App ".name")}}{{else}}{{.Community}}{{end}}</title>
 <link rel="stylesheet" href="/static/base.css">
-<meta name="theme-color" content="#F3EFE7">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F3EFE7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#15120E" media="(prefers-color-scheme: dark)">
 {{if .App}}
 <link rel="manifest" href="/{{.App}}/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/brand/apps/{{.App}}-180.png">
@@ -24,7 +26,7 @@
   {{glyph .App}}<h1>{{t (print "app." .App ".name")}}</h1>
   <a class="com" href="/" title="{{t "nav.portal"}}"><img class="marca" src="/brand/earthler-mark.png" alt="">{{.Community}}</a>
 </header>
-{{else}}
+{{else if not .Bare}}
 <header class="top">
   <a class="com big" href="/"><img class="marca" src="/brand/earthler-mark.png" alt="">{{.Community}}</a>
 </header>

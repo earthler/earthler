@@ -107,7 +107,7 @@ func TestSearchSurvivesStrangeQueries(t *testing.T) {
 	}
 	// A normal search still works afterwards.
 	_, body := ana.get(s, "/search?q=horta")
-	wantIn(t, body, garden, "a search after the strange ones")
+	wantIn(t, plain(body), garden, "a search after the strange ones")
 }
 
 // TestDeletingTheWrongThing sends every kind of bad request to the delete

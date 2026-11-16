@@ -86,7 +86,7 @@ func TestMessagesArriveLiveAndCanBeDeleted(t *testing.T) {
 		t.Fatalf("the deletion event was %q", got)
 	}
 	_, body = bia.get(s, "/search?q=agua")
-	wantOut(t, body, garden, "the search after deleting")
+	wantOut(t, plain(body), garden, "the search after deleting")
 	stop()
 
 	// A page that comes back late catches up: the deleted message, and a

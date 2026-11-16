@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+	"strings"
 )
 
-// App is one of the four apps a resident adds to the phone. Each lives on
+// App is one of the five apps a resident adds to the phone. Each lives on
 // a path of its own on the community's one address, and no path sits inside
 // another, so a phone installs each one apart. Its name, description and
 // the labels of its bar are in the locales, under app.<key>.
 type App struct {
-	Key  string // talk, learn, decide or ask: the path and the locale key
+	Key  string // talk, learn, decide, ask or maps: the path and the locale key
 	Tabs []Tab  // the bar at the bottom, the first one being the app's home
 }
 
@@ -22,7 +23,7 @@ type Tab struct {
 	Icon string // the line icon that draws it
 }
 
-// Apps are the four apps, in the order the portal shows them.
+// Apps are the five apps, in the order the portal shows them.
 var Apps = []App{
 	{Key: "talk", Tabs: []Tab{
 		{"conversations", "/talk/", "i-talk"}, {"calls", "/talk/calls", "i-fone"}, {"alerts", "/talk/alerts", "i-sino"}}},
@@ -33,6 +34,8 @@ var Apps = []App{
 		{"decisions", "/decide/", "i-voto"}, {"map", "/decide/map", "i-decide"}, {"votes", "/decide/votes", "i-gente"}}},
 	{Key: "ask", Tabs: []Tab{
 		{"ask", "/ask/", "i-ask"}, {"answers", "/ask/answers", "i-lista"}, {"missing", "/ask/missing", "i-falta"}}},
+	{Key: "maps", Tabs: []Tab{
+		{"map", "/maps/", "i-pin"}, {"places", "/maps/places", "i-lista"}, {"lands", "/maps/lands", "i-area"}}},
 }
 
 // app returns the app with this key.
@@ -62,7 +65,11 @@ func (r *Renderer) AppRoutes(mux *http.ServeMux, signedIn func(http.Handler) htt
 		mux.HandleFunc("GET /"+a.Key+"/manifest.webmanifest", r.manifest(a))
 		for _, t := range a.Tabs {
 			if !served[t.Path] {
-				mux.Handle("GET "+t.Path, signedIn(r.soon(a, t, who)))
+				pattern := "GET " + t.Path
+				if strings.HasSuffix(t.Path, "/") {
+					pattern += "{$}" // the home only, not every path under it
+				}
+				mux.Handle(pattern, signedIn(r.soon(a, t, who)))
 			}
 		}
 	}
@@ -70,7 +77,7 @@ func (r *Renderer) AppRoutes(mux *http.ServeMux, signedIn func(http.Handler) htt
 
 // manifest says to a phone what the app is called, where it starts and
 // where it ends, and which icon it gets. The scope is the app's own path,
-// so the four are four apps and the portal is none of them.
+// so the five are five apps and the portal is none of them.
 func (r *Renderer) manifest(a App) http.HandlerFunc {
 	type icon struct {
 		Src     string `json:"src"`

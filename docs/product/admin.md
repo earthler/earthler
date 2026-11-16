@@ -1,6 +1,6 @@
 # Administration
 
-Administration is where the people with powers look after the community: an administrator approves who comes in, gives roles, keeps the machines and the copies, and answers what the caretaker finds; a moderator removes what should not be in the open; a guardian looks after a child's account. Every resident can read what those people did, in the log. None of it is one of the four apps. It is reached from the portal, only by whoever may use it, and it never shows anything personal: no conversation between people, no closed group, no vault.
+Administration is where the people with powers look after the community: an administrator approves who comes in, gives roles, keeps the machines and the copies, and answers what the caretaker finds; a moderator removes what should not be in the open; a guardian looks after a child's account. Every resident can read what those people did, in the log. None of it is one of the five apps. It is reached from the portal, only by whoever may use it, and it never shows anything personal: no conversation between people, no closed group, no vault.
 
 These screens are the only place where machines have names. A resident never sees a machine; an administrator sees the community's machines in plain words, which ones it waits for and which ones come and go, without ports, numbers or addresses.
 
@@ -44,7 +44,7 @@ Everything else on this page is **Proposed**, and drawn here so it can be built.
 
 The paths come from the architecture, in the English of the code. `/admin/machines` is new: the architecture says the machines belong to the administrator's screens and does not give them a path. The log is at `/log`, where it is built, and not under `/admin`, because it is everyone's.
 
-The portal shows the way in to whoever has a role that may use one of these screens, and to nobody else: administration to an administrator, moderation to a moderator and an administrator, the guardian's screen to a guardian, and the log to everyone. **Proposed.** Where that way in sits on the portal belongs to [the portal](portal.md).
+The portal shows the way in to whoever has a role that may use one of these screens, and to nobody else: administration to an administrator, moderation to a moderator and an administrator, the guardian's screen to a guardian, and the log to everyone. **Proposed.** Where that way in sits on the portal belongs to [the portal](portal.md). **Built** for the two screens that exist: at the bottom of the portal, under "Para quem cuida", the log for whoever may read it and the residents for an administrator.
 
 The overview uses the community's header, the mark and the name that lead to the portal, as a page of no app does. Every other screen uses the inner header, with a way back to the overview, or to the portal for the log, moderation and the guardian's screen.
 

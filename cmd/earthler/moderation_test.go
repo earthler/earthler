@@ -72,7 +72,7 @@ func TestModeratorsRemoveWithAReasonAndTheLogShowsIt(t *testing.T) {
 		t.Fatalf("the log has %d removals, want 2: the author's own deletion is not one", got)
 	}
 	_, body = dani.get(s, "/search?q=adubo")
-	wantOut(t, body, "Compre meu adubo", "the search after the removal")
+	wantOut(t, plain(body), "Compre meu adubo", "the search after the removal")
 }
 
 // TestAccountsThatOnlyReadDoNotWrite gives an account the role of a child,

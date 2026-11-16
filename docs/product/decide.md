@@ -18,7 +18,7 @@ These rules shape every screen below.
 
 ## Screens
 
-The four apps share the header, the bar, the buttons, the cards and the four notices; see [principles](principles.md) and [visual identity](visual.md). Decide's cover is the soft color, its bar has three parts, "Decisões", "Mapa" and "Votos", and the community's name at the top leads to the portal.
+The five apps share the header, the bar, the buttons, the cards and the four notices; see [principles](principles.md) and [visual identity](visual.md). Decide's cover is the soft color, its bar has three parts, "Decisões", "Mapa" and "Votos", and the community's name at the top leads to the portal.
 
 Every path below is **Proposed**:
 

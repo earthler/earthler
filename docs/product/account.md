@@ -328,7 +328,7 @@ Too many tries:
 
 ## Your account
 
-`/profile`, from the initial at the top of the portal. **Proposed**: this is where the account, the vault, the devices and the trusted people are reached, in one place, outside the four apps.
+`/profile`, from the initial at the top of the portal. **Proposed**: this is where the account, the vault, the devices and the trusted people are reached, in one place, outside the five apps. **Built** in part since 2026-11-16: the page has the inner header "Sua conta" with the community and the way back to the portal, a card with the initial, the name and the role, and the sentence "A foto, o cofre, os aparelhos e as pessoas de confiança ainda não existem nesta versão do Earthler. Quando existirem, ficam aqui, fora dos aplicativos." The rest of this screen is not built.
 
 | Light | Dark |
 | --- | --- |

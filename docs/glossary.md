@@ -14,7 +14,7 @@ The words the code uses. A word listed here means one thing everywhere: in packa
 | Log | The screen that shows what the people with powers did with them. Every resident can read it |
 | Core | The program that serves the screens and owns the data |
 | Screen | One page of the system, with its own folder in the code |
-| Portal | The page the community's address opens: the search of the whole community, the four apps and what belongs to the community as a whole. It never becomes an icon. See [a portal and four apps](design/apps.md) |
+| Portal | The page the community's address opens: the search of the whole community, the five apps and what is happening now. It never becomes an icon. See [a portal and five apps](design/apps.md) and [the portal](product/portal.md) |
 | App | Talk, Learn, Decide or Ask: a part of Earthler on a path of its own, with its icon, its bar and its button to add it to the phone |
 | Service | A ready-made program that the core talks to, such as a video converter |
 

@@ -21,7 +21,7 @@
 {{define "remove"}}<details><summary>{{t "chat.remove"}}</summary><form class="remove" action="/talk/delete" method="post"><input type="hidden" name="number" value=""><input type="text" name="reason" maxlength="200" required placeholder="{{t "chat.remove.reason"}}" aria-label="{{t "chat.remove.reason"}}"><button type="submit">{{t "chat.remove"}}</button></form></details>{{end}}
 
 {{define "message"}}
-<li data-number="{{.Number}}" data-place="{{.Place}}" data-channel="{{.Channel}}" data-account="{{.Account}}"{{if .Deleted}} data-deleted="{{.Deleted}}"{{end}}{{if .Mine}} class="mine"{{end}}>
+<li id="m{{.Number}}" data-number="{{.Number}}" data-place="{{.Place}}" data-channel="{{.Channel}}" data-account="{{.Account}}"{{if .Deleted}} data-deleted="{{.Deleted}}"{{end}}{{if .Mine}} class="mine"{{end}}>
   <span class="who">{{.Author}}</span>
   {{if .Deleted}}<p class="muted">{{t "chat.deleted"}}</p>{{else}}<p>{{.Text}}</p>{{end}}
   <div class="h"><span>{{.Time}}</span>

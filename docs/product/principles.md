@@ -56,7 +56,7 @@ The screens speak the community's language, Brazilian Portuguese first, in plain
 
 ## Light and dark
 
-Every screen exists in light and in dark mode, and follows the device's choice. Dark mode is the same palette turned around, described in [visual identity](visual.md). **Proposed**: the dark palette waits for the maintainer's visual approval.
+Every screen exists in light and in dark mode, and follows the device's choice. Dark mode is the same palette turned around, described in [visual identity](visual.md). The maintainer approved every part of these screens, each drawn in light and dark, on 2026-11-15. **Built** since 2026-11-16: every page drawn by the system follows the device's choice, with this palette; the screens that are not yet aligned with their drawings take the colors but not the layout. Not yet: the short error messages, which are plain text, and the color an app's manifest gives the phone while the app opens, which is the light one.
 
 ## Why `.earthler`
 

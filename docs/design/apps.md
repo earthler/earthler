@@ -1,10 +1,10 @@
-# A portal and four apps on one address
+# A portal and five apps on one address
 
-**Partly built, since 2026-11-15.** The community's address opens the portal, and Talk, Learn, Decide and Ask are four apps, each with its icon, its bar and its button to add it to the phone. What is built is listed in [what is built](#what-is-built). This note is what the resident sees. It holds with one machine as much as with many; how many machines stay the same behind it is in [many machines, one community](many-machines.md). The marks are the same as there: **built**, **proposed**, **to prove**, **inference**.
+**Partly built, since 2026-11-15.** The community's address opens the portal, and Talk, Learn, Decide, Ask and Maps are five apps, each with its icon, its bar and its button to add it to the phone. What is built is listed in [what is built](#what-is-built). This note is what the resident sees. It holds with one machine as much as with many; how many machines stay the same behind it is in [many machines, one community](many-machines.md). The marks are the same as there: **built**, **proposed**, **to prove**, **inference**.
 
 ## The portal
 
-Earthler is the whole, and the apps are parts of it. The community's address opens the portal: the center of everything, like a search page that knows only this community. It has one field that searches the whole community, the four apps around it, each with its button to add it, and what belongs to the community as a whole, such as the log of what administrators and moderators did. The maintainer asked for it on 2026-11-15: a central page, "tipo um google da plataforma", where the apps are only a part.
+Earthler is the whole, and the apps are parts of it. The community's address opens the portal: the center of everything, like a search page that knows only this community. It has one field that searches the whole community, the five apps, what is happening now in the community, and a button that puts the apps on the phone. Its screens are drawn in [the portal](../product/portal.md). The maintainer asked for it on 2026-11-15: a central page, "tipo um google da plataforma", where the apps are only a part.
 
 The portal itself is not an app and never becomes an icon. It is the page the QR code on the community's poster opens, after the certificate and the account. Someone with no account yet is sent to create one first, because on an iPhone an app added before signing in has to be signed in apart. **Built.**
 
@@ -92,18 +92,17 @@ Learn and Decide keep nothing personal in the design and would ask for nothing. 
 
 ## What is built
 
-- **Built:** the portal at the community's address, with the search of the whole community, the four apps, the button to add each one, and the log and the list of residents for whoever may see them.
-- **Built:** each app on its own path, `/talk/`, `/learn/`, `/decide/` and `/ask/`, with its manifest (its name, its icon, its start and its scope), the icon an iPhone uses, its header with the community's name leading back to the portal, and its bar, all as the drawn screens have them, in the Figtree type, which travels with the system so it works with no internet.
+- **Built, as drawn, since 2026-11-16:** the portal at the community's address and the search, as [the portal](../product/portal.md) describes them, in light and dark, with what is built behind them marked there.
+- **Built:** each app on its own path, `/talk/`, `/learn/`, `/decide/`, `/ask/` and `/maps/`, with its manifest (its name, its icon, its start and its scope), the icon an iPhone uses, its header with the community's name leading back to the portal, and its bar, in the Figtree type, which travels with the system so it works with no internet. The covers and the insides of the apps are a first version, made before the drawn screens of each app, and are aligned with them app by app.
 - **Built:** the button to add. On Android, it opens Chrome's own confirmation once Chrome offers it; until then, and on other browsers that install, it says where the browser keeps the option. On an iPhone it shows the four taps of Safari. Opened from its icon, an app does not show it. "Agora não" hides it on that device.
-- **Built:** Talk's home with the open channels and the last message of each, and the conversation in balloons, as the drawn screens have it. The conversation that existed before moved there, and its old address leads to it.
+- **Built:** Talk's home with the open channels and the last message of each, and the conversation in balloons, in a first version that is not yet the drawn screens of [Talk](../product/talk.md). The conversation that existed before moved there, and its old address leads to it.
 - **Built, as a page that says so:** every part of an app that does not exist yet, such as calls, lessons, votes or the Mentor. It says, inside its app and with its bar, that it is not in this version.
-- **Not built:** the four notices, except the answer "not now" to what is counted; the conversations that are encrypted; and everything inside Learn, Decide and Ask.
+- **Not built:** the four notices, except the answer "not now" to what is counted; the conversations that are encrypted; and everything inside Learn, Decide, Ask and Maps.
 - **To prove:** the button to add on a real Android and on a real iPhone, with the community certificate.
 
 ## Not decided, not proven
 
-- Whether the names under the icons stay Talk, Learn, Decide and Ask in a community that speaks Portuguese, or are translated.
-- The add button and the four icons on Android.
+- Whether the names under the icons stay Talk, Learn, Decide, Ask and Maps in a community that speaks Portuguese, or are translated.
+- The add button and the five icons on Android.
 - An icon left unopened for more than seven days: whether it still holds the key.
 - An icon added before signing in.
-- The drawn screens and the icons themselves are not in this repository yet.

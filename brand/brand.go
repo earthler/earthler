@@ -1,5 +1,5 @@
 // Package brand holds the Earthler mark and the glyphs and icons of the
-// four apps, and serves them. These files are not under the code license:
+// five apps, and serves them. These files are not under the code license:
 // see TRADEMARKS.md. A modified version of the system must replace them.
 package brand
 
@@ -14,7 +14,7 @@ import (
 var files embed.FS
 
 // Glyphs are the templates that draw the glyph of each app, as glyph-talk,
-// glyph-learn, glyph-decide and glyph-ask.
+// glyph-learn, glyph-decide, glyph-ask and glyph-maps.
 //
 //go:embed apps.html
 var Glyphs string

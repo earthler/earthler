@@ -1,21 +1,54 @@
 {{define "content"}}
+{{with .Body}}
+{{if $.App}}
 <h1 class="sr">{{t "search.title"}}</h1>
-<form class="busca" action="{{.Body.Action}}" method="get" role="search">
+<form class="busca" action="{{.Action}}" method="get" role="search">
   {{icon "i-busca"}}
-  <input type="search" name="q" value="{{.Query}}" placeholder="{{t "portal.search"}}" aria-label="{{t "portal.search"}}">
+  <input type="search" name="q" value="{{$.Query}}" maxlength="200" enterkeyhint="search" placeholder="{{t "portal.search"}}" aria-label="{{t "portal.search"}}">
   <button type="submit">{{t "portal.search.button"}}</button>
 </form>
-{{with .Body}}
-{{if not .Asked}}
-<p class="muted">{{t "search.hint"}}</p>
-{{else if .Results}}
-<section class="lista">
-  {{range .Results}}
-  <div class="linha"><span class="tx"><span class="b">{{.Origin}}{{if .Author}} · {{.Author}}{{end}} · {{.Time}}</span><span class="a">{{.Text}}</span></span></div>
-  {{end}}
-</section>
 {{else}}
-<p class="muted">{{t "search.empty"}}</p>
+<h1 class="sr">{{t "search.title"}}</h1>
+<div class="stop">
+  <a class="icon-btn" href="/" aria-label="{{t "search.back"}}"><img src="/brand/earthler-mark.png" alt=""></a>
+  <form class="search" action="{{.Action}}" method="get" role="search">
+    {{icon "i-busca"}}
+    <input type="search" name="q" value="{{$.Query}}" maxlength="200" enterkeyhint="search" placeholder="{{t "portal.search"}}" aria-label="{{t "portal.search"}}">
+    {{if $.Query}}<a class="icon-btn" href="/search" aria-label="{{t "search.clear"}}">{{icon "i-fecha"}}</a>{{end}}
+  </form>
+</div>
+{{if .Asked}}
+<nav class="filters" aria-label="{{t "search.filters"}}">
+  {{range .Filters}}<a class="pill{{if .On}} on{{end}}" href="{{.Link}}"{{if .On}} aria-current="true"{{end}}>{{.Label}}</a>
+  {{end}}
+</nav>
+{{end}}
+{{end}}
+
+{{if not .Asked}}
+<p class="tip found">{{t "search.hint"}}</p>
+{{else if .NoneIn}}
+<section class="card nothing">
+  <p class="lead">{{.NoneIn}}</p>
+  <a href="{{.AllLink}}">{{t "search.none.all"}}</a>
+</section>
+{{else if .Results}}
+<p class="found">{{.Found}}</p>
+{{range .Results}}
+<a class="card result" href="{{.Link}}">
+  <span class="from"><span class="tile xs {{.App}}">{{glyph .App}}</span>{{.From}}</span>
+  <span class="text">{{.Text}}</span>
+  <span class="when">{{.When}}</span>
+</a>
+{{end}}
+{{else}}
+<section class="card nothing">
+  <span class="avatar-sq">{{icon "i-busca"}}</span>
+  <h2>{{.Nothing}}</h2>
+  <p class="lead">{{t "search.nothing.where"}}</p>
+</section>
+<a class="button" href="{{.AskLink}}">{{t "search.ask"}}</a>
+<p class="tip">{{t "search.tip"}}</p>
 {{end}}
 {{end}}
 {{end}}

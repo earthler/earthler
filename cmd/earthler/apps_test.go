@@ -9,29 +9,45 @@ import (
 	"testing"
 )
 
-// TestThePortalAndTheFourApps is the proof of what a resident sees: the
-// community's address opens the portal, with the search in the middle and
-// the four apps around it, each on a path of its own with the manifest that
-// makes it an icon. The parts not built yet say so, inside their app.
-func TestThePortalAndTheFourApps(t *testing.T) {
+// TestThePortalAndTheFiveApps is the proof of what a resident sees: the
+// community's address opens the portal, as docs/product/portal.md describes
+// it, with the search and the five apps, each on a path of its own with the
+// manifest that makes it an icon. The parts not built yet say so, inside
+// their app.
+func TestThePortalAndTheFiveApps(t *testing.T) {
 	s := startSite(t, t.TempDir())
 	ana := newVisitor(t)
 
 	// Nobody signed in: the portal and every app send to the sign up first.
-	for _, path := range []string{"/", "/talk/", "/learn/", "/decide/", "/ask/", "/talk/calls", "/decide/map"} {
+	for _, path := range []string{"/", "/profile", "/talk/", "/learn/", "/decide/", "/ask/", "/maps/", "/talk/calls", "/decide/map", "/maps/lands"} {
 		_, body := ana.get(s, path)
 		wantIn(t, body, "Criar conta", path+" without an account")
 	}
 
 	_, body := ana.signUp(s, "Ana")
-	wantIn(t, body, `action="/search"`, "the search in the portal")
-	for _, app := range []string{"talk", "learn", "decide", "ask"} {
+	for _, want := range []string{
+		"vila.earthler",                     // the address, in its pill
+		`aria-label="Sua conta: Ana">A</a>`, // the initial, which leads to the account
+		"Tudo da comunidade, num lugar só.", // the line under the name
+		`action="/search"`,                  // the search of the whole community
+		"Buscar em toda a comunidade",       //
+		"Agora na comunidade",               // what is happening now
+		"Nada novo por enquanto.",           // and, with no app writing it yet, nothing
+		"Ponha os aplicativos na tela do celular. Não passa por loja.",
+		`href="#add-apps"`, // the button that opens the sheet to add
+	} {
+		wantIn(t, body, want, "the portal")
+	}
+	for _, app := range []string{"talk", "learn", "decide", "ask", "maps"} {
 		wantIn(t, body, `href="/`+app+`/"`, "the portal opens "+app)
-		wantIn(t, body, `href="/`+app+`/?add=1"`, "the portal's button to add "+app)
+		wantIn(t, body, `href="/`+app+`/?add=1"`, "the portal's sheet adds "+app)
 	}
 	wantOut(t, body, `rel="manifest"`, "the portal, which never becomes an icon")
+	_, body = ana.get(s, "/profile")
+	wantIn(t, body, "Sua conta", "the account")
+	wantIn(t, body, "Administrador", "the role of the first resident")
 
-	names := map[string]string{"talk": "Talk", "learn": "Learn", "decide": "Decide", "ask": "Ask"}
+	names := map[string]string{"talk": "Talk", "learn": "Learn", "decide": "Decide", "ask": "Ask", "maps": "Maps"}
 	for app, name := range names {
 		status, body := ana.get(s, "/"+app+"/")
 		if status != http.StatusOK {
@@ -84,7 +100,7 @@ func TestThePortalAndTheFourApps(t *testing.T) {
 
 	// Learn searches without leaving Learn.
 	_, body = ana.get(s, "/learn/search?q=horta")
-	wantIn(t, body, garden, "a search from Learn")
+	wantIn(t, plain(body), garden, "a search from Learn")
 	wantIn(t, body, `data-app="learn"`, "a search from Learn stays in Learn")
 	wantIn(t, body, `action="/learn/search"`, "the next search from Learn")
 

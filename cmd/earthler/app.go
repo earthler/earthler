@@ -168,7 +168,7 @@ func open(cfg config) (*app, error) {
 		sess := accounts.From(r.Context())
 		return sess.Name, string(sess.Role)
 	}
-	portal.New(residents, pages).Routes(mux)
+	portal.New(residents, pages, a.chain.Domain()).Routes(mux)
 	signup.New(residents, pages).Routes(mux)
 	a.chat = chat.New(byName[chat.Area.Name], a.scribe, pages)
 	a.chat.Routes(mux, residents.Require)

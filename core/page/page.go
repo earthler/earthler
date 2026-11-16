@@ -50,6 +50,10 @@ type Data struct {
 	// conversation: a header with a way back, and no bar.
 	Inner *Inner
 
+	// Bare is set by a screen of no app that draws its own top, like the
+	// portal, with the address and the person's initial, and the search.
+	Bare bool
+
 	// Filled by the renderer.
 	Lang      string
 	Community string

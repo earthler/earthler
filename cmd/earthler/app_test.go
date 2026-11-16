@@ -95,6 +95,11 @@ func (v *visitor) say(s *site, text string) (int, string) {
 	return v.post(s, "/talk/channel/2", s.srv.URL, url.Values{"text": {text}})
 }
 
+// plain is a page without the marks the search puts on the words it found.
+func plain(body string) string {
+	return strings.NewReplacer("<mark>", "", "</mark>", "").Replace(body)
+}
+
 func wantIn(t *testing.T, body, text, where string) {
 	t.Helper()
 	if !strings.Contains(body, text) {
@@ -149,12 +154,16 @@ func TestResidentWritesAndFindsText(t *testing.T) {
 
 	for _, q := range []string{"água", "agua", "AGUA", "hortas", "horta água"} {
 		_, body = bia.get(s, "/search?q="+url.QueryEscape(q))
-		wantIn(t, body, garden, "search for "+q)
+		wantIn(t, plain(body), "Ana: "+garden, "search for "+q)
 		wantOut(t, body, "Reunião na sexta", "search for "+q)
-		wantIn(t, body, "Conversa", "the origin of the result")
+		wantIn(t, body, "Talk, Geral", "the origin of the result")
+		wantIn(t, body, "Canal aberto, agora", "when the result was written")
 	}
+	_, body = bia.get(s, "/search?q=hortas")
+	wantIn(t, body, "A <mark>horta</mark> precisa", "the word found, marked by its root")
 	_, body = bia.get(s, "/search?q=chuva")
-	wantIn(t, body, "Nada encontrado para essa busca.", "a search with no result")
+	wantIn(t, body, "Nada encontrado para “chuva”", "a search with no result")
+	wantIn(t, body, `href="/ask/?q=chuva"`, "a search with no result offers the Mentor")
 	_, body = bia.get(s, "/search?q="+url.QueryEscape(`"OR" * NEAR(`))
 	wantOut(t, body, garden, "a search made of operators")
 
@@ -175,7 +184,7 @@ func TestResidentWritesAndFindsText(t *testing.T) {
 	wantIn(t, body, garden, "after losing the indexes")
 	wantIn(t, body, "Ana", "the session after losing the indexes")
 	_, body = bia.get(s, "/search?q=agua")
-	wantIn(t, body, garden, "search after losing the indexes")
+	wantIn(t, plain(body), garden, "search after losing the indexes")
 
 	if err := s.app.journal.Verify(); err != nil {
 		t.Fatal(err)
