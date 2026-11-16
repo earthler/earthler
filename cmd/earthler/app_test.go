@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
@@ -21,11 +22,23 @@ type site struct {
 
 func startSite(t *testing.T, dir string) *site {
 	t.Helper()
+	return startSiteOn(t, dir, nil)
+}
+
+// startSiteOn is startSite with the listener wrapped by wrap, for a test
+// that needs to watch the connections from the server's side.
+func startSiteOn(t *testing.T, dir string, wrap func(net.Listener) net.Listener) *site {
+	t.Helper()
 	a, err := open(config{dataDir: dir, community: "Vila Teste", short: "vila", lang: "pt-BR", httpsPort: 443})
 	if err != nil {
 		t.Fatal(err)
 	}
-	s := &site{t: t, app: a, srv: httptest.NewServer(a.handler)}
+	srv := httptest.NewUnstartedServer(a.handler)
+	if wrap != nil {
+		srv.Listener = wrap(srv.Listener)
+	}
+	srv.Start()
+	s := &site{t: t, app: a, srv: srv}
 	t.Cleanup(s.stop)
 	return s
 }
