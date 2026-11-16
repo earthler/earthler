@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Learn: o que você quer saber</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="learn">
+  <header class="cover" style="padding-bottom:20px">
+    <span data-glyph="learn"></span>
+    <div class="head">
+      <span class="name">Learn</span>
+      <a class="community" href="#"><img data-mark alt="">Vila Aurora</a>
+    </div>
+    <div class="title">
+      <h1>O que você quer saber?</h1>
+    </div>
+    <form class="search flat" role="search">
+      <i data-icon="search"></i>
+      <label for="q" style="position:absolute;left:-9999px">Buscar no que a comunidade sabe</label>
+      <input id="q" type="search" placeholder="Aulas, wiki, acervo e filmes" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:16px;color:var(--text)">
+    </form>
+  </header>
+
+  <div class="content" style="gap:14px">
+    <a class="card soft" href="#" style="flex-direction:row;align-items:center;gap:14px">
+      <span class="tx" style="gap:4px">
+        <span style="font-size:13px;font-weight:700">Continuar de onde parou</span>
+        <span class="a" style="font-size:18px;color:var(--text)">Composto em 30 dias</span>
+        <span style="font-size:14px">Aula de Neide, faltam 7 minutos</span>
+        <span class="progress" style="margin-top:6px;background:var(--surface)"><span style="width:40%"></span></span>
+      </span>
+      <span class="round" aria-label="Continuar a aula"><i data-icon="play"></i></span>
+    </a>
+
+    <section style="display:flex;flex-direction:column;gap:10px">
+      <h2 class="label">Por assunto</h2>
+      <div class="chips">
+        <a class="pill" href="#" style="color:var(--on-soft)">Corpo</a>
+        <a class="pill" href="#" style="color:var(--on-soft)">Terra</a>
+        <a class="pill" href="#" style="color:var(--on-soft)">Energia e construção</a>
+        <a class="pill" href="#" style="color:var(--on-soft)">Convivência</a>
+        <a class="pill" href="#" style="color:var(--on-soft)">Economia e troca</a>
+        <a class="pill" href="#" style="color:var(--on-soft)">Tecnologia</a>
+      </div>
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:10px">
+      <h2 class="label">Novo no acervo</h2>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+        <a class="card" href="#" style="padding:14px;gap:8px">
+          <span class="avatar sq" style="width:40px;height:40px;border-radius:12px"><i data-icon="book"></i></span>
+          <span class="a" style="font-size:15px;font-weight:700;line-height:1.25">Manual de horta caseira</span>
+          <span class="small" style="font-size:13px">Acervo, chegou ontem</span>
+        </a>
+        <a class="card" href="#" style="padding:14px;gap:8px">
+          <span class="avatar sq" style="width:40px;height:40px;border-radius:12px"><i data-icon="cinema"></i></span>
+          <span class="a" style="font-size:15px;font-weight:700;line-height:1.25">A água da serra</span>
+          <span class="small" style="font-size:13px">Cinema, chegou nesta semana</span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <nav class="bar" aria-label="Learn">
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="grid"></i></span>Assuntos</a>
+    <a href="#"><span class="pad"><i data-icon="lesson"></i></span>Aulas</a>
+    <a href="#"><span class="pad"><i data-icon="wiki"></i></span>Wiki</a>
+    <a href="#"><span class="pad"><i data-icon="collection"></i></span>Acervo</a>
+    <a href="#"><span class="pad"><i data-icon="cinema"></i></span>Cinema</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>

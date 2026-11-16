@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390">
+<title>Learn: uma aula</title>
+<link rel="stylesheet" href="../../kit.css">
+</head>
+<body>
+<main class="screen" data-app="learn">
+  <header class="inner">
+    <a class="back" href="#" aria-label="Voltar"><i data-icon="back"></i></a>
+    <div class="tx">
+      <h1>Aula</h1>
+      <span class="sub">Terra</span>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="picture" style="height:196px;flex:none" role="img" aria-label="Vídeo da aula">
+      <svg viewBox="0 0 358 196" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" aria-hidden="true">
+        <circle cx="270" cy="62" r="30" style="fill:var(--sun)"/>
+        <path d="M0 140 C80 100 170 104 250 132 C300 148 330 142 358 132 V196 H0 Z" style="fill:var(--on-primary);opacity:.18"/>
+        <path d="M0 168 C100 136 200 146 358 164 V196 H0 Z" style="fill:var(--soft)"/>
+      </svg>
+      <button class="play" style="border:0" aria-label="Assistir"><i data-icon="play"></i></button>
+      <span class="chip" style="position:absolute;right:10px;bottom:10px;background:var(--surface);color:var(--text)">12 min</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <h2 class="big-title" style="font-size:24px">Composto em 30 dias</h2>
+      <p class="small">Neide, há 3 dias</p>
+    </div>
+    <p style="font-size:16px;line-height:1.45">Como montar a composteira, o que entra, o que não entra e como saber que o composto ficou pronto.</p>
+
+    <section class="card">
+      <h3 class="label">Perguntas e respostas</h3>
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <p style="font-weight:700">Posso usar casca de laranja?</p>
+        <p class="small">Neide: Pode, em pouca quantidade e bem picada.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;border-top:1px solid var(--line);padding-top:10px">
+        <p style="font-weight:700">Como evitar mosquito?</p>
+        <p class="small">Caio: Cobrindo sempre com folha seca.</p>
+      </div>
+      <button class="btn soft small block">Fazer uma pergunta</button>
+    </section>
+  </div>
+
+  <nav class="bar" aria-label="Learn">
+    <a href="#"><span class="pad"><i data-icon="grid"></i></span>Assuntos</a>
+    <a class="on" href="#" aria-current="page"><span class="pad"><i data-icon="lesson"></i></span>Aulas</a>
+    <a href="#"><span class="pad"><i data-icon="wiki"></i></span>Wiki</a>
+    <a href="#"><span class="pad"><i data-icon="collection"></i></span>Acervo</a>
+    <a href="#"><span class="pad"><i data-icon="cinema"></i></span>Cinema</a>
+  </nav>
+</main>
+<script src="../../kit.js"></script>
+</body>
+</html>
