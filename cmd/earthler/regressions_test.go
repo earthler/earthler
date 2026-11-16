@@ -7,9 +7,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"math/rand"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -21,6 +21,7 @@ import (
 
 	"github.com/earthler/earthler/core/accounts"
 	"github.com/earthler/earthler/core/event"
+	"github.com/earthler/earthler/core/page"
 )
 
 // Each test here is one defect that an independent review of the code
@@ -62,8 +63,16 @@ func TestAMessageCannotWriteToTheLiveStream(t *testing.T) {
 // that only wants a number. The server must not read it, because a file
 // part is kept in the temporary folder and could fill the disk of the
 // journal.
+//
+// What counts is what the server reads from its connection. What the client
+// manages to send says nothing: the operating system takes in as much as its
+// buffers hold before anyone reads, and how much that is changes from one
+// machine and one run to another.
 func TestAFileSentToDeleteIsNeverRead(t *testing.T) {
-	s := startSite(t, t.TempDir())
+	var read atomic.Int64
+	s := startSiteOn(t, t.TempDir(), func(l net.Listener) net.Listener {
+		return countingListener{l, &read}
+	})
 	v := newVisitor(t)
 	v.signUp(s, "Ana")
 
@@ -74,11 +83,11 @@ func TestAFileSentToDeleteIsNeverRead(t *testing.T) {
 	mw.WriteField("number", "1")
 	mw.Close()
 	size := int64(body.Len())
-	var read atomic.Int64
-	req, _ := http.NewRequest("POST", s.srv.URL+"/chat/delete", countingReader{&body, &read})
+	req, _ := http.NewRequest("POST", s.srv.URL+"/chat/delete", &body)
 	req.ContentLength = size
 	req.Header.Set("Content-Type", mw.FormDataContentType())
 	req.Header.Set("Origin", s.srv.URL)
+	before := read.Load()
 	res, err := v.client.Do(req)
 	if err != nil {
 		// The server may close the connection once it has answered.
@@ -89,19 +98,33 @@ func TestAFileSentToDeleteIsNeverRead(t *testing.T) {
 			t.Fatalf("status %d for a body with a file", res.StatusCode)
 		}
 	}
-	time.Sleep(200 * time.Millisecond) // the client may still be sending when the server answered
-	if got := read.Load(); got > 1<<20 {
-		t.Fatalf("the server read %d MB of a body it was never going to use", got>>20)
+	s.srv.Close() // waits for every request, so nothing reads after this
+	if got := read.Load() - before; got > page.MaxForm {
+		t.Fatalf("the server read %d KB of a body it was never going to use", got>>10)
 	}
 }
 
-type countingReader struct {
-	r io.Reader
+// countingListener counts every byte the server reads from its connections.
+type countingListener struct {
+	net.Listener
 	n *atomic.Int64
 }
 
-func (c countingReader) Read(p []byte) (int, error) {
-	n, err := c.r.Read(p)
+func (l countingListener) Accept() (net.Conn, error) {
+	c, err := l.Listener.Accept()
+	if err != nil {
+		return c, err
+	}
+	return countingConn{c, l.n}, nil
+}
+
+type countingConn struct {
+	net.Conn
+	n *atomic.Int64
+}
+
+func (c countingConn) Read(p []byte) (int, error) {
+	n, err := c.Conn.Read(p)
 	c.n.Add(int64(n))
 	return n, err
 }
