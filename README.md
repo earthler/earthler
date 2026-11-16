@@ -34,7 +34,7 @@ The full text is in the [manifesto](MANIFESTO.md).
 
 The first pieces of the system: the journal that everything is derived from and the indexes rebuilt from it; accounts, an open channel that shows what people write as they write it, and search; roles, with one table that says who may do what, and a log of what administrators and moderators did; deletion that takes a text out of the journal for good; HTTPS with a certificate the community creates for itself; encrypted copies of the data, with a second machine that keeps one up to date; and more machines in one community, each writing its own journal and following the others live, so a resident sees the same on any of them. It has no passphrase and protects nothing personal yet, so it must not be used to run a community.
 
-[`MAP.md`](MAP.md) says where everything is, and [`docs/design`](docs/design) says why each part is the way it is.
+[`MAP.md`](MAP.md) says where everything is, [`docs/design`](docs/design) says why each part is the way it is, and [`docs/product`](docs/product) shows every screen people will see and how each one behaves, drawn in light and dark mode in [`docs/screens`](docs/screens).
 
 [`experiments/`](experiments) holds small, disposable programs that test the riskiest parts of the design on real devices before the system is built on top of them. The first one is the [access proof](experiments/access-proof).
 
